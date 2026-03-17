@@ -638,9 +638,7 @@ export default function App() {
   }, [firebaseUser]);
 
   useEffect(() => {
-    if (firestoreLists.length > 0) {
-      setLists(firestoreLists);
-    }
+    setLists(firestoreLists);
   }, [firestoreLists]);
 
   const updateList = useCallback((id, fn) => {
@@ -710,10 +708,9 @@ export default function App() {
   },[selId,updateList]);
 
   const createList = useCallback(async (data) => {
-    const newData = { ...data, memberIds: [firebaseUser.uid] };
+    const memberIds = [firebaseUser.uid, ...( data.members || []).filter(m => m !== firebaseUser.uid)];
+    const newData = { ...data, memberIds };
     const id = await createListInDB(newData);
-    const listWithId = { ...newData, id };
-    setLists(prev => [...prev, listWithId]);
     setSelId(id);
     setView('list');
     pushActivity(currentUser.id, 'created list', data.name, data.name);
