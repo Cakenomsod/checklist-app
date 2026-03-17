@@ -50,21 +50,28 @@ export async function sendFriendRequest(currentUser, targetUser) {
 }
 
 export async function acceptFriendRequest(currentUser, requester) {
-  // เพิ่ม friend ทั้ง 2 ฝั่ง
-  await setDoc(doc(db, "users", currentUser.id, "friends", requester.uid), {
-    uid: requester.uid,
-    name: requester.name,
-    avatar: requester.avatar,
-    email: requester.email,
-  });
-  await setDoc(doc(db, "users", requester.uid, "friends", currentUser.id), {
-    uid: currentUser.id,
-    name: currentUser.name,
-    avatar: currentUser.avatar,
-    email: currentUser.email,
-  });
-  // ลบ request ทิ้ง
-  await deleteDoc(doc(db, "users", currentUser.id, "friendRequests", requester.uid));
+  try {
+    // เพิ่ม friend ทั้ง 2 ฝั่งพร้อมกัน
+    await Promise.all([
+      setDoc(doc(db, "users", currentUser.id, "friends", requester.uid), {
+        uid: requester.uid,
+        name: requester.name,
+        avatar: requester.avatar || '',
+        email: requester.email || '',
+      }),
+      setDoc(doc(db, "users", requester.uid, "friends", currentUser.id), {
+        uid: currentUser.id,
+        name: currentUser.name,
+        avatar: currentUser.avatar || '',
+        email: currentUser.email || '',
+      }),
+      // ลบ request ทิ้ง
+      deleteDoc(doc(db, "users", currentUser.id, "friendRequests", requester.uid)),
+    ]);
+  } catch (err) {
+    console.error("Accept friend error:", err);
+    throw err;
+  }
 }
 
 export async function declineFriendRequest(currentUid, requesterUid) {
