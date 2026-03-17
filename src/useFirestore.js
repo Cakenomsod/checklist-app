@@ -69,21 +69,26 @@ export async function sendListInvite(currentUser, friendUid, listData) {
 }
 
 export async function acceptListInvite(uid, invite) {
-  // เพิ่ม uid เข้า memberIds ของ list
-  const listRef = doc(db, "lists", invite.listId);
-  const listSnap = await getDoc(listRef);
-  if (listSnap.exists()) {
-    const data = listSnap.data();
-    const memberIds = [...(data.memberIds || [])];
-    const members = [...(data.members || [])];
-    if (!memberIds.includes(uid)) {
-      memberIds.push(uid);
-      members.push(uid);
-      await updateDoc(listRef, { memberIds, members });
+  try {
+    const listRef = doc(db, "lists", invite.listId);
+    const listSnap = await getDoc(listRef);
+    
+    if (!listSnap.exists()) {
+      await deleteDoc(doc(db, "users", uid, "listInvites", invite.listId));
+      return;
     }
+
+    const data = listSnap.data();
+    const memberIds = [...new Set([...(data.memberIds || []), uid])];
+    const members = [...new Set([...(data.members || []), uid])];
+
+    // ใช้ setDoc แทน updateDoc ครับ
+    await setDoc(listRef, { ...data, memberIds, members });
+    await deleteDoc(doc(db, "users", uid, "listInvites", invite.listId));
+  } catch (err) {
+    console.error("acceptListInvite error:", err);
+    throw err;
   }
-  // ลบ invite ทิ้ง
-  await deleteDoc(doc(db, "users", uid, "listInvites", invite.listId));
 }
 
 export async function declineListInvite(uid, listId) {
