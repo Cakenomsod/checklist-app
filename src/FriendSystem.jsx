@@ -59,16 +59,22 @@ export default function FriendPanel({ currentUser, dark, onClose }) {
   const isFriend = (uid) => friends.some(f => f.uid === uid);
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 1000, padding: 16
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 1000, padding: 16
     }}>
-      <div style={{
-        background: bg, borderRadius: 20, padding: 28,
-        width: '100%', maxWidth: 420, maxHeight: '80vh',
-        overflow: 'auto', position: 'relative'
-      }}>
+
+    <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: bg, borderRadius: 20, padding: 28,
+          width: '100%', maxWidth: 420, maxHeight: '80vh',
+          overflow: 'auto', position: 'relative'
+    }}>
+        
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <h2 style={{ fontFamily: 'Fraunces,serif', fontSize: 22, color: txt, margin: 0 }}>Friends</h2>

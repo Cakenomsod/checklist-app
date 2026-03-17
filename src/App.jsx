@@ -510,39 +510,57 @@ const AISuggestions = ({listName,dark,onAddTask,onClose}) => {
 };
 
 // ── Leaderboard ───────────────────────────────────────────────────────────────
-const LeaderboardView = ({lists,dark}) => {
-  const txt=dark?'#f0f0f0':'#0a0a0a', muted=dark?'#777':'#aaa';
-  const surface=dark?'#1a1a1a':'#fff', bdr=dark?'#2a2a2a':'#f0f0f0';
-  const scores=USERS.map(u=>{
-    const completed=lists.flatMap(l=>l.tasks).filter(t=>t.completedBy===u.id).length;
-    const created=lists.flatMap(l=>l.tasks).filter(t=>t.createdBy===u.id).length;
-    return{...u,completed,created,score:completed*3+created};
-  }).sort((a,b)=>b.score-a.score);
-  const medals=['🥇','🥈','🥉'];
+const LeaderboardView = ({lists, dark, friends, currentUser}) => {
+  const txt=dark?'#f0f0f0':'#0a0a0a', bg=dark?'#1a1a1a':'#fff';
+  const muted=dark?'#666':'#aaa', bdr=dark?'#2a2a2a':'#efefef';
+
+  // รวม currentUser + friends เพื่อแสดงใน leaderboard
+  const people = [currentUser, ...friends.map(f => ({
+    id: f.uid, name: f.name, avatar: f.avatar
+  }))];
+
+  const scores = people.map(person => {
+    const completed = lists.flatMap(l => l.tasks)
+      .filter(t => t.completedBy === person.id).length;
+    const added = lists.flatMap(l => l.tasks)
+      .filter(t => t.createdBy === person.id).length;
+    return { ...person, completed, added, score: completed * 2 + added };
+  }).sort((a, b) => b.score - a.score);
+
+  const medals = ['🥇','🥈','🥉'];
+
   return (
-    <div style={{padding:28,animation:'fadeUp .2s ease-out'}}>
-      <div style={{display:'flex',alignItems:'baseline',gap:12,marginBottom:4}}>
-        <h2 style={{fontFamily:'Fraunces,serif',fontSize:32,color:txt}}>Leaderboard</h2>
-        <span style={{fontSize:28}}>🏆</span>
-      </div>
-      <p style={{color:muted,fontFamily:'Epilogue,sans-serif',fontSize:14,marginBottom:24}}>Who's crushing their to-dos?</p>
-      <div style={{display:'flex',flexDirection:'column',gap:10,maxWidth:560}}>
-        {scores.map((u,i)=>(
-          <div key={u.id} style={{background:i===0?u.color:surface,border:`1.5px solid ${i===0?'transparent':bdr}`,borderRadius:14,padding:'16px 20px',display:'flex',alignItems:'center',gap:14,transform:i===0?'scale(1.01)':'none'}}>
-            <span style={{fontSize:26,minWidth:30}}>{medals[i]||`#${i+1}`}</span>
-            <Avatar userId={u.id} size={42}/>
-            <div style={{flex:1}}>
-              <div style={{fontFamily:'Epilogue,sans-serif',fontWeight:600,color:i===0?'#0a0a0a':txt,fontSize:16}}>{u.name}</div>
-              <div style={{fontFamily:'Epilogue,sans-serif',color:i===0?'rgba(0,0,0,.5)':muted,fontSize:12}}>{u.completed} completed · {u.created} created</div>
-            </div>
-            <div style={{background:'#0a0a0a',color:'#fafafa',borderRadius:20,padding:'5px 16px',fontFamily:'Fraunces,serif',fontSize:20,fontWeight:700}}>{u.score}</div>
+    <div style={{padding:'28px',maxWidth:520}}>
+      <h2 style={{fontFamily:'Fraunces,serif',fontSize:26,color:txt,marginBottom:4}}>Leaderboard 🏆</h2>
+      <p style={{color:muted,fontSize:13,fontFamily:'Epilogue,sans-serif',marginBottom:24}}>คะแนนจากการทำและสร้าง tasks</p>
+      {scores.map((s, i) => (
+        <div key={s.id} style={{
+          background:bg, border:`1.5px solid ${bdr}`, borderRadius:14,
+          padding:'14px 18px', marginBottom:10,
+          display:'flex', alignItems:'center', gap:14
+        }}>
+          <div style={{fontSize:22, width:28}}>{medals[i] || `${i+1}`}</div>
+          {s.avatar
+            ? <img src={s.avatar} style={{width:38,height:38,borderRadius:'50%'}} alt=""/>
+            : <div style={{width:38,height:38,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>👤</div>
+          }
+          <div style={{flex:1}}>
+            <div style={{fontWeight:600,fontSize:15,color:txt}}>{s.name}</div>
+            <div style={{fontSize:12,color:muted}}>✅ {s.completed} completed · ➕ {s.added} added</div>
           </div>
-        ))}
-      </div>
-      <p style={{color:muted,fontFamily:'Epilogue,sans-serif',fontSize:11,marginTop:16}}>Score = 3 pts per completion + 1 pt per task created</p>
+          <div style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt,fontWeight:700}}>{s.score}</div>
+        </div>
+      ))}
+      {scores.length === 0 && (
+        <div style={{textAlign:'center',padding:'44px 0',color:muted}}>
+          <div style={{fontSize:40,marginBottom:10}}>🏆</div>
+          <p style={{fontFamily:'Epilogue,sans-serif',fontSize:14}}>เพิ่ม friend และทำ tasks เพื่อดู leaderboard</p>
+        </div>
+      )}
     </div>
   );
 };
+
 
 // ── Activity Feed ─────────────────────────────────────────────────────────────
 const ActivityView = ({activity,dark}) => {
@@ -819,7 +837,7 @@ export default function App() {
 
         {/* ── MAIN ─────────────────────── */}
         <div style={{flex:1,overflow:'auto'}}>
-          {view==='leaderboard'&&<LeaderboardView lists={lists} dark={dark}/>}
+          {view==='leaderboard'&&<LeaderboardView lists={lists} dark={dark} friends={friends} currentUser={currentUser}/>}
           {view==='activity'&&<ActivityView activity={activity} dark={dark}/>}
 
           {view==='list'&&!sel&&(
