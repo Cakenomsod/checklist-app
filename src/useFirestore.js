@@ -55,3 +55,50 @@ export async function deleteListInDB(listId) {
   }
 }
 
+// ── List Invites ──────────────────────────────────────────────────────────────
+
+export async function sendListInvite(currentUser, friendUid, listData) {
+  await setDoc(doc(db, "users", friendUid, "listInvites", listData.id), {
+    listId: listData.id,
+    listName: listData.name,
+    listColor: listData.color,
+    invitedBy: currentUser.name,
+    invitedByUid: currentUser.id,
+    sentAt: serverTimestamp(),
+  });
+}
+
+export async function acceptListInvite(uid, invite) {
+  // เพิ่ม uid เข้า memberIds ของ list
+  const listRef = doc(db, "lists", invite.listId);
+  const listSnap = await getDoc(listRef);
+  if (listSnap.exists()) {
+    const data = listSnap.data();
+    const memberIds = [...(data.memberIds || [])];
+    const members = [...(data.members || [])];
+    if (!memberIds.includes(uid)) {
+      memberIds.push(uid);
+      members.push(uid);
+      await updateDoc(listRef, { memberIds, members });
+    }
+  }
+  // ลบ invite ทิ้ง
+  await deleteDoc(doc(db, "users", uid, "listInvites", invite.listId));
+}
+
+export async function declineListInvite(uid, listId) {
+  await deleteDoc(doc(db, "users", uid, "listInvites", listId));
+}
+
+export function useListInvites(uid) {
+  const [invites, setInvites] = useState([]);
+  useEffect(() => {
+    if (!uid) return;
+    const unsub = onSnapshot(
+      collection(db, "users", uid, "listInvites"),
+      snap => setInvites(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    );
+    return () => unsub();
+  }, [uid]);
+  return invites;
+}

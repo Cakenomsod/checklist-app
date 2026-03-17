@@ -4,7 +4,7 @@ import { auth } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import Login from "./login";
 
-import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB } from "./useFirestore";
+import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite } from "./useFirestore";
 import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
 
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
@@ -368,15 +368,15 @@ const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => 
     );
   };
 
-  const handleCreate=()=>{
-    if(!name.trim()) return;
-    const memberIds=[currentUser.id,...selectedFriends];
-    const members=memberIds;
+  const handleCreate = () => {
+    if (!name.trim()) return;
+    const memberIds = [currentUser.id];
     onCreate({
-      id:genId(), name:name.trim(), category:cat, color,
-      isPrivate, isGroup:isGroup||selectedFriends.length>0,
-      members, memberIds,
-      createdBy:currentUser.id, createdAt:ts(), tasks:[]
+      id: genId(), name: name.trim(), category: cat, color,
+      isPrivate, isGroup: isGroup || selectedFriends.length > 0,
+      members: memberIds, memberIds,
+      selectedFriends, // ส่ง selectedFriends ออกไปด้วย
+      createdBy: currentUser.id, createdAt: ts(), tasks: []
     });
     onClose();
   };
@@ -615,6 +615,7 @@ export default function App() {
   const [expandAdd,setExpandAdd]=useState(false);
 
   const [showFriends, setShowFriends] = useState(false);
+  const [showInvites, setShowInvites] = useState(false);
   const currentUser = firebaseUser ? {
     id: firebaseUser.uid,
     name: firebaseUser.displayName,
@@ -622,6 +623,7 @@ export default function App() {
     email: firebaseUser.email,
   } : { id: '', name: '', avatar: '', email: '' };
   const friends = useFriends(currentUser.id);
+  const listInvites = useListInvites(currentUser.id);
   const friendRequests = useFriendRequests(currentUser.id);
 
   useEffect(() => {
@@ -708,13 +710,16 @@ export default function App() {
   },[selId,updateList]);
 
   const createList = useCallback(async (data) => {
-    const memberIds = [firebaseUser.uid, ...( data.members || []).filter(m => m !== firebaseUser.uid)];
-    const newData = { ...data, memberIds };
-    const id = await createListInDB(newData);
+    const { selectedFriends: inviteFriends = [], ...listData } = data;
+    const id = await createListInDB(listData);
+    // ส่ง invite ให้เพื่อนที่เลือก
+    for (const friendUid of inviteFriends) {
+      await sendListInvite(currentUser, friendUid, { ...listData, id });
+    }
     setSelId(id);
     setView('list');
     pushActivity(currentUser.id, 'created list', data.name, data.name);
-  }, [firebaseUser, currentUser, pushActivity]);
+  }, [currentUser, pushActivity]);
 
   const deleteList = useCallback((id) => {
     deleteListInDB(id);
@@ -752,6 +757,29 @@ export default function App() {
       <Confetti active={confetti}/>
       {showCreate && <CreateListModal dark={dark} currentUser={currentUser} friends={friends} onClose={()=>setShowCreate(false)} onCreate={createList}/>}      
       {showFriends && <FriendPanel currentUser={currentUser} dark={dark} onClose={() => setShowFriends(false)} />}
+      {showInvites && (
+        <div onClick={() => setShowInvites(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:16}}>
+          <div onClick={e => e.stopPropagation()} style={{background:surface,borderRadius:20,padding:28,width:'100%',maxWidth:420,maxHeight:'80vh',overflow:'auto'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+              <h2 style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt,margin:0}}>📬 List Invites</h2>
+              <button onClick={() => setShowInvites(false)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:muted}}>✕</button>
+            </div>
+            {listInvites.length === 0 && (
+              <div style={{textAlign:'center',padding:'32px 0',color:muted,fontSize:13}}>ไม่มี invite ตอนนี้ครับ</div>
+            )}
+            {listInvites.map(inv => (
+              <div key={inv.listId} style={{background:inv.listColor||'#D6E8FF',borderRadius:14,padding:'14px 16px',marginBottom:10}}>
+                <div style={{fontFamily:'Fraunces,serif',fontSize:16,color:'#0a0a0a',marginBottom:4}}>{inv.listName}</div>
+                <div style={{fontSize:12,color:'rgba(0,0,0,.5)',marginBottom:12}}>invited by {inv.invitedBy}</div>
+                <div style={{display:'flex',gap:8}}>
+                  <button onClick={async () => { await acceptListInvite(firebaseUser.uid, inv); }} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:8,padding:'7px 16px',cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontSize:13,fontWeight:600}}>✓ Join List</button>
+                  <button onClick={async () => { await declineListInvite(firebaseUser.uid, inv.listId); }} style={{background:'rgba(200,50,50,.1)',color:'#c0392b',border:'none',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontSize:13}}>✕ Decline</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {taskDetail&&<TaskDetailModal task={taskDetail} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onReact={reactToTask}/>}
 
       <div style={{display:'flex',height:'100vh',background:bg,fontFamily:'Epilogue,sans-serif',overflow:'hidden'}}>
@@ -816,6 +844,15 @@ export default function App() {
               fontSize:13, display:'flex', alignItems:'center', gap:8, marginTop:8
             }}>
               👥 Friends {friendRequests.length > 0 && <span style={{background:'#e05555',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center'}}>{friendRequests.length}</span>}
+            </button>
+
+            <button onClick={() => setShowInvites(true)} style={{
+              width:'100%', textAlign:'left', background:'none',
+              border:'1px dashed #222', borderRadius:8, padding:'7px 10px',
+              cursor:'pointer', color:'#444', fontFamily:'Epilogue,sans-serif',
+              fontSize:13, display:'flex', alignItems:'center', gap:8, marginTop:4
+            }}>
+              📬 Invites {listInvites.length > 0 && <span style={{background:'#e05555',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center'}}>{listInvites.length}</span>}
             </button>
 
             <button onClick={()=>setShowCreate(true)} style={{width:'100%',textAlign:'left',background:'none',border:'1px dashed #222',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:'#444',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginTop:8}}>
