@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 
 import { auth } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import Login from "./Login";
+import Login from "./login";
 
 import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB } from "./useFirestore";
 import FriendPanel, { useFriends } from "./FriendSystem";
