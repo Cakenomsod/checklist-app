@@ -5,6 +5,8 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
+
+
 export async function saveUserProfile(user) {
   await setDoc(doc(db, "users", user.uid), {
     uid: user.uid,
@@ -106,4 +108,58 @@ export function useListInvites(uid) {
     return () => unsub();
   }, [uid]);
   return invites;
+}
+
+
+// ── Activity Feed ─────────────────────────────────────────────────────────────
+
+export async function pushActivityToDB(uid, activity) {
+  try {
+    await addDoc(collection(db, "users", uid, "activity"), {
+      ...activity,
+      createdAt: serverTimestamp(),
+    });
+  } catch (err) {
+    console.error("pushActivity error:", err);
+  }
+}
+
+export function useActivity(uid, friendIds = []) {
+  const [activity, setActivity] = useState([]);
+  useEffect(() => {
+    if (!uid) return;
+    // ดึง activity ของตัวเองก่อน
+    const unsub = onSnapshot(
+      query(
+        collection(db, "users", uid, "activity"),
+        where("createdAt", "!=", null)
+      ),
+      async (snap) => {
+        const myActivity = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // ดึง activity ของ friends ด้วย
+        const friendActivity = [];
+        for (const fid of friendIds.slice(0, 5)) { // จำกัดแค่ 5 friends
+          try {
+            const { getDocs: gd, collection: col, query: q, limit: lim } = await import("firebase/firestore");
+            const fSnap = await gd(q(col(db, "users", fid, "activity"), lim(20)));
+            fSnap.docs.forEach(d => friendActivity.push({ id: d.id, ...d.data() }));
+          } catch {}
+        }
+
+        // รวมและเรียง
+        const all = [...myActivity, ...friendActivity]
+          .sort((a, b) => {
+            const ta = a.createdAt?.toMillis?.() || 0;
+            const tb = b.createdAt?.toMillis?.() || 0;
+            return tb - ta;
+          })
+          .slice(0, 50);
+
+        setActivity(all);
+      }
+    );
+    return () => unsub();
+  }, [uid, friendIds.join(',')]);
+  return activity;
 }

@@ -4,7 +4,7 @@ import { auth } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import Login from "./login";
 
-import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite } from "./useFirestore";
+import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite, pushActivityToDB, useActivity } from "./useFirestore";
 import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
 
 import ProfileModal from "./ProfileModal";
@@ -330,7 +330,9 @@ const TaskDetailModal = ({task,currentUser,dark,onClose,onUpdate,onReact}) => {
                     <div style={{flex:1}}>
                       <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:4}}>
                         <span style={{fontSize:13,fontWeight:600,color:txt,fontFamily:'Epilogue,sans-serif'}}>{u.name}</span>
-                        <span style={{fontSize:11,color:muted}}>{timeAgo(c.createdAt)}</span>
+                        <span style={{fontSize:11,color:muted}}>
+                          {a.createdAt?.toMillis ? timeAgo(new Date(a.createdAt.toMillis()).toISOString()) : timeAgo(a.createdAt)}
+                        </span>
                       </div>
                       <div style={{background:dark?'#252525':'#f5f5f5',borderRadius:'4px 12px 12px 12px',padding:'8px 12px'}}>
                         <p style={{fontSize:13,color:txt,fontFamily:'Epilogue,sans-serif',margin:0}}>{c.text}</p>
@@ -685,28 +687,46 @@ const LeaderboardView = ({lists, dark, friends, currentUser}) => {
 
 
 // ── Activity Feed ─────────────────────────────────────────────────────────────
-const ActivityView = ({activity,dark}) => {
+const ActivityView = ({activity, dark, currentUser, friends}) => {
   const txt=dark?'#f0f0f0':'#0a0a0a', muted=dark?'#777':'#aaa', bdr=dark?'#2a2a2a':'#f0f0f0';
   const actionColor=(a)=>a==='completed'?'#2f8a55':a==='added'?'#2a5fb0':'#888';
+
+  const getActivityUser = (userId) => {
+    if (userId === currentUser.id) return currentUser;
+    const friend = friends.find(f => f.uid === userId);
+    if (friend) return { id: friend.uid, name: friend.name, avatar: friend.avatar };
+    return { id: userId, name: 'Someone', avatar: null };
+  };
+
   return (
     <div style={{padding:28,animation:'fadeUp .2s ease-out'}}>
       <h2 style={{fontFamily:'Fraunces,serif',fontSize:32,color:txt,marginBottom:4}}>Activity</h2>
       <p style={{color:muted,fontFamily:'Epilogue,sans-serif',fontSize:14,marginBottom:28}}>Everything happening across your lists</p>
       <div style={{maxWidth:520}}>
+        {activity.length === 0 && (
+          <div style={{textAlign:'center',padding:'44px 0',color:muted}}>
+            <div style={{fontSize:40,marginBottom:10}}>⚡</div>
+            <p style={{fontFamily:'Epilogue,sans-serif',fontSize:14}}>ยังไม่มี activity ลองสร้าง list หรือเพิ่ม task ดูครับ</p>
+          </div>
+        )}
         {activity.map((a,i)=>{
-          const u=getUser(a.userId);
+          const u = getActivityUser(a.userId);
           return (
             <div key={a.id} style={{display:'flex',gap:12,marginBottom:18,position:'relative'}}>
               {i<activity.length-1&&<div style={{position:'absolute',left:14,top:32,bottom:-10,width:1.5,background:bdr}}/>}
-              <Avatar userId={a.userId} size={30}/>
+              {u.avatar
+                ? <img src={u.avatar} style={{width:30,height:30,borderRadius:'50%',flexShrink:0}} alt=""/>
+                : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>👤</div>
+              }
               <div style={{paddingTop:3}}>
-                <span style={{fontFamily:'Epilogue,sans-serif',fontSize:14,color:txt}}>
-                  <strong>{u.name}</strong>{' '}
-                  <span style={{color:actionColor(a.action)}}>{a.action}</span>{' '}
-                  <em style={{color:muted}}>"{a.target}"</em>{' in '}
-                  <span style={{fontWeight:500}}>{a.listName}</span>
-                </span>
-                <div style={{fontSize:11,color:muted,fontFamily:'Epilogue,sans-serif',marginTop:2}}>{timeAgo(a.createdAt)}</div>
+                <p style={{fontFamily:'Epilogue,sans-serif',fontSize:13,color:txt,margin:'0 0 2px'}}>
+                  <strong>{u.name}</strong>
+                  <span style={{color:actionColor(a.action)}}> {a.action} </span>
+                  <span style={{fontStyle:'italic'}}>"{a.target}"</span>
+                </p>
+                <p style={{fontFamily:'Epilogue,sans-serif',fontSize:11,color:muted,margin:0}}>
+                  {a.listName} · {a.createdAt?.toMillis ? timeAgo(new Date(a.createdAt.toMillis()).toISOString()) : timeAgo(a.createdAt)}
+                </p>
               </div>
             </div>
           );
@@ -716,12 +736,15 @@ const ActivityView = ({activity,dark}) => {
   );
 };
 
+
+
+
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App() {
   const [firebaseUser, setFirebaseUser] = useState(undefined);
   const firestoreLists = useLists(firebaseUser?.uid ?? null);
   const [lists, setLists] = useState([]);
-  const [activity,setActivity]=useState(SAMPLE_ACTIVITY);
+  const [activity, setActivity] = useState([]);
   const [selId,setSelId]=useState('list1');
   const [dark,setDark]=useState(false);
   const [view,setView]=useState('list');
@@ -753,6 +776,8 @@ export default function App() {
   const friends = useFriends(currentUser.id);
   const listInvites = useListInvites(currentUser.id);
   const friendRequests = useFriendRequests(currentUser.id);
+  const friendIds = friends.map(f => f.uid);
+  const firestoreActivity = useActivity(firebaseUser?.uid, friendIds);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -771,6 +796,12 @@ export default function App() {
     setLists(firestoreLists);
   }, [firestoreLists]);
 
+  useEffect(() => {
+    if (firestoreActivity.length > 0) {
+      setActivity(firestoreActivity);
+    }
+  }, [firestoreActivity]);
+
   const updateList = useCallback((id, fn) => {
     setLists(prev => {
       const updated = prev.map(l => l.id === id ? fn(l) : l);
@@ -780,12 +811,14 @@ export default function App() {
     });
   }, []);
 
-  const pushActivity=useCallback((userId,action,target,listName)=>{
-    setActivity(prev=>{
-      const na=[{id:genId(),userId,action,target,listName,createdAt:ts()},...prev].slice(0,50);
-      return na;
-    });
-  },[]);
+  const pushActivity = useCallback((userId, action, target, listName) => {
+    const item = { id: genId(), userId, action, target, listName, createdAt: new Date().toISOString() };
+    setActivity(prev => [item, ...prev].slice(0, 50));
+    // เก็บลง Firestore ด้วย
+    if (firebaseUser?.uid) {
+      pushActivityToDB(firebaseUser.uid, { userId, action, target, listName });
+    }
+  }, [firebaseUser]);
 
   const sel=lists.find(l=>l.id===selId);
 
@@ -1097,7 +1130,7 @@ export default function App() {
         {/* ── MAIN ─────────────────────── */}
         <div style={{flex:1,overflow:'auto'}}>
           {view==='leaderboard'&&<LeaderboardView lists={lists} dark={dark} friends={friends} currentUser={currentUser}/>}
-          {view==='activity'&&<ActivityView activity={activity} dark={dark}/>}
+          {view==='activity'&&<ActivityView activity={activity} dark={dark} currentUser={currentUser} friends={friends}/>}
 
           {view==='list'&&!sel&&(
             <div style={{height:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,color:muted}}>
