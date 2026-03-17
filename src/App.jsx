@@ -7,6 +7,8 @@ import Login from "./login";
 import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite } from "./useFirestore";
 import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
 
+import ProfileModal from "./ProfileModal";
+
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
 const USERS = [
   { id:'way',  name:'Way',  avatar:'🌿', color:'#D6FFE4' },
@@ -350,6 +352,126 @@ const TaskDetailModal = ({task,currentUser,dark,onClose,onUpdate,onReact}) => {
   );
 };
 
+
+
+const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) => {
+  const [name, setName] = useState(list.name);
+  const [cat, setCat] = useState(list.category);
+  const [color, setColor] = useState(list.color);
+  const [isPrivate, setIsPrivate] = useState(list.isPrivate);
+  const [selectedFriends, setSelectedFriends] = useState(
+    (list.memberIds || []).filter(id => id !== currentUser.id)
+  );
+
+  const txt = dark?'#f0f0f0':'#0a0a0a', bg = dark?'#1a1a1a':'#fff';
+  const bdr = dark?'#2a2a2a':'#efefef', muted = dark?'#666':'#aaa';
+
+  const toggleFriend = (uid) => {
+    setSelectedFriends(prev =>
+      prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]
+    );
+  };
+
+  const handleSave = () => {
+    if (!name.trim()) return;
+    const memberIds = [currentUser.id, ...selectedFriends];
+    onSave({
+      ...list,
+      name: name.trim(),
+      category: cat,
+      color,
+      isPrivate,
+      isGroup: selectedFriends.length > 0,
+      members: memberIds,
+      memberIds,
+    });
+  };
+
+  return (
+    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:16}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:bg,borderRadius:20,padding:28,width:'100%',maxWidth:400,maxHeight:'85vh',overflow:'auto'}}>
+
+        {/* Header */}
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+          <h2 style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt,margin:0}}>Edit List</h2>
+          <button onClick={onClose} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:muted}}>✕</button>
+        </div>
+
+        {/* Name */}
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>LIST NAME</div>
+          <input value={name} onChange={e=>setName(e.target.value)}
+            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1.5px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14,outline:'none',boxSizing:'border-box'}}/>
+        </div>
+
+        {/* Category */}
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>CATEGORY</div>
+          <select value={cat} onChange={e=>setCat(e.target.value)}
+            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1.5px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14,outline:'none'}}>
+            {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+
+        {/* Color */}
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>COLOR</div>
+          <div style={{display:'flex',gap:8}}>
+            {PASTEL_COLORS.map(c=>(
+              <button key={c} onClick={()=>setColor(c)} style={{width:28,height:28,borderRadius:'50%',background:c,border:color===c?'2.5px solid #0a0a0a':'2px solid transparent',cursor:'pointer'}}/>
+            ))}
+          </div>
+        </div>
+
+        {/* Private toggle */}
+        <div style={{marginBottom:14,display:'flex',alignItems:'center',gap:10}}>
+          <button onClick={()=>setIsPrivate(!isPrivate)} style={{
+            width:38,height:22,borderRadius:11,border:'none',cursor:'pointer',
+            background:isPrivate?'#0a0a0a':'#ddd',position:'relative',transition:'background .2s'
+          }}>
+            <div style={{position:'absolute',top:3,left:isPrivate?18:3,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s'}}/>
+          </button>
+          <span style={{fontSize:13,color:txt}}>🔒 Private (เฉพาะคุณเห็น)</span>
+        </div>
+
+        {/* Members */}
+        {!isPrivate && friends.length > 0 && (
+          <div style={{marginBottom:14}}>
+            <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>MEMBERS</div>
+            {friends.map(f=>(
+              <div key={f.uid} onClick={()=>toggleFriend(f.uid)} style={{
+                display:'flex',alignItems:'center',gap:10,padding:'8px 10px',
+                borderRadius:10,cursor:'pointer',marginBottom:4,
+                background:selectedFriends.includes(f.uid)?(dark?'#252525':'#f0f0f0'):'transparent'
+              }}>
+                {f.avatar
+                  ? <img src={f.avatar} style={{width:30,height:30,borderRadius:'50%'}} alt=""/>
+                  : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>👤</div>
+                }
+                <span style={{flex:1,fontSize:13,color:txt}}>{f.name}</span>
+                {selectedFriends.includes(f.uid)
+                  ? <span style={{color:'#2f8a55',fontWeight:700}}>✓</span>
+                  : <span style={{color:muted,fontSize:12}}>+ Add</span>
+                }
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Save */}
+        <button onClick={handleSave} style={{
+          width:'100%',padding:'12px',borderRadius:12,background:'#0a0a0a',
+          color:'#fafafa',border:'none',cursor:'pointer',fontFamily:'Epilogue,sans-serif',
+          fontSize:15,fontWeight:600,marginTop:4
+        }}>Save Changes</button>
+
+      </div>
+    </div>
+  );
+};
+
+
+
 // ── Create List Modal ─────────────────────────────────────────────────────────
 const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => {
   const [name,setName]=useState('');
@@ -616,6 +738,8 @@ export default function App() {
 
   const [showFriends, setShowFriends] = useState(false);
   const [showInvites, setShowInvites] = useState(false);
+  const [editingList, setEditingList] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
 
   const [sidebarWidth, setSidebarWidth] = useState(212);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -761,6 +885,29 @@ export default function App() {
       <style>{GCSS}</style>
       <Confetti active={confetti}/>
       {showCreate && <CreateListModal dark={dark} currentUser={currentUser} friends={friends} onClose={()=>setShowCreate(false)} onCreate={createList}/>}      
+      {editingList && (
+        <EditListModal
+          dark={dark}
+          currentUser={currentUser}
+          friends={friends}
+          list={editingList}
+          onClose={() => setEditingList(null)}
+          onSave={(updated) => {
+            updateList(updated.id, () => updated);
+            setEditingList(null);
+          }}
+        />
+      )}
+      {showProfile && (
+        <ProfileModal
+          currentUser={currentUser}
+          dark={dark}
+          onClose={() => setShowProfile(false)}
+          onUpdate={(updated) => {
+            setShowProfile(false);
+          }}
+        />
+      )}
       {showFriends && <FriendPanel currentUser={currentUser} dark={dark} onClose={() => setShowFriends(false)} />}
       {showInvites && (
         <div onClick={() => setShowInvites(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:16}}>
@@ -814,7 +961,12 @@ export default function App() {
           </div>
 
           {/* User */}
-          <div style={{padding:'12px 16px',borderBottom:'1px solid #ffffff0a',display:'flex',alignItems:'center',gap:10}}>
+          <div
+            onClick={() => setShowProfile(true)}
+            style={{padding:'12px 16px',borderBottom:'1px solid #ffffff0a',display:'flex',alignItems:'center',gap:10,cursor:'pointer',transition:'background .15s'}}
+            onMouseEnter={e => e.currentTarget.style.background='#ffffff08'}
+            onMouseLeave={e => e.currentTarget.style.background='transparent'}
+          >
             <Avatar userId={currentUser.id} size={32}/>
             <div>
               <div style={{fontFamily:'Epilogue,sans-serif',fontWeight:600,fontSize:13,color:'#fafafa'}}>{currentUser.name}</div>
@@ -987,6 +1139,7 @@ export default function App() {
                       <option value="deadline">Deadline</option>
                       <option value="completion">Completion</option>
                     </select>
+                    <button onClick={()=>setEditingList(sel)} style={{background:'rgba(0,0,0,.08)',border:'none',borderRadius:8,padding:'6px 11px',cursor:'pointer',fontSize:12,color:'#333',fontFamily:'Epilogue,sans-serif'}}>Edit</button>
                     <button onClick={()=>deleteList(sel.id)} style={{background:'rgba(200,50,50,.14)',border:'none',borderRadius:8,padding:'6px 11px',cursor:'pointer',fontSize:12,color:'#c0392b',fontFamily:'Epilogue,sans-serif'}}>Delete list</button>
                   </div>
                 </div>
