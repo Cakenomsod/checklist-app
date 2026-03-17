@@ -5,7 +5,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import Login from "./login";
 
 import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB } from "./useFirestore";
-import FriendPanel, { useFriends } from "./FriendSystem";
+import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
 
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
 const USERS = [
@@ -622,6 +622,7 @@ export default function App() {
     email: firebaseUser.email,
   } : { id: '', name: '', avatar: '', email: '' };
   const friends = useFriends(currentUser.id);
+  const friendRequests = useFriendRequests(currentUser.id);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -817,12 +818,13 @@ export default function App() {
               cursor:'pointer', color:'#444', fontFamily:'Epilogue,sans-serif',
               fontSize:13, display:'flex', alignItems:'center', gap:8, marginTop:8
             }}>
-              👥 Friends
+              👥 Friends {friendRequests.length > 0 && <span style={{background:'#e05555',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center'}}>{friendRequests.length}</span>}
             </button>
 
             <button onClick={()=>setShowCreate(true)} style={{width:'100%',textAlign:'left',background:'none',border:'1px dashed #222',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:'#444',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginTop:8}}>
               ＋ New List
             </button>
+
           </div>
 
           {/* Bottom */}
