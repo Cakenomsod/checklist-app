@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 
 import { auth } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -616,6 +616,10 @@ export default function App() {
 
   const [showFriends, setShowFriends] = useState(false);
   const [showInvites, setShowInvites] = useState(false);
+
+  const [sidebarWidth, setSidebarWidth] = useState(212);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const isResizing = useRef(false);
   const currentUser = firebaseUser ? {
     id: firebaseUser.uid,
     name: firebaseUser.displayName,
@@ -747,6 +751,7 @@ export default function App() {
 
   // Theme vars
   const bg=dark?'#111':'#f8f8f8', txt=dark?'#f0f0f0':'#0a0a0a';
+  const effectiveSidebarWidth = sidebarCollapsed ? 0 : sidebarWidth;
   const muted=dark?'#666':'#aaa', bdr=dark?'#2a2a2a':'#efefef';
   const surface=dark?'#1a1a1a':'#fff';
   const personal=lists.filter(l=>!l.isGroup), group=lists.filter(l=>l.isGroup);
@@ -782,10 +787,21 @@ export default function App() {
       )}
       {taskDetail&&<TaskDetailModal task={taskDetail} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onReact={reactToTask}/>}
 
-      <div style={{display:'flex',height:'100vh',background:bg,fontFamily:'Epilogue,sans-serif',overflow:'hidden'}}>
+      <div style={{display:'flex',height:'100vh',background:bg,fontFamily:'Epilogue,sans-serif',overflow:'hidden',position:'relative'}}>
 
         {/* ── SIDEBAR ──────────────────── */}
-        <div style={{width:212,background:'#0a0a0a',display:'flex',flexDirection:'column',flexShrink:0,overflow:'hidden',position:'relative'}}>
+        <div style={{
+          width: effectiveSidebarWidth,
+          minWidth: sidebarCollapsed ? 0 : 160,
+          maxWidth: 400,
+          background:'#0a0a0a',
+          display:'flex',
+          flexDirection:'column',
+          flexShrink:0,
+          overflow:'hidden',
+          position:'relative',
+          transition: isResizing.current ? 'none' : 'width .2s ease'
+        }}>
           {/* Decorative shapes */}
           <div style={{position:'absolute',top:-40,right:-40,width:100,height:100,borderRadius:'50%',background:'#FFD6E00d',pointerEvents:'none'}}/>
           <div style={{position:'absolute',bottom:100,left:-20,width:55,height:55,borderRadius:'50%',background:'#D6FFE40d',pointerEvents:'none'}}/>
@@ -867,10 +883,64 @@ export default function App() {
               <span style={{fontSize:9,color:'#2a2a2a',fontFamily:'Epilogue,sans-serif',letterSpacing:'.05em'}}>CHECKMATE v1.0</span>
               <div style={{display:'flex',gap:6}}>
                 <button onClick={()=>signOut(auth)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:11}}>Sign out</button>
+                <button onClick={()=>setSidebarCollapsed(!sidebarCollapsed)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:13}}>{sidebarCollapsed ? '→' : '←'}</button>
                 <button onClick={()=>setDark(!dark)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:13}}>{dark?'☀️':'🌙'}</button>
               </div>
             </div>
+            
+
+            {/* Resize Handle */}
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                isResizing.current = true;
+                const startX = e.clientX;
+                const startWidth = sidebarWidth;
+                const onMove = (ev) => {
+                  const newWidth = startWidth + (ev.clientX - startX);
+                  if (newWidth < 80) {
+                    setSidebarCollapsed(true);
+                  } else {
+                    setSidebarCollapsed(false);
+                    setSidebarWidth(Math.min(400, Math.max(160, newWidth)));
+                  }
+                };
+                const onUp = () => {
+                  isResizing.current = false;
+                  window.removeEventListener('mousemove', onMove);
+                  window.removeEventListener('mouseup', onUp);
+                };
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+              }}
+              style={{
+                position:'absolute', right:0, top:0, bottom:0,
+                width:4, cursor:'col-resize',
+                background:'transparent',
+                zIndex:10,
+              }}
+              onMouseEnter={e => e.currentTarget.style.background='#ffffff20'}
+              onMouseLeave={e => e.currentTarget.style.background='transparent'}
+            />
+
             </div>
+
+
+            {sidebarCollapsed && (
+              <button
+                onClick={() => setSidebarCollapsed(false)}
+                style={{
+                  position:'absolute', left:0, top:'50%', transform:'translateY(-50%)',
+                  background:'#0a0a0a', color:'#fafafa', border:'none',
+                  borderRadius:'0 8px 8px 0', padding:'12px 6px',
+                  cursor:'pointer', fontSize:14, zIndex:20,
+                  writingMode:'vertical-rl'
+                }}
+              >
+                ☰
+              </button>
+            )}
+
 
         {/* ── MAIN ─────────────────────── */}
         <div style={{flex:1,overflow:'auto'}}>
