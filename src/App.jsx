@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 
+import { auth } from "./firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import Login from "./Login";
+
+import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB } from "./useFirestore";
+import FriendPanel, { useFriends } from "./FriendSystem";
+
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
 const USERS = [
   { id:'way',  name:'Way',  avatar:'🌿', color:'#D6FFE4' },
@@ -344,60 +351,108 @@ const TaskDetailModal = ({task,currentUser,dark,onClose,onUpdate,onReact}) => {
 };
 
 // ── Create List Modal ─────────────────────────────────────────────────────────
-const CreateListModal = ({dark,currentUser,onClose,onCreate}) => {
-  const [form,setForm]=useState({name:'',category:'Personal',color:PASTEL_COLORS[0],isPrivate:false,isGroup:false,members:[currentUser.id]});
-  const surface=dark?'#1a1a1a':'#fff', txt=dark?'#f0f0f0':'#0a0a0a';
-  const muted=dark?'#777':'#aaa', bdr=dark?'#2a2a2a':'#efefef';
+const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => {
+  const [name,setName]=useState('');
+  const [cat,setCat]=useState('Personal');
+  const [color,setColor]=useState(PASTEL_COLORS[0]);
+  const [isPrivate,setIsPrivate]=useState(false);
+  const [isGroup,setIsGroup]=useState(false);
+  const [selectedFriends,setSelectedFriends]=useState([]);
 
-  const toggle=(id)=>{
-    if(id===currentUser.id) return;
-    setForm(f=>({...f,members:f.members.includes(id)?f.members.filter(m=>m!==id):[...f.members,id]}));
+  const txt=dark?'#f0f0f0':'#0a0a0a', bg=dark?'#1a1a1a':'#fff';
+  const bdr=dark?'#2a2a2a':'#efefef', muted=dark?'#666':'#aaa';
+
+  const toggleFriend=(uid)=>{
+    setSelectedFriends(prev=>
+      prev.includes(uid) ? prev.filter(id=>id!==uid) : [...prev,uid]
+    );
+  };
+
+  const handleCreate=()=>{
+    if(!name.trim()) return;
+    const memberIds=[currentUser.id,...selectedFriends];
+    const members=memberIds;
+    onCreate({
+      id:genId(), name:name.trim(), category:cat, color,
+      isPrivate, isGroup:isGroup||selectedFriends.length>0,
+      members, memberIds,
+      createdBy:currentUser.id, createdAt:ts(), tasks:[]
+    });
+    onClose();
   };
 
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,backdropFilter:'blur(4px)'}} onClick={onClose}>
-      <div style={{background:surface,borderRadius:18,padding:24,width:420,maxWidth:'95vw',animation:'fadeUp .2s ease-out'}} onClick={e=>e.stopPropagation()}>
-        <h3 style={{fontFamily:'Fraunces,serif',fontSize:24,color:txt,marginBottom:20}}>New List</h3>
-
-        <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:6,letterSpacing:'.06em'}}>LIST NAME</label>
-        <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder='e.g. Weekend Trip 🏕️' style={{width:'100%',background:dark?'#252525':'#f5f5f5',border:`1.5px solid ${bdr}`,borderRadius:10,padding:'10px 12px',color:txt,fontSize:14,outline:'none',marginBottom:14}}/>
-
-        <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:6,letterSpacing:'.06em'}}>CATEGORY</label>
-        <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))} style={{width:'100%',background:dark?'#252525':'#f5f5f5',border:`1.5px solid ${bdr}`,borderRadius:10,padding:'10px 12px',color:txt,fontSize:14,outline:'none',marginBottom:14}}>
-          {CATEGORIES.map(c=><option key={c}>{c}</option>)}
-        </select>
-
-        <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:8,letterSpacing:'.06em'}}>LIST COLOR</label>
-        <div style={{display:'flex',gap:8,marginBottom:16}}>
-          {PASTEL_COLORS.map(c=>(
-            <button key={c} onClick={()=>setForm(f=>({...f,color:c}))} style={{width:28,height:28,borderRadius:'50%',background:c,cursor:'pointer',border:form.color===c?'3px solid #0a0a0a':'3px solid transparent',outline:form.color===c?'2px solid #0a0a0a':'none',outlineOffset:1}}/>
-          ))}
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:16}}>
+      <div style={{background:bg,borderRadius:20,padding:28,width:'100%',maxWidth:400,maxHeight:'85vh',overflow:'auto'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+          <h2 style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt,margin:0}}>New List</h2>
+          <button onClick={onClose} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:muted}}>✕</button>
         </div>
 
-        <div style={{display:'flex',gap:20,marginBottom:16}}>
-          {[['isPrivate','🔒 Private'],['isGroup','👥 Group list']].map(([k,label])=>(
-            <label key={k} style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontSize:13,color:txt}}>
-              <input type="checkbox" checked={form[k]} onChange={e=>setForm(f=>({...f,[k]:e.target.checked}))} style={{accentColor:'#0a0a0a',width:15,height:15}}/>
-              {label}
-            </label>
-          ))}
+        {/* Name */}
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>LIST NAME</div>
+          <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleCreate()}
+            placeholder="e.g. Trip to Japan 🗾"
+            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1.5px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14,outline:'none',boxSizing:'border-box'}}/>
         </div>
 
-        {form.isGroup&&(
-          <>
-            <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:8,letterSpacing:'.06em'}}>INVITE MEMBERS</label>
-            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:16}}>
-              {USERS.filter(u=>u.id!==currentUser.id).map(u=>(
-                <button key={u.id} onClick={()=>toggle(u.id)} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 14px',borderRadius:20,border:`1.5px solid ${form.members.includes(u.id)?'#0a0a0a':(dark?'#333':'#ddd')}`,background:form.members.includes(u.id)?'#0a0a0a':'transparent',color:form.members.includes(u.id)?'#fafafa':txt,cursor:'pointer',fontSize:13,fontFamily:'Epilogue,sans-serif',transition:'all .12s'}}>{u.avatar} {u.name}</button>
-              ))}
-            </div>
-          </>
+        {/* Category */}
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>CATEGORY</div>
+          <select value={cat} onChange={e=>setCat(e.target.value)}
+            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1.5px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14,outline:'none'}}>
+            {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+
+        {/* Color */}
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>COLOR</div>
+          <div style={{display:'flex',gap:8}}>
+            {PASTEL_COLORS.map(c=>(
+              <button key={c} onClick={()=>setColor(c)} style={{width:28,height:28,borderRadius:'50%',background:c,border:color===c?'2.5px solid #0a0a0a':'2px solid transparent',cursor:'pointer'}}/>
+            ))}
+          </div>
+        </div>
+
+        {/* Private toggle */}
+        <div style={{marginBottom:14,display:'flex',alignItems:'center',gap:10}}>
+          <button onClick={()=>setIsPrivate(!isPrivate)} style={{
+            width:38,height:22,borderRadius:11,border:'none',cursor:'pointer',
+            background:isPrivate?'#0a0a0a':'#ddd',position:'relative',transition:'background .2s'
+          }}>
+            <div style={{position:'absolute',top:3,left:isPrivate?18:3,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s'}}/>
+          </button>
+          <span style={{fontSize:13,color:txt}}>🔒 Private (เฉพาะคุณเห็น)</span>
+        </div>
+
+        {/* Invite Friends */}
+        {!isPrivate && friends.length > 0 && (
+          <div style={{marginBottom:14}}>
+            <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>INVITE FRIENDS</div>
+            {friends.map(f=>(
+              <div key={f.uid} onClick={()=>toggleFriend(f.uid)} style={{
+                display:'flex',alignItems:'center',gap:10,padding:'8px 10px',
+                borderRadius:10,cursor:'pointer',marginBottom:4,
+                background:selectedFriends.includes(f.uid)?(dark?'#252525':'#f0f0f0'):'transparent'
+              }}>
+                {f.avatar
+                  ? <img src={f.avatar} style={{width:30,height:30,borderRadius:'50%'}} alt=""/>
+                  : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>👤</div>
+                }
+                <span style={{flex:1,fontSize:13,color:txt}}>{f.name}</span>
+                {selectedFriends.includes(f.uid) && <span style={{color:'#2f8a55',fontWeight:700}}>✓</span>}
+              </div>
+            ))}
+          </div>
         )}
 
-        <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
-          <button onClick={onClose} style={{background:'none',border:`1.5px solid ${bdr}`,borderRadius:10,padding:'9px 18px',cursor:'pointer',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14}}>Cancel</button>
-          <button onClick={()=>{if(!form.name.trim())return;onCreate({...form,id:genId(),createdBy:currentUser.id,createdAt:ts(),tasks:[]});onClose();}} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:10,padding:'9px 22px',cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontWeight:600,fontSize:14}}>Create</button>
-        </div>
+        <button onClick={handleCreate} style={{
+          width:'100%',padding:'12px',borderRadius:12,background:'#0a0a0a',
+          color:'#fafafa',border:'none',cursor:'pointer',fontFamily:'Epilogue,sans-serif',
+          fontSize:15,fontWeight:600,marginTop:4
+        }}>Create List</button>
       </div>
     </div>
   );
@@ -523,7 +578,9 @@ const ActivityView = ({activity,dark}) => {
 
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App() {
-  const [lists,setLists]=useState(SAMPLE_LISTS);
+  const [firebaseUser, setFirebaseUser] = useState(undefined);
+  const firestoreLists = useLists(firebaseUser?.uid ?? null);
+  const [lists, setLists] = useState([]);
   const [activity,setActivity]=useState(SAMPLE_ACTIVITY);
   const [selId,setSelId]=useState('list1');
   const [dark,setDark]=useState(false);
@@ -538,24 +595,47 @@ export default function App() {
   const [sortBy,setSortBy]=useState('default');
   const [showAI,setShowAI]=useState(false);
   const [expandAdd,setExpandAdd]=useState(false);
-  const currentUser=USERS[0];
 
-  useEffect(()=>{
-    (async()=>{
-      try {
+  const [showFriends, setShowFriends] = useState(false);
+  const currentUser = firebaseUser ? {
+    id: firebaseUser.uid,
+    name: firebaseUser.displayName,
+    avatar: firebaseUser.photoURL,
+    email: firebaseUser.email,
+  } : { id: '', name: '', avatar: '', email: '' };
+  const friends = useFriends(currentUser.id);
 
-      } catch {}
-    })();
-  },[]);
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+    });
+    return () => unsub();
+  }, []);
 
-  const updateList=useCallback((id,fn)=>{
-    setLists(prev=>{const nl=prev.map(l=>l.id===id?fn(l):l); return nl;});
-  },[]);
+  useEffect(() => {
+    if (firebaseUser) {
+      saveUserProfile(firebaseUser);
+    }
+  }, [firebaseUser]);
+
+  useEffect(() => {
+    if (firestoreLists.length > 0) {
+      setLists(firestoreLists);
+    }
+  }, [firestoreLists]);
+
+  const updateList = useCallback((id, fn) => {
+    setLists(prev => {
+      const updated = prev.map(l => l.id === id ? fn(l) : l);
+      const newList = updated.find(l => l.id === id);
+      if (newList) updateListInDB(id, newList);
+      return updated;
+    });
+  }, []);
 
   const pushActivity=useCallback((userId,action,target,listName)=>{
     setActivity(prev=>{
       const na=[{id:genId(),userId,action,target,listName,createdAt:ts()},...prev].slice(0,50);
-
       return na;
     });
   },[]);
@@ -610,16 +690,39 @@ export default function App() {
     setTaskDetail(ut);
   },[selId,updateList]);
 
-  const createList=useCallback((data)=>{
-    setLists(prev=>{const nl=[...prev,data]; return nl;});
-    setSelId(data.id);setView('list');
-    pushActivity(currentUser.id,'created list',data.name,data.name);
-  },[currentUser,pushActivity]);
+  const createList = useCallback(async (data) => {
+    const newData = { ...data, memberIds: [firebaseUser.uid] };
+    const id = await createListInDB(newData);
+    const listWithId = { ...newData, id };
+    setLists(prev => [...prev, listWithId]);
+    setSelId(id);
+    setView('list');
+    pushActivity(currentUser.id, 'created list', data.name, data.name);
+  }, [firebaseUser, currentUser, pushActivity]);
 
-  const deleteList=useCallback((id)=>{
-    setLists(prev=>{const nl=prev.filter(l=>l.id!==id); return nl;});
-    if(selId===id) setSelId(lists.find(l=>l.id!==id)?.id||null);
-  },[lists,selId]);
+  const deleteList = useCallback((id) => {
+    deleteListInDB(id);
+    setLists(prev => prev.filter(l => l.id !== id));
+    if (selId === id) setSelId(lists.find(l => l.id !== id)?.id || null);
+  }, [lists, selId]);
+
+  // Loading
+  if (firebaseUser === undefined) {
+    return (
+      <div style={{
+        height: '100vh', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', fontFamily: 'Epilogue, sans-serif',
+        fontSize: 14, color: '#888'
+      }}>
+        Loading...
+      </div>
+    );
+  }
+
+  // Not logged in
+  if (firebaseUser === null) {
+    return <Login />;
+  }
 
   // Theme vars
   const bg=dark?'#111':'#f8f8f8', txt=dark?'#f0f0f0':'#0a0a0a';
@@ -631,7 +734,8 @@ export default function App() {
     <>
       <style>{GCSS}</style>
       <Confetti active={confetti}/>
-      {showCreate&&<CreateListModal dark={dark} currentUser={currentUser} onClose={()=>setShowCreate(false)} onCreate={createList}/>}
+      {showCreate && <CreateListModal dark={dark} currentUser={currentUser} friends={friends} onClose={()=>setShowCreate(false)} onCreate={createList}/>}      
+      {showFriends && <FriendPanel currentUser={currentUser} dark={dark} onClose={() => setShowFriends(false)} />}
       {taskDetail&&<TaskDetailModal task={taskDetail} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onReact={reactToTask}/>}
 
       <div style={{display:'flex',height:'100vh',background:bg,fontFamily:'Epilogue,sans-serif',overflow:'hidden'}}>
@@ -689,17 +793,29 @@ export default function App() {
               </button>
             ))}
 
+            <button onClick={() => setShowFriends(true)} style={{
+              width:'100%', textAlign:'left', background:'none',
+              border:'1px dashed #222', borderRadius:8, padding:'7px 10px',
+              cursor:'pointer', color:'#444', fontFamily:'Epilogue,sans-serif',
+              fontSize:13, display:'flex', alignItems:'center', gap:8, marginTop:8
+            }}>
+              👥 Friends
+            </button>
+
             <button onClick={()=>setShowCreate(true)} style={{width:'100%',textAlign:'left',background:'none',border:'1px dashed #222',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:'#444',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginTop:8}}>
               ＋ New List
             </button>
           </div>
 
           {/* Bottom */}
-          <div style={{padding:'10px 16px',borderTop:'1px solid #ffffff08',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style={{fontSize:9,color:'#2a2a2a',fontFamily:'Epilogue,sans-serif',letterSpacing:'.05em'}}>CHECKMATE v1.0</span>
-            <button onClick={()=>setDark(!dark)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:13}}>{dark?'☀️':'🌙'}</button>
-          </div>
-        </div>
+            <div style={{padding:'10px 16px',borderTop:'1px solid #ffffff08',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style={{fontSize:9,color:'#2a2a2a',fontFamily:'Epilogue,sans-serif',letterSpacing:'.05em'}}>CHECKMATE v1.0</span>
+              <div style={{display:'flex',gap:6}}>
+                <button onClick={()=>signOut(auth)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:11}}>Sign out</button>
+                <button onClick={()=>setDark(!dark)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:13}}>{dark?'☀️':'🌙'}</button>
+              </div>
+            </div>
+            </div>
 
         {/* ── MAIN ─────────────────────── */}
         <div style={{flex:1,overflow:'auto'}}>
