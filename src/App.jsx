@@ -301,8 +301,12 @@ const Confetti = ({active}) => {
 };
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
-const Avatar = ({userId,size=28}) => {
-  const u=getUser(userId);
+// Supports real Firebase photoURL (string) or fallback to USERS emoji
+const Avatar = ({userId, size=28, photoURL=null}) => {
+  const u = getUser(userId);
+  if (photoURL) {
+    return <img src={photoURL} alt={u.name} title={u.name} style={{width:size,height:size,borderRadius:'50%',objectFit:'cover',flexShrink:0,border:'1.5px solid rgba(0,0,0,.07)'}} />;
+  }
   return <div title={u.name} style={{width:size,height:size,borderRadius:'50%',background:u.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:size*.42,border:'1.5px solid rgba(0,0,0,.07)',flexShrink:0,userSelect:'none'}}>{u.avatar}</div>;
 };
 
@@ -365,18 +369,25 @@ const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}
           <PBadge p={task.priority}/>
           {di&&<span style={{fontSize:'clamp(9.5px,.7vw,11.5px)',padding:'1px 7px',borderRadius:20,flexShrink:0,background:di.urgent?(dark?'#3a1010':'#FFF0F0'):(dark?'#242424':'#f7f7f7'),color:di.urgent?(dark?'#ff8080':'#d44'):(dark?'#666':'#aaa'),fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>{di.label}</span>}
         </div>
-        {/* Bottom row: assignee, reactions, comments */}
+        {/* Bottom row: assignees, reactions, comments */}
         <div style={{display:'flex',alignItems:'center',gap:'clamp(5px,.5vw,8px)',flexWrap:'wrap',marginTop:task.emoji||task.text?3:0}}>
-          {task.assignee&&!task.completed&&(
+          {/* Multi-assignee: show first 3 avatars stacked, then names */}
+          {!task.completed && (task.assignees?.length > 0 || task.assignee) && (
             <div style={{display:'flex',alignItems:'center',gap:3}}>
-              <Avatar userId={task.assignee} size={Math.round(window.innerWidth >= 1920 ? 17 : 14)}/>
-              <span style={{fontSize:'clamp(10px,.72vw,12px)',color:muted,fontFamily:"'DM Sans',sans-serif"}}>{task.assigneeName || task.assignee}</span>
+              {(task.assignees?.length > 0 ? task.assignees : [task.assignee]).slice(0,3).map((uid,i)=>(
+                <div key={uid} style={{marginLeft:i>0?-5:0}}>
+                  <Avatar userId={uid} size={Math.round(window.innerWidth >= 1920 ? 17 : 14)}/>
+                </div>
+              ))}
+              {(task.assignees?.length || 1) > 3 && (
+                <span style={{fontSize:'clamp(9px,.65vw,11px)',color:muted}}>+{(task.assignees?.length||1)-3}</span>
+              )}
             </div>
           )}
           {task.completed&&task.completedBy&&(
             <div style={{display:'flex',alignItems:'center',gap:3}}>
               <Avatar userId={task.completedBy} size={Math.round(window.innerWidth >= 1920 ? 17 : 14)}/>
-              <span style={{fontSize:'clamp(10px,.72vw,12px)',color:'#5a9e6f',fontFamily:"'DM Sans',sans-serif"}}>done by {getUser(task.completedBy).name}</span>
+              <span style={{fontSize:'clamp(10px,.72vw,12px)',color:'#5a9e6f',fontFamily:"'DM Sans',sans-serif"}}>done</span>
             </div>
           )}
           {REACTIONS_LIST.map(em=>{
@@ -415,7 +426,10 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   const [comment, setComment] = useState('');
   const [editText, setEditText] = useState(task.text);
   const [editPrio, setEditPrio] = useState(task.priority);
-  const [editAssignee, setEditAssignee] = useState(task.assignee||'');
+  // multi-assignee: store array
+  const [editAssignees, setEditAssignees] = useState(
+    task.assignees ? task.assignees : (task.assignee ? [task.assignee] : [])
+  );
   const [editDue, setEditDue] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');
   const [editTime, setEditTime] = useState(task.dueDate && task.dueDate.includes('T') ? task.dueDate.split('T')[1]?.slice(0,5) : '');
   const [editEmoji, setEditEmoji] = useState(task.emoji||'📌');
@@ -424,28 +438,33 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   const surface = dark?'#1c1c1c':'#fff', txt = dark?'#efefef':'#111';
   const muted = dark?'#555':'#bbb', bdr = dark?'#2c2c2c':'#f0f0f0';
 
-  // รวม currentUser + friends เพื่อใช้แสดงชื่อจริง
+  // allUsers = currentUser + friends (with real avatars)
   const allUsers = [
     { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
     ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar }))
   ];
 
-  const getUserById = (uid) => allUsers.find(u => u.id === uid) || { id: uid, name: 'Unknown', avatar: null };
+  const getUserById = (uid) => allUsers.find(u => u.id === uid) || { id: uid, name: uid, avatar: null };
 
-  // members ของ list สำหรับ Assign to
   const memberUsers = listMembers
     .map(uid => allUsers.find(u => u.id === uid))
     .filter(Boolean);
 
+  const toggleAssignee = (uid) => {
+    setEditAssignees(prev =>
+      prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]
+    );
+  };
+
   const save = () => {
-    const assigneeUser = memberUsers.find(u => u.id === editAssignee);
     const fullDueDate = editDue ? (editTime ? `${editDue}T${editTime}` : editDue) : null;
     onSave({
       ...task,
       text: editText,
       priority: editPrio,
-      assignee: editAssignee || null,
-      assigneeName: assigneeUser?.name || null,
+      assignees: editAssignees,
+      assignee: editAssignees[0] || null,          // backward compat
+      assigneeName: editAssignees.length > 0 ? getUserById(editAssignees[0]).name : null,
       dueDate: fullDueDate,
       emoji: editEmoji
     });
@@ -456,6 +475,9 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
     onUpdate({...task, comments:[...task.comments, {id:genId(), userId:currentUser.id, text:comment.trim(), createdAt:ts()}]});
     setComment('');
   };
+
+  // completedBy — look up real user
+  const completedByUser = task.completedBy ? getUserById(task.completedBy) : null;
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,backdropFilter:'blur(6px)'}} onClick={onClose}>
@@ -510,12 +532,27 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
 
               <div>
                 <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:7,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>ASSIGN TO</label>
-                <select value={editAssignee} onChange={e=>setEditAssignee(e.target.value)} style={{width:'100%',background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:8,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}>
-                  <option value="">Unassigned</option>
-                  {memberUsers.map(u=>(
-                    <option key={u.id} value={u.id}>{u.name}</option>
-                  ))}
-                </select>
+                <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+                  {memberUsers.map(u=>{
+                    const sel = editAssignees.includes(u.id);
+                    return (
+                      <button key={u.id} onClick={()=>toggleAssignee(u.id)} style={{
+                        display:'flex',alignItems:'center',gap:7,padding:'5px 11px 5px 6px',
+                        borderRadius:99,cursor:'pointer',border:`1.5px solid ${sel?(dark?'#888':'#333'):(dark?'#2c2c2c':'#ddd')}`,
+                        background:sel?(dark?'#2a2a2a':'#f0f0f0'):'transparent',
+                        color:sel?txt:muted,fontFamily:"'DM Sans',sans-serif",fontSize:12.5,fontWeight:sel?600:400,
+                      }}>
+                        {u.avatar
+                          ? <img src={u.avatar} style={{width:20,height:20,borderRadius:'50%',objectFit:'cover'}} alt=""/>
+                          : <div style={{width:20,height:20,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11}}>👤</div>
+                        }
+                        {u.name}
+                        {sel && <span style={{fontSize:10,color:dark?'#aaa':'#555'}}>✓</span>}
+                      </button>
+                    );
+                  })}
+                  {memberUsers.length === 0 && <span style={{fontSize:12,color:muted,fontFamily:"'DM Sans',sans-serif"}}>No members in this list</span>}
+                </div>
               </div>
 
               <div>
@@ -536,15 +573,13 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
                 </div>
               </div>
 
-              {task.completed&&task.completedBy&&(
+              {task.completed&&task.completedBy&&completedByUser&&(
                 <div style={{background:dark?'#162218':'#eef8f1',borderRadius:9,padding:'10px 14px',display:'flex',gap:8,alignItems:'center'}}>
-                  <div style={{width:24,height:24,borderRadius:'50%',background:'#c8eed3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,flexShrink:0}}>
-                    {getUserById(task.completedBy).avatar
-                      ? <img src={getUserById(task.completedBy).avatar} style={{width:24,height:24,borderRadius:'50%'}} alt=""/>
-                      : '👤'
-                    }
-                  </div>
-                  <span style={{fontSize:12.5,color:'#3a8f56',fontFamily:"'DM Sans',sans-serif"}}>Completed by <strong>{getUserById(task.completedBy).name}</strong></span>
+                  {completedByUser.avatar
+                    ? <img src={completedByUser.avatar} style={{width:24,height:24,borderRadius:'50%',objectFit:'cover',flexShrink:0}} alt=""/>
+                    : <div style={{width:24,height:24,borderRadius:'50%',background:'#c8eed3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,flexShrink:0}}>✓</div>
+                  }
+                  <span style={{fontSize:12.5,color:'#3a8f56',fontFamily:"'DM Sans',sans-serif"}}>Completed by <strong>{completedByUser.name}</strong></span>
                 </div>
               )}
               <button onClick={save} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:9,padding:'11px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:'.01em'}}>Save Changes</button>
@@ -595,17 +630,24 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
 
 
 
-const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) => {
+const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave, onDelete}) => {
   const [name, setName] = useState(list.name);
   const [cat, setCat] = useState(list.category);
+  const [customCat, setCustomCat] = useState('');
+  const [showCustomCat, setShowCustomCat] = useState(false);
   const [color, setColor] = useState(list.color);
-  const [isPrivate, setIsPrivate] = useState(list.isPrivate);
+  const [customColor, setCustomColor] = useState('#ffffff');
+  const [extraColors, setExtraColors] = useState([]);
   const [selectedFriends, setSelectedFriends] = useState(
     (list.memberIds || []).filter(id => id !== currentUser.id)
   );
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const txt = dark?'#efefef':'#111', bg = dark?'#1c1c1c':'#fff';
   const bdr = dark?'#2c2c2c':'#eee', muted = dark?'#555':'#bbb';
+
+  const allColors = [...PASTEL_COLORS, ...extraColors];
+  const allCats = [...CATEGORIES, ...(customCat && !CATEGORIES.includes(customCat) ? [customCat] : [])];
 
   const toggleFriend = (uid) => {
     setSelectedFriends(prev =>
@@ -616,12 +658,13 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
   const handleSave = () => {
     if (!name.trim()) return;
     const memberIds = [currentUser.id, ...selectedFriends];
+    // isGroup derived from members, isPrivate removed
     onSave({
       ...list,
       name: name.trim(),
       category: cat,
       color,
-      isPrivate,
+      isPrivate: false,
       isGroup: selectedFriends.length > 0,
       members: memberIds,
       memberIds,
@@ -633,9 +676,8 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
 
   return (
     <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:16,backdropFilter:'blur(4px)'}}>
-      <div onClick={e=>e.stopPropagation()} style={{background:bg,borderRadius:16,padding:'24px 26px',width:'100%',maxWidth:400,maxHeight:'85vh',overflow:'auto',boxShadow:`0 20px 50px rgba(0,0,0,${dark?.4:.12})`}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:bg,borderRadius:16,padding:'24px 26px',width:'100%',maxWidth:420,maxHeight:'88vh',overflow:'auto',boxShadow:`0 20px 50px rgba(0,0,0,${dark?.4:.12})`}}>
 
-        {/* Header */}
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:22}}>
           <h2 style={{fontFamily:"'Lora',serif",fontSize:20,color:txt,margin:0,fontWeight:600}}>Edit List</h2>
           <button onClick={onClose} style={{background:'none',border:'none',fontSize:18,cursor:'pointer',color:muted,lineHeight:1,padding:'3px 6px',borderRadius:6}}>✕</button>
@@ -650,39 +692,53 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
         {/* Category */}
         <div style={{marginBottom:14}}>
           <div style={labelStyle}>CATEGORY</div>
-          <select value={cat} onChange={e=>setCat(e.target.value)} style={inputStyle}>
-            {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
-          </select>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:6}}>
+            {allCats.map(c=>(
+              <button key={c} onClick={()=>setCat(c)} style={{
+                padding:'5px 12px',borderRadius:99,fontSize:12,cursor:'pointer',fontWeight:600,
+                border:`1.5px solid ${cat===c?(dark?'#888':'#333'):(dark?'#2c2c2c':'#ddd')}`,
+                background:cat===c?(dark?'#2a2a2a':'#111'):'transparent',
+                color:cat===c?'#fff':muted,fontFamily:"'DM Sans',sans-serif",
+              }}>{c}</button>
+            ))}
+          </div>
+          {showCustomCat
+            ? <div style={{display:'flex',gap:6}}>
+                <input value={customCat} onChange={e=>setCustomCat(e.target.value)} placeholder="Custom category…" style={{...inputStyle,flex:1,padding:'7px 11px',fontSize:13}}
+                  onKeyDown={e=>{if(e.key==='Enter'&&customCat.trim()){setCat(customCat.trim());setShowCustomCat(false);}}} autoFocus/>
+                <button onClick={()=>{if(customCat.trim()){setCat(customCat.trim());}setShowCustomCat(false);}}
+                  style={{padding:'7px 13px',borderRadius:9,background:'#111',color:'#fff',border:'none',cursor:'pointer',fontSize:13,fontFamily:"'DM Sans',sans-serif"}}>Add</button>
+              </div>
+            : <button onClick={()=>setShowCustomCat(true)} style={{fontSize:12,color:muted,background:'none',border:`1px dashed ${bdr}`,borderRadius:8,padding:'5px 11px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>+ Custom category</button>
+          }
         </div>
 
         {/* Color */}
         <div style={{marginBottom:14}}>
           <div style={labelStyle}>COLOR</div>
-          <div style={{display:'flex',gap:7}}>
-            {PASTEL_COLORS.map(c=>(
+          <div style={{display:'flex',gap:7,flexWrap:'wrap',marginBottom:6}}>
+            {allColors.map(c=>(
               <button key={c} onClick={()=>setColor(c)} style={{width:26,height:26,borderRadius:'50%',background:c,border:color===c?'2.5px solid #111':'2px solid transparent',cursor:'pointer',outline:'none'}}/>
             ))}
+            {/* Custom color picker */}
+            <div style={{position:'relative',width:26,height:26}}>
+              <input type="color" value={customColor} onChange={e=>{setCustomColor(e.target.value);}}
+                style={{width:26,height:26,borderRadius:'50%',border:'2px dashed #bbb',cursor:'pointer',padding:0,opacity:0,position:'absolute',inset:0}}/>
+              <div style={{width:26,height:26,borderRadius:'50%',border:'2px dashed #bbb',background:'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)',cursor:'pointer',fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none'}}>+</div>
+            </div>
+            {customColor !== '#ffffff' && !allColors.includes(customColor) && (
+              <button onClick={()=>{setExtraColors(p=>[...p,customColor]);setColor(customColor);}} style={{width:26,height:26,borderRadius:'50%',background:customColor,border:'2.5px solid #111',cursor:'pointer',outline:'none'}}/>
+            )}
           </div>
         </div>
 
-        {/* Private toggle */}
-        <div style={{marginBottom:14,display:'flex',alignItems:'center',gap:10}}>
-          <button onClick={()=>setIsPrivate(!isPrivate)} style={{
-            width:36,height:20,borderRadius:10,border:'none',cursor:'pointer',padding:0,
-            background:isPrivate?'#111':'#ddd',position:'relative',transition:'background .2s',flexShrink:0
-          }}>
-            <div style={{position:'absolute',top:2,left:isPrivate?17:2,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s'}}/>
-          </button>
-          <span style={{fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif"}}>🔒 Private (เฉพาะคุณเห็น)</span>
-        </div>
-
         {/* Members */}
-        {!isPrivate && friends.length > 0 && (
+        {friends.length > 0 && (
           <div style={{marginBottom:14}}>
-            <div style={labelStyle}>MEMBERS</div>
+            <div style={labelStyle}>MEMBERS <span style={{fontWeight:400,color:muted,textTransform:'none',letterSpacing:0}}>— adding members makes this a Group list</span></div>
             {friends.map(f=>(
               <div key={f.uid} onClick={()=>toggleFriend(f.uid)} style={{
-                display:'flex',alignItems:'center',gap:10,padding:'7px 10px',
+                display:'flex',alignItems:'center',gap:10,padding:'8px 10px',
                 borderRadius:9,cursor:'pointer',marginBottom:3,
                 background:selectedFriends.includes(f.uid)?(dark?'#242424':'#f2f2f2'):'transparent'
               }}>
@@ -700,12 +756,22 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
           </div>
         )}
 
-        {/* Save */}
         <button onClick={handleSave} style={{
           width:'100%',padding:'11px',borderRadius:10,background:'#111',
           color:'#fafafa',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
           fontSize:14,fontWeight:600,marginTop:4,letterSpacing:'.01em'
         }}>Save Changes</button>
+
+        {/* Delete — confirm flow */}
+        <div style={{marginTop:12,borderTop:`1px solid ${bdr}`,paddingTop:12}}>
+          {!confirmDelete
+            ? <button onClick={()=>setConfirmDelete(true)} style={{width:'100%',padding:'10px',borderRadius:10,background:'transparent',color:'#c0392b',border:`1px solid rgba(200,50,50,.25)`,cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontSize:13}}>Delete this list</button>
+            : <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>setConfirmDelete(false)} style={{flex:1,padding:'10px',borderRadius:10,background:dark?'#242424':'#f5f5f5',color:txt,border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontSize:13}}>Cancel</button>
+                <button onClick={()=>{onDelete(list.id);onClose();}} style={{flex:1,padding:'10px',borderRadius:10,background:'#c0392b',color:'#fff',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:600}}>Confirm Delete</button>
+              </div>
+          }
+        </div>
 
       </div>
     </div>
@@ -718,106 +784,77 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
 const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => {
   const [name,setName]=useState('');
   const [cat,setCat]=useState('Personal');
+  const [customCat,setCustomCat]=useState('');
+  const [showCustomCat,setShowCustomCat]=useState(false);
   const [color,setColor]=useState(PASTEL_COLORS[0]);
-  const [isPrivate,setIsPrivate]=useState(false);
-  const [isGroup,setIsGroup]=useState(false);
+  const [customColor,setCustomColor]=useState('#ffffff');
+  const [extraColors,setExtraColors]=useState([]);
   const [selectedFriends,setSelectedFriends]=useState([]);
 
   const txt=dark?'#efefef':'#111', bg=dark?'#1c1c1c':'#fff';
   const bdr=dark?'#2c2c2c':'#eee', muted=dark?'#555':'#bbb';
 
-  const toggleFriend=(uid)=>{
-    setSelectedFriends(prev=>
-      prev.includes(uid) ? prev.filter(id=>id!==uid) : [...prev,uid]
-    );
-  };
+  const allColors=[...PASTEL_COLORS,...extraColors];
+  const allCats=[...CATEGORIES,...(customCat&&!CATEGORIES.includes(customCat)?[customCat]:[])];
+
+  const toggleFriend=(uid)=>{setSelectedFriends(prev=>prev.includes(uid)?prev.filter(id=>id!==uid):[...prev,uid]);};
 
   const handleCreate = () => {
     if (!name.trim()) return;
-    const memberIds = [currentUser.id];
-    onCreate({
-      id: genId(), name: name.trim(), category: cat, color,
-      isPrivate, isGroup: isGroup || selectedFriends.length > 0,
-      members: memberIds, memberIds,
-      selectedFriends,
-      createdBy: currentUser.id, createdAt: ts(), tasks: []
-    });
+    const memberIds=[currentUser.id];
+    onCreate({id:genId(),name:name.trim(),category:cat,color,isPrivate:false,isGroup:selectedFriends.length>0,members:memberIds,memberIds,selectedFriends,createdBy:currentUser.id,createdAt:ts(),tasks:[]});
     onClose();
   };
 
-  const inputStyle = {width:'100%',padding:'9px 13px',borderRadius:9,border:`1px solid ${bdr}`,background:dark?'#242424':'#f7f7f7',color:txt,fontFamily:"'DM Sans',sans-serif",fontSize:13.5,outline:'none',boxSizing:'border-box'};
-  const labelStyle = {fontSize:10,fontWeight:600,color:muted,letterSpacing:'.08em',marginBottom:6,display:'block',fontFamily:"'DM Sans',sans-serif"};
+  const inp={width:'100%',padding:'9px 13px',borderRadius:9,border:`1px solid ${bdr}`,background:dark?'#242424':'#f7f7f7',color:txt,fontFamily:"'DM Sans',sans-serif",fontSize:13.5,outline:'none',boxSizing:'border-box'};
+  const lbl={fontSize:10,fontWeight:600,color:muted,letterSpacing:'.08em',marginBottom:6,display:'block',fontFamily:"'DM Sans',sans-serif"};
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:16,backdropFilter:'blur(4px)'}}>
-      <div style={{background:bg,borderRadius:16,padding:'24px 26px',width:'100%',maxWidth:400,maxHeight:'85vh',overflow:'auto',boxShadow:`0 20px 50px rgba(0,0,0,${dark?.4:.12})`}}>
+      <div style={{background:bg,borderRadius:16,padding:'24px 26px',width:'100%',maxWidth:420,maxHeight:'88vh',overflow:'auto',boxShadow:`0 20px 50px rgba(0,0,0,${dark?.4:.12})`}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:22}}>
           <h2 style={{fontFamily:"'Lora',serif",fontSize:20,color:txt,margin:0,fontWeight:600}}>New List</h2>
           <button onClick={onClose} style={{background:'none',border:'none',fontSize:18,cursor:'pointer',color:muted,lineHeight:1,padding:'3px 6px',borderRadius:6}}>✕</button>
         </div>
+        <div style={{marginBottom:14}}><div style={lbl}>LIST NAME</div><input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleCreate()} placeholder="e.g. Trip to Japan 🗾" style={inp}/></div>
 
-        {/* Name */}
         <div style={{marginBottom:14}}>
-          <div style={labelStyle}>LIST NAME</div>
-          <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleCreate()}
-            placeholder="e.g. Trip to Japan 🗾" style={inputStyle}/>
+          <div style={lbl}>CATEGORY</div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:6}}>
+            {allCats.map(c=><button key={c} onClick={()=>setCat(c)} style={{padding:'5px 12px',borderRadius:99,fontSize:12,cursor:'pointer',fontWeight:600,border:`1.5px solid ${cat===c?(dark?'#888':'#333'):(dark?'#2c2c2c':'#ddd')}`,background:cat===c?(dark?'#2a2a2a':'#111'):'transparent',color:cat===c?'#fff':muted,fontFamily:"'DM Sans',sans-serif"}}>{c}</button>)}
+          </div>
+          {showCustomCat
+            ?<div style={{display:'flex',gap:6}}><input value={customCat} onChange={e=>setCustomCat(e.target.value)} placeholder="Custom category…" style={{...inp,flex:1,padding:'7px 11px',fontSize:13}} onKeyDown={e=>{if(e.key==='Enter'&&customCat.trim()){setCat(customCat.trim());setShowCustomCat(false);}}} autoFocus/><button onClick={()=>{if(customCat.trim())setCat(customCat.trim());setShowCustomCat(false);}} style={{padding:'7px 13px',borderRadius:9,background:'#111',color:'#fff',border:'none',cursor:'pointer',fontSize:13}}>Add</button></div>
+            :<button onClick={()=>setShowCustomCat(true)} style={{fontSize:12,color:muted,background:'none',border:`1px dashed ${bdr}`,borderRadius:8,padding:'5px 11px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>+ Custom</button>
+          }
         </div>
 
-        {/* Category */}
         <div style={{marginBottom:14}}>
-          <div style={labelStyle}>CATEGORY</div>
-          <select value={cat} onChange={e=>setCat(e.target.value)} style={inputStyle}>
-            {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
-          </select>
-        </div>
-
-        {/* Color */}
-        <div style={{marginBottom:14}}>
-          <div style={labelStyle}>COLOR</div>
-          <div style={{display:'flex',gap:7}}>
-            {PASTEL_COLORS.map(c=>(
-              <button key={c} onClick={()=>setColor(c)} style={{width:26,height:26,borderRadius:'50%',background:c,border:color===c?'2.5px solid #111':'2px solid transparent',cursor:'pointer',outline:'none'}}/>
-            ))}
+          <div style={lbl}>COLOR</div>
+          <div style={{display:'flex',gap:7,flexWrap:'wrap',alignItems:'center'}}>
+            {allColors.map(c=><button key={c} onClick={()=>setColor(c)} style={{width:26,height:26,borderRadius:'50%',background:c,border:color===c?'2.5px solid #111':'2px solid transparent',cursor:'pointer',outline:'none'}}/>)}
+            <div style={{position:'relative',width:26,height:26}}>
+              <input type="color" value={customColor} onChange={e=>setCustomColor(e.target.value)} style={{width:26,height:26,padding:0,opacity:0,position:'absolute',inset:0,cursor:'pointer'}}/>
+              <div style={{width:26,height:26,borderRadius:'50%',border:'2px dashed #bbb',background:'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)',pointerEvents:'none',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9}}>+</div>
+            </div>
+            {customColor!=='#ffffff'&&!allColors.includes(customColor)&&<button onClick={()=>{setExtraColors(p=>[...p,customColor]);setColor(customColor);}} style={{width:26,height:26,borderRadius:'50%',background:customColor,border:'2.5px solid #111',cursor:'pointer',outline:'none'}}/>}
           </div>
         </div>
 
-        {/* Private toggle */}
-        <div style={{marginBottom:14,display:'flex',alignItems:'center',gap:10}}>
-          <button onClick={()=>setIsPrivate(!isPrivate)} style={{
-            width:36,height:20,borderRadius:10,border:'none',cursor:'pointer',padding:0,
-            background:isPrivate?'#111':'#ddd',position:'relative',transition:'background .2s',flexShrink:0
-          }}>
-            <div style={{position:'absolute',top:2,left:isPrivate?17:2,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s'}}/>
-          </button>
-          <span style={{fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif"}}>🔒 Private (เฉพาะคุณเห็น)</span>
-        </div>
-
-        {/* Invite Friends */}
-        {!isPrivate && friends.length > 0 && (
+        {friends.length>0&&(
           <div style={{marginBottom:14}}>
-            <div style={labelStyle}>INVITE FRIENDS</div>
+            <div style={lbl}>INVITE FRIENDS <span style={{fontWeight:400,color:muted,textTransform:'none',letterSpacing:0}}>— adds to Group</span></div>
             {friends.map(f=>(
-              <div key={f.uid} onClick={()=>toggleFriend(f.uid)} style={{
-                display:'flex',alignItems:'center',gap:10,padding:'7px 10px',
-                borderRadius:9,cursor:'pointer',marginBottom:3,
-                background:selectedFriends.includes(f.uid)?(dark?'#242424':'#f2f2f2'):'transparent'
-              }}>
-                {f.avatar
-                  ? <img src={f.avatar} style={{width:28,height:28,borderRadius:'50%',objectFit:'cover'}} alt=""/>
-                  : <div style={{width:28,height:28,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13}}>👤</div>
-                }
+              <div key={f.uid} onClick={()=>toggleFriend(f.uid)} style={{display:'flex',alignItems:'center',gap:10,padding:'7px 10px',borderRadius:9,cursor:'pointer',marginBottom:3,background:selectedFriends.includes(f.uid)?(dark?'#242424':'#f2f2f2'):'transparent'}}>
+                {f.avatar?<img src={f.avatar} style={{width:28,height:28,borderRadius:'50%',objectFit:'cover'}} alt=""/>:<div style={{width:28,height:28,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13}}>👤</div>}
                 <span style={{flex:1,fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif"}}>{f.name}</span>
-                {selectedFriends.includes(f.uid) && <span style={{color:'#3a8f56',fontWeight:700,fontSize:13}}>✓</span>}
+                {selectedFriends.includes(f.uid)&&<span style={{color:'#3a8f56',fontWeight:700,fontSize:13}}>✓</span>}
               </div>
             ))}
           </div>
         )}
 
-        <button onClick={handleCreate} style={{
-          width:'100%',padding:'11px',borderRadius:10,background:'#111',
-          color:'#fafafa',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
-          fontSize:14,fontWeight:600,marginTop:4,letterSpacing:'.01em'
-        }}>Create List</button>
+        <button onClick={handleCreate} style={{width:'100%',padding:'11px',borderRadius:10,background:'#111',color:'#fafafa',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontSize:14,fontWeight:600,marginTop:4,letterSpacing:'.01em'}}>Create List</button>
       </div>
     </div>
   );
@@ -1177,6 +1214,7 @@ export default function App() {
           friends={friends}
           list={editingList}
           onClose={() => setEditingList(null)}
+          onDelete={deleteList}
           onSave={(updated) => {
             updateList(updated.id, () => updated);
             setEditingList(null);
@@ -1466,7 +1504,6 @@ export default function App() {
                       <option value="completion">Completion</option>
                     </select>
                     <button onClick={()=>setEditingList(sel)} style={{background:'rgba(0,0,0,.07)',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(9px,.85vw,13px)',cursor:'pointer',fontSize:'clamp(10.5px,.72vw,13px)',color:'#333',fontFamily:"'DM Sans',sans-serif"}}>Edit</button>
-                    <button onClick={()=>deleteList(sel.id)} style={{background:'rgba(200,50,50,.1)',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(9px,.85vw,13px)',cursor:'pointer',fontSize:'clamp(10.5px,.72vw,13px)',color:'#b83232',fontFamily:"'DM Sans',sans-serif"}}>Delete</button>
                   </div>
                 </div>
               </div>

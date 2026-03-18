@@ -219,8 +219,14 @@ const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpen
           )}
           {task.assignee && !task.completed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Avatar userId={task.assignee} size={16} />
-              <span style={{ fontSize: 11, color: '#aaa', fontFamily: "'DM Sans',sans-serif" }}>{task.assigneeName || task.assignee}</span>
+              {/* Show stacked avatars for multi-assignee */}
+              {(task.assignees?.length > 0 ? task.assignees : [task.assignee]).slice(0, 3).map((uid, i) => (
+                <div key={uid} style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 3 - i }}>
+                  {/* Use photo if available via friends lookup — passed as context not available here, fall back to emoji avatar */}
+                  <div title={uid} style={{ width: 20, height: 20, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: '1.5px solid #fff' }}>👤</div>
+                </div>
+              ))}
+              {(task.assignees?.length || 1) > 3 && <span style={{ fontSize: 10, color: '#aaa' }}>+{(task.assignees?.length || 1) - 3}</span>}
             </div>
           )}
         </div>
@@ -465,25 +471,32 @@ const AISuggestions = ({ listName, onAddTask, onClose }) => {
   );
 };
 
-// ── Create / Edit List modal (mobile) ─────────────────────────────────────────
-const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreate, onSave }) => {
+// ── Create / Edit List drawer (mobile) ───────────────────────────────────────
+const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreate, onSave, onDelete }) => {
   const isEdit = !!existing;
   const [name, setName] = useState(existing?.name || '');
   const [cat, setCat] = useState(existing?.category || 'Personal');
+  const [customCat, setCustomCat] = useState('');
+  const [showCustomCat, setShowCustomCat] = useState(false);
   const [color, setColor] = useState(existing?.color || PASTEL_COLORS[0]);
-  const [isPrivate, setIsPrivate] = useState(existing?.isPrivate || false);
+  const [customColor, setCustomColor] = useState('#ffffff');
+  const [extraColors, setExtraColors] = useState([]);
   const [selFriends, setSelFriends] = useState(
     isEdit ? (existing.memberIds || []).filter(id => id !== currentUser.id) : []
   );
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // reset when opening
+  const allColors = [...PASTEL_COLORS, ...extraColors];
+  const allCats = [...CATEGORIES, ...(customCat && !CATEGORIES.includes(customCat) ? [customCat] : [])];
+
   useEffect(() => {
     if (open) {
       setName(existing?.name || '');
       setCat(existing?.category || 'Personal');
       setColor(existing?.color || PASTEL_COLORS[0]);
-      setIsPrivate(existing?.isPrivate || false);
       setSelFriends(isEdit ? (existing.memberIds || []).filter(id => id !== currentUser.id) : []);
+      setConfirmDelete(false);
+      setShowCustomCat(false);
     }
   }, [open, existing]);
 
@@ -492,72 +505,120 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
   const handleSubmit = () => {
     if (!name.trim()) return;
     const memberIds = [currentUser.id, ...selFriends];
+    const data = { name: name.trim(), category: cat, color, isPrivate: false, isGroup: selFriends.length > 0, members: memberIds, memberIds };
     if (isEdit) {
-      onSave({ ...existing, name: name.trim(), category: cat, color, isPrivate, isGroup: selFriends.length > 0, members: memberIds, memberIds });
+      onSave({ ...existing, ...data });
     } else {
-      onCreate({ id: genId(), name: name.trim(), category: cat, color, isPrivate, isGroup: selFriends.length > 0, members: memberIds, memberIds, selectedFriends: selFriends, createdBy: currentUser.id, createdAt: ts(), tasks: [] });
+      onCreate({ id: genId(), ...data, selectedFriends: selFriends, createdBy: currentUser.id, createdAt: ts(), tasks: [] });
     }
     onClose();
   };
 
-  const inp = { width: '100%', padding: '13px 15px', borderRadius: 11, border: '1px solid #eee', background: '#f8f8f8', color: '#111', fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none' };
+  const inp = { width: '100%', padding: '13px 15px', borderRadius: 11, border: '1px solid #eee', background: '#f8f8f8', color: '#111', fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none', boxSizing: 'border-box' };
+  const lbl = { fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 7, fontFamily: "'DM Sans',sans-serif" };
 
   return (
-    <Drawer open={open} onClose={onClose} title={isEdit ? 'Edit List' : 'New List'} maxHeight="92vh">
-      <div style={{ padding: '4px 20px 32px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <Drawer open={open} onClose={onClose} title={isEdit ? 'Edit List' : 'New List'} maxHeight="94vh">
+      <div style={{ padding: '4px 20px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {/* Name */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 7, fontFamily: "'DM Sans',sans-serif" }}>LIST NAME</div>
+          <div style={lbl}>LIST NAME</div>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Trip to Japan 🗾" style={inp} />
         </div>
+
+        {/* Category */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 7, fontFamily: "'DM Sans',sans-serif" }}>CATEGORY</div>
-          <select value={cat} onChange={e => setCat(e.target.value)} style={{ ...inp, appearance: 'none' }}>
-            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <div style={lbl}>CATEGORY</div>
+          <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 8 }}>
+            {allCats.map(c => (
+              <button key={c} onClick={() => setCat(c)} style={{
+                padding: '7px 14px', borderRadius: 99, fontSize: 13, cursor: 'pointer', fontWeight: 600,
+                border: `1.5px solid ${cat === c ? '#111' : '#ddd'}`,
+                background: cat === c ? '#111' : 'transparent',
+                color: cat === c ? '#fff' : '#888',
+              }}>{c}</button>
+            ))}
+          </div>
+          {showCustomCat
+            ? <div style={{ display: 'flex', gap: 8 }}>
+                <input value={customCat} onChange={e => setCustomCat(e.target.value)} placeholder="Custom…" style={{ ...inp, flex: 1, padding: '10px 13px', fontSize: 14 }}
+                  onKeyDown={e => { if (e.key === 'Enter' && customCat.trim()) { setCat(customCat.trim()); setShowCustomCat(false); } }} autoFocus />
+                <button onClick={() => { if (customCat.trim()) setCat(customCat.trim()); setShowCustomCat(false); }}
+                  style={{ padding: '10px 16px', borderRadius: 11, background: '#111', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14 }}>Add</button>
+              </div>
+            : <button onClick={() => setShowCustomCat(true)}
+                style={{ fontSize: 13, color: '#bbb', background: 'none', border: '1px dashed #ddd', borderRadius: 9, padding: '7px 14px', cursor: 'pointer' }}>+ Custom</button>
+          }
         </div>
+
+        {/* Color */}
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>COLOR</div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            {PASTEL_COLORS.map(c => (
+          <div style={lbl}>COLOR</div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            {allColors.map(c => (
               <button key={c} onClick={() => setColor(c)} style={{
                 width: 34, height: 34, borderRadius: '50%', background: c, border: 'none',
                 outline: color === c ? '3px solid #111' : '2px solid transparent',
                 outlineOffset: 2, cursor: 'pointer',
               }} />
             ))}
+            {/* Custom color */}
+            <div style={{ position: 'relative', width: 34, height: 34 }}>
+              <input type="color" value={customColor} onChange={e => setCustomColor(e.target.value)}
+                style={{ width: 34, height: 34, padding: 0, opacity: 0, position: 'absolute', inset: 0, cursor: 'pointer', borderRadius: '50%' }} />
+              <div style={{ width: 34, height: 34, borderRadius: '50%', border: '2px dashed #ccc', background: 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>+</div>
+            </div>
+            {customColor !== '#ffffff' && !allColors.includes(customColor) && (
+              <button onClick={() => { setExtraColors(p => [...p, customColor]); setColor(customColor); }}
+                style={{ width: 34, height: 34, borderRadius: '50%', background: customColor, border: '3px solid #111', cursor: 'pointer', outline: 'none' }} />
+            )}
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => setIsPrivate(v => !v)} style={{
-            width: 44, height: 26, borderRadius: 13, border: 'none', padding: 0,
-            background: isPrivate ? '#111' : '#ddd', position: 'relative', cursor: 'pointer',
-          }}>
-            <div style={{ position: 'absolute', top: 3, left: isPrivate ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s' }} />
-          </button>
-          <span style={{ fontSize: 15, color: '#333', fontFamily: "'DM Sans',sans-serif" }}>🔒 Private (เฉพาะคุณเห็น)</span>
-        </div>
-        {!isPrivate && friends.length > 0 && (
+
+        {/* Friends / members */}
+        {friends.length > 0 && (
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>{isEdit ? 'MEMBERS' : 'INVITE FRIENDS'}</div>
+            <div style={lbl}>{isEdit ? 'MEMBERS' : 'INVITE FRIENDS'} <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: '#bbb' }}>— adds to Group</span></div>
             {friends.map(f => (
               <div key={f.uid} onClick={() => toggleFriend(f.uid)} style={{
                 display: 'flex', alignItems: 'center', gap: 12, padding: '11px 13px',
                 borderRadius: 11, cursor: 'pointer', marginBottom: 4,
                 background: selFriends.includes(f.uid) ? '#f2f2f2' : 'transparent',
               }}>
-                {f.avatar ? <img src={f.avatar} style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover' }} alt="" />
-                  : <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>👤</div>}
+                {f.avatar
+                  ? <img src={f.avatar} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} alt="" />
+                  : <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>👤</div>
+                }
                 <span style={{ flex: 1, fontSize: 15, color: '#111', fontFamily: "'DM Sans',sans-serif" }}>{f.name}</span>
-                {selFriends.includes(f.uid) && <span style={{ color: '#3a8f56', fontWeight: 700, fontSize: 16 }}>✓</span>}
+                {selFriends.includes(f.uid)
+                  ? <span style={{ color: '#3a8f56', fontWeight: 700, fontSize: 18 }}>✓</span>
+                  : <span style={{ color: '#bbb', fontSize: 14 }}>+ Add</span>
+                }
               </div>
             ))}
           </div>
         )}
+
         <button onClick={handleSubmit} style={{
           width: '100%', padding: '15px', borderRadius: 13, background: '#111',
           color: '#fff', border: 'none', cursor: 'pointer',
-          fontFamily: "'DM Sans',sans-serif", fontSize: 16, fontWeight: 600, marginTop: 4,
+          fontFamily: "'DM Sans',sans-serif", fontSize: 16, fontWeight: 600,
         }}>{isEdit ? 'Save Changes' : 'Create List'}</button>
+
+        {/* Delete — only in edit mode, behind confirm */}
+        {isEdit && onDelete && (
+          <div style={{ borderTop: '1px solid #eee', paddingTop: 12 }}>
+            {!confirmDelete
+              ? <button onClick={() => setConfirmDelete(true)} style={{ width: '100%', padding: '14px', borderRadius: 13, background: 'rgba(200,50,50,.06)', border: '1px solid rgba(200,50,50,.15)', color: '#c0392b', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15 }}>Delete this list</button>
+              : <div style={{ display: 'flex', gap: 9 }}>
+                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: '14px', borderRadius: 13, background: '#f2f2f2', color: '#333', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15 }}>Cancel</button>
+                  <button onClick={() => { onDelete(existing.id); onClose(); }} style={{ flex: 1, padding: '14px', borderRadius: 13, background: '#c0392b', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 600 }}>Confirm Delete</button>
+                </div>
+            }
+          </div>
+        )}
+
       </div>
     </Drawer>
   );
@@ -568,7 +629,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
   const [tab, setTab] = useState('detail');
   const [editText, setEditText] = useState('');
   const [editPrio, setEditPrio] = useState('MED');
-  const [editAssignee, setEditAssignee] = useState('');
+  const [editAssignees, setEditAssignees] = useState([]);
   const [editDue, setEditDue] = useState('');
   const [editTime, setEditTime] = useState('');
   const [comment, setComment] = useState('');
@@ -577,7 +638,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
     if (task) {
       setEditText(task.text);
       setEditPrio(task.priority);
-      setEditAssignee(task.assignee || '');
+      setEditAssignees(task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []));
       setEditDue(task.dueDate ? task.dueDate.split('T')[0] : '');
       setEditTime(task.dueDate?.includes('T') ? task.dueDate.split('T')[1]?.slice(0, 5) : '');
       setTab('detail');
@@ -590,12 +651,19 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
     { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
     ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
   ];
-  const getUserById = uid => allUsers.find(u => u.id === uid) || { id: uid, name: 'Unknown', avatar: null };
+  const getUserById = uid => allUsers.find(u => u.id === uid) || { id: uid, name: uid, avatar: null };
   const memberUsers = listMembers.map(uid => allUsers.find(u => u.id === uid)).filter(Boolean);
 
+  const toggleAssignee = uid => setEditAssignees(prev => prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]);
+
   const save = () => {
-    const assigneeUser = memberUsers.find(u => u.id === editAssignee);
-    onSave({ ...task, text: editText, priority: editPrio, assignee: editAssignee || null, assigneeName: assigneeUser?.name || null, dueDate: editDue ? (editTime ? `${editDue}T${editTime}` : editDue) : null });
+    onSave({
+      ...task, text: editText, priority: editPrio,
+      assignees: editAssignees,
+      assignee: editAssignees[0] || null,
+      assigneeName: editAssignees.length > 0 ? getUserById(editAssignees[0]).name : null,
+      dueDate: editDue ? (editTime ? `${editDue}T${editTime}` : editDue) : null,
+    });
   };
 
   const addComment = () => {
@@ -604,6 +672,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
     setComment('');
   };
 
+  const completedByUser = task.completedBy ? getUserById(task.completedBy) : null;
   const inp = { width: '100%', padding: '12px 14px', borderRadius: 11, border: '1px solid #eee', background: '#f8f8f8', color: '#111', fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none' };
 
   return (
@@ -645,13 +714,31 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
                 ))}
               </div>
             </div>
-            {/* Assignee */}
+            {/* Assignee — multi-select chips */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>ASSIGN TO</div>
-              <select value={editAssignee} onChange={e => setEditAssignee(e.target.value)} style={{ ...inp, appearance: 'none' }}>
-                <option value="">Unassigned</option>
-                {memberUsers.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-              </select>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {memberUsers.map(u => {
+                  const sel = editAssignees.includes(u.id);
+                  return (
+                    <button key={u.id} onClick={() => toggleAssignee(u.id)} style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '7px 13px 7px 8px', borderRadius: 99, cursor: 'pointer',
+                      border: `1.5px solid ${sel ? '#111' : '#ddd'}`,
+                      background: sel ? '#111' : 'transparent', color: sel ? '#fff' : '#666',
+                      fontFamily: "'DM Sans',sans-serif", fontSize: 13.5, fontWeight: sel ? 600 : 400,
+                    }}>
+                      {u.avatar
+                        ? <img src={u.avatar} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }} alt="" />
+                        : <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>👤</div>
+                      }
+                      {u.name}
+                      {sel && <span style={{ fontSize: 11 }}>✓</span>}
+                    </button>
+                  );
+                })}
+                {memberUsers.length === 0 && <span style={{ fontSize: 13, color: '#bbb', fontFamily: "'DM Sans',sans-serif" }}>No members in this list</span>}
+              </div>
             </div>
             {/* Due date */}
             <div>
@@ -677,6 +764,16 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
                 })}
               </div>
             </div>
+            {/* Completed by — real photo */}
+            {task.completed && completedByUser && (
+              <div style={{ background: '#eef8f1', borderRadius: 11, padding: '11px 14px', display: 'flex', gap: 10, alignItems: 'center' }}>
+                {completedByUser.avatar
+                  ? <img src={completedByUser.avatar} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} alt="" />
+                  : <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#c8eed3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>✓</div>
+                }
+                <span style={{ fontSize: 14, color: '#3a8f56', fontFamily: "'DM Sans',sans-serif" }}>Completed by <strong>{completedByUser.name}</strong></span>
+              </div>
+            )}
             <button onClick={save} style={{
               width: '100%', padding: '15px', borderRadius: 13, background: '#111',
               color: '#fff', border: 'none', cursor: 'pointer',
@@ -815,8 +912,8 @@ export default function MobileApp({ firebaseUser }) {
   const [lists, setLists] = useState([]);
   const [activity, setActivity] = useState([]);
   const [selId, setSelId] = useState(null);
-  const [dark] = useState(false); // mobile always light for now
-  const [tab, setTab] = useState('lists');  // 'lists' | 'activity' | 'leaderboard' | 'profile'
+  const [dark, setDark] = useState(false);
+  const [tab, setTab] = useState('lists');
   const [showPanel, setShowPanel] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [editingList, setEditingList] = useState(null);
@@ -824,11 +921,15 @@ export default function MobileApp({ firebaseUser }) {
   const [confetti, setConfetti] = useState(false);
   const [newText, setNewText] = useState('');
   const [newPrio, setNewPrio] = useState('MED');
+  const [newAssignee, setNewAssignee] = useState('');
+  const [newDue, setNewDue] = useState('');
+  const [newTime, setNewTime] = useState('');
   const [expandAdd, setExpandAdd] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const [showInvites, setShowInvites] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = firebaseUser ? {
     id: firebaseUser.uid,
@@ -892,16 +993,20 @@ export default function MobileApp({ firebaseUser }) {
     if (!newText.trim() || !selId) return;
     const task = {
       id: genId(), text: newText.trim(), completed: false,
-      completedBy: null, completedAt: null, assignee: null, assigneeName: null,
-      priority: newPrio, dueDate: null,
+      completedBy: null, completedAt: null,
+      assignee: newAssignee || null,
+      assignees: newAssignee ? [newAssignee] : [],
+      assigneeName: null,
+      priority: newPrio,
+      dueDate: newDue ? (newTime ? `${newDue}T${newTime}` : newDue) : null,
       emoji: EMOJIS_LIST[Math.floor(Math.random() * 5)],
       reactions: {}, comments: [], createdBy: currentUser.id, createdAt: ts(),
     };
     const list = lists.find(l => l.id === selId);
     updateList(selId, l => ({ ...l, tasks: [...l.tasks, task] }));
     pushActivity(currentUser.id, 'added', task.text, list?.name || '');
-    setNewText(''); setNewPrio('MED'); setExpandAdd(false);
-  }, [newText, newPrio, selId, lists, currentUser, updateList, pushActivity]);
+    setNewText(''); setNewPrio('MED'); setNewAssignee(''); setNewDue(''); setNewTime(''); setExpandAdd(false);
+  }, [newText, newPrio, newAssignee, newDue, newTime, selId, lists, currentUser, updateList, pushActivity]);
 
   const deleteTask = useCallback((taskId) => {
     updateList(selId, l => ({ ...l, tasks: l.tasks.filter(t => t.id !== taskId) }));
@@ -939,7 +1044,11 @@ export default function MobileApp({ firebaseUser }) {
     if (selId === id) setSelId(lists.find(l => l.id !== id)?.id || null);
   }, [lists, selId]);
 
-  const bg = '#f5f5f4';
+  const bg = dark ? '#141414' : '#f5f5f4';
+  const surface = dark ? '#1c1c1c' : '#fff';
+  const txt = dark ? '#efefef' : '#111';
+  const muted = dark ? '#555' : '#bbb';
+  const bdr = dark ? '#2c2c2c' : '#ececec';
   const notifCount = friendRequests.length + listInvites.length;
 
   return (
@@ -956,6 +1065,7 @@ export default function MobileApp({ firebaseUser }) {
       <ListFormDrawer
         open={!!editingList} onClose={() => setEditingList(null)}
         existing={editingList} currentUser={currentUser} friends={friends}
+        onDelete={deleteList}
         onSave={(updated) => { updateList(updated.id, () => updated); setEditingList(null); }}
       />
       {showProfile && (
@@ -1016,7 +1126,7 @@ export default function MobileApp({ firebaseUser }) {
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '13px 16px 11px',
           background: tab === 'lists' && sel ? sel.color : bg,
-          borderBottom: tab !== 'lists' ? '1px solid #eee' : 'none',
+          borderBottom: tab !== 'lists' ? `1px solid ${bdr}` : 'none',
           transition: 'background .3s',
           flexShrink: 0,
         }}>
@@ -1028,6 +1138,7 @@ export default function MobileApp({ firebaseUser }) {
               background: 'rgba(0,0,0,.07)', border: 'none',
               cursor: 'pointer', fontSize: 18, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: tab === 'lists' && sel ? '#111' : txt,
             }}
           >☰</button>
 
@@ -1036,32 +1147,24 @@ export default function MobileApp({ firebaseUser }) {
             {tab === 'lists' && sel ? (
               <>
                 <div style={{ fontFamily: "'Lora',serif", fontSize: 19, color: '#111', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sel.name}</div>
-                <div style={{ fontSize: 12, color: 'rgba(0,0,0,.4)', marginTop: 1, fontFamily: "'DM Sans',sans-serif" }}>{sel.category}</div>
+                <div style={{ fontSize: 12, color: 'rgba(0,0,0,.4)', marginTop: 1, fontFamily: "'DM Sans',sans-serif" }}>{sel.category}{sel.isGroup ? ' · 👥 Group' : ''}</div>
               </>
             ) : tab === 'lists' ? (
-              <span style={{ fontFamily: "'Lora',serif", fontSize: 19, color: '#888', fontStyle: 'italic' }}>No list selected</span>
+              <span style={{ fontFamily: "'Lora',serif", fontSize: 19, color: muted, fontStyle: 'italic' }}>No list selected</span>
             ) : (
-              <span style={{ fontFamily: "'Lora',serif", fontSize: 19, color: '#111', fontWeight: 600 }}>
-                {tab === 'activity' ? 'Activity' : tab === 'leaderboard' ? 'Leaderboard' : 'Profile'}
+              <span style={{ fontFamily: "'Lora',serif", fontSize: 19, color: txt, fontWeight: 600 }}>
+                {tab === 'activity' ? 'Activity' : 'Leaderboard'}
               </span>
             )}
           </div>
 
           {/* Right actions */}
           <div style={{ display: 'flex', gap: 7, flexShrink: 0 }}>
-            {notifCount > 0 && (
-              <button onClick={() => setShowInvites(true)} style={{
-                width: 42, height: 42, borderRadius: 11, background: '#d44',
-                border: 'none', cursor: 'pointer', color: '#fff',
-                fontSize: 13, fontWeight: 700, fontFamily: "'DM Sans',sans-serif",
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>{notifCount}</button>
-            )}
             {tab === 'lists' && sel && (
               <button onClick={() => setEditingList(sel)} style={{
                 width: 42, height: 42, borderRadius: 11,
                 background: 'rgba(0,0,0,.07)', border: 'none',
-                cursor: 'pointer', fontSize: 17, color: '#555',
+                cursor: 'pointer', fontSize: 17,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>✏️</button>
             )}
@@ -1149,13 +1252,6 @@ export default function MobileApp({ firebaseUser }) {
                     </Drawer>
                   )}
 
-                  {/* Delete list */}
-                  <button onClick={() => deleteList(sel.id)} style={{
-                    width: '100%', background: 'rgba(200,50,50,.06)',
-                    border: '1px solid rgba(200,50,50,.15)', borderRadius: 12, padding: '13px',
-                    cursor: 'pointer', color: '#c0392b', fontFamily: "'DM Sans',sans-serif",
-                    fontSize: 14, marginTop: 10,
-                  }}>Delete this list</button>
                 </>
               )}
             </div>
@@ -1165,27 +1261,53 @@ export default function MobileApp({ firebaseUser }) {
         {/* ── ADD TASK BAR (fixed above bottom nav, only on lists tab) ── */}
         {tab === 'lists' && sel && (
           <div style={{
-            position: 'fixed', bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+            position: 'fixed', bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
             left: 0, right: 0, zIndex: 500,
-            padding: '10px 16px',
-            background: 'rgba(245,245,244,.96)',
-            backdropFilter: 'blur(12px)',
-            borderTop: '1px solid rgba(0,0,0,.07)',
+            background: dark ? 'rgba(20,20,20,.97)' : 'rgba(245,245,244,.97)',
+            backdropFilter: 'blur(14px)',
+            borderTop: `1px solid ${dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}`,
           }}>
             {expandAdd && (
-              <div style={{ display: 'flex', gap: 6, marginBottom: 9, flexWrap: 'wrap', animation: 'fadeUp .15s ease-out' }}>
-                {PRIORITIES.map(p => (
-                  <button key={p} onClick={() => setNewPrio(p)} style={{
-                    padding: '6px 13px', borderRadius: 99, fontSize: 12, cursor: 'pointer', fontWeight: 600,
-                    border: `1.5px solid ${newPrio === p ? P_COLOR[p] : '#ddd'}`,
-                    background: newPrio === p ? P_BG[p] : 'transparent',
-                    color: newPrio === p ? P_COLOR[p] : '#bbb',
-                  }}>{p}</button>
-                ))}
+              <div style={{ padding: '10px 16px 0', animation: 'fadeUp .15s ease-out' }}>
+                {/* Priority row */}
+                <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                  {PRIORITIES.map(p => (
+                    <button key={p} onClick={() => setNewPrio(p)} style={{
+                      padding: '6px 13px', borderRadius: 99, fontSize: 12, cursor: 'pointer', fontWeight: 600,
+                      border: `1.5px solid ${newPrio === p ? P_COLOR[p] : (dark?'#2c2c2c':'#ddd')}`,
+                      background: newPrio === p ? P_BG[p] : 'transparent',
+                      color: newPrio === p ? P_COLOR[p] : (dark?'#555':'#bbb'),
+                    }}>{p}</button>
+                  ))}
+                </div>
+                {/* Assignee + date/time row */}
+                <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+                  <select value={newAssignee} onChange={e => setNewAssignee(e.target.value)} style={{
+                    flex: 1, minWidth: 120, padding: '7px 10px', borderRadius: 9, fontSize: 13,
+                    border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
+                    background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
+                  }}>
+                    <option value="">Assign to…</option>
+                    <option value={currentUser.id}>{currentUser.name} (me)</option>
+                    {friends.filter(f => sel?.memberIds?.includes(f.uid)).map(f => (
+                      <option key={f.uid} value={f.uid}>{f.name}</option>
+                    ))}
+                  </select>
+                  <input type="date" value={newDue} onChange={e => setNewDue(e.target.value)} style={{
+                    flex: 1, minWidth: 100, padding: '7px 10px', borderRadius: 9, fontSize: 13,
+                    border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
+                    background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
+                  }}/>
+                  <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} style={{
+                    width: 95, padding: '7px 8px', borderRadius: 9, fontSize: 13,
+                    border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
+                    background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
+                  }}/>
+                </div>
               </div>
             )}
-            <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-              <div style={{ width: 22, height: 22, borderRadius: 6, border: '1.5px solid #ddd', flexShrink: 0 }} />
+            <div style={{ display: 'flex', gap: 9, alignItems: 'center', padding: '10px 16px' }}>
+              <div style={{ width: 22, height: 22, borderRadius: 6, border: `1.5px solid ${dark?'#333':'#ddd'}`, flexShrink: 0 }} />
               <input
                 value={newText}
                 onChange={e => setNewText(e.target.value)}
@@ -1194,7 +1316,7 @@ export default function MobileApp({ firebaseUser }) {
                 placeholder="Add a task…"
                 style={{
                   flex: 1, background: 'none', border: 'none', outline: 'none',
-                  fontFamily: "'DM Sans',sans-serif", fontSize: 16, color: '#111',
+                  fontFamily: "'DM Sans',sans-serif", fontSize: 16, color: dark?'#efefef':'#111',
                 }}
               />
               {newText && (
@@ -1208,49 +1330,86 @@ export default function MobileApp({ firebaseUser }) {
           </div>
         )}
 
+        {/* ── SETTINGS DRAWER ── */}
+        <Drawer open={showSettings} onClose={() => setShowSettings(false)} title="Settings">
+          <div style={{ padding: '4px 20px 40px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Dark mode toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: '#f5f5f4', borderRadius: 13 }}>
+              <div>
+                <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 500, color: '#111' }}>{dark ? '🌙 Dark Mode' : '☀️ Light Mode'}</div>
+                <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: '#aaa', marginTop: 2 }}>Switch app theme</div>
+              </div>
+              <button onClick={() => setDark(v => !v)} style={{
+                width: 48, height: 28, borderRadius: 14, border: 'none', padding: 0,
+                background: dark ? '#111' : '#ddd', position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0,
+              }}>
+                <div style={{ position: 'absolute', top: 3, left: dark ? 23 : 3, width: 22, height: 22, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
+              </button>
+            </div>
+            {/* Friends */}
+            <button onClick={() => { setShowFriends(true); setShowSettings(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '14px 16px', background: '#f5f5f4', borderRadius: 13, border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#111', fontWeight: 500, textAlign: 'left' }}>
+              👥 Friends
+              {friendRequests.length > 0 && <span style={{ background: '#d44', color: '#fff', borderRadius: 99, padding: '1px 8px', fontSize: 11, fontWeight: 700, marginLeft: 'auto' }}>{friendRequests.length}</span>}
+            </button>
+            {/* Invites */}
+            <button onClick={() => { setShowInvites(true); setShowSettings(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '14px 16px', background: '#f5f5f4', borderRadius: 13, border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#111', fontWeight: 500, textAlign: 'left' }}>
+              📬 List Invites
+              {listInvites.length > 0 && <span style={{ background: '#d44', color: '#fff', borderRadius: 99, padding: '1px 8px', fontSize: 11, fontWeight: 700, marginLeft: 'auto' }}>{listInvites.length}</span>}
+            </button>
+            {/* Sign out — separated, red, requires deliberate tap */}
+            <div style={{ marginTop: 8, borderTop: '1px solid #eee', paddingTop: 12 }}>
+              <button onClick={() => signOut(auth)} style={{ width: '100%', padding: '14px 16px', background: 'rgba(200,50,50,.06)', border: '1px solid rgba(200,50,50,.18)', borderRadius: 13, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#c0392b', fontWeight: 500 }}>
+                🚪 Sign Out
+              </button>
+            </div>
+          </div>
+        </Drawer>
+
         {/* ── BOTTOM NAV ── */}
         <div style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 600,
-          background: '#111',
+          background: dark ? '#0e0e0e' : '#111',
           borderTop: '1px solid rgba(255,255,255,.06)',
           display: 'flex',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}>
           {[
-            { id: 'lists', icon: '📋', label: 'Lists' },
-            { id: 'activity', icon: '⚡', label: 'Activity' },
-            { id: 'leaderboard', icon: '🏆', label: 'Rank' },
+            { id: 'lists',       icon: '📋', label: 'Lists'    },
+            { id: 'activity',    icon: '⚡', label: 'Activity' },
+            { id: 'leaderboard', icon: '🏆', label: 'Rank'     },
           ].map(item => (
             <button
               key={item.id}
               onClick={() => setTab(item.id)}
               style={{
                 flex: 1, background: 'none', border: 'none', cursor: 'pointer',
-                padding: '12px 0 14px',
+                padding: '11px 0 13px',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
                 color: tab === item.id ? '#fff' : '#444',
                 transition: 'color .15s',
               }}
             >
               <span style={{ fontSize: 20, lineHeight: 1 }}>{item.icon}</span>
-              <span style={{ fontSize: 11, fontFamily: "'DM Sans',sans-serif", fontWeight: tab === item.id ? 600 : 400, letterSpacing: '.01em' }}>
+              <span style={{ fontSize: 10.5, fontFamily: "'DM Sans',sans-serif", fontWeight: tab === item.id ? 600 : 400, letterSpacing: '.01em' }}>
                 {item.label}
               </span>
             </button>
           ))}
-
-          {/* Sign out tucked in nav */}
+          {/* Settings — has notification dot if pending invites/requests */}
           <button
-            onClick={() => signOut(auth)}
+            onClick={() => setShowSettings(true)}
             style={{
               flex: 1, background: 'none', border: 'none', cursor: 'pointer',
-              padding: '12px 0 14px',
+              padding: '11px 0 13px',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-              color: '#444',
+              color: '#444', position: 'relative',
             }}
           >
-            <span style={{ fontSize: 20, lineHeight: 1 }}>🚪</span>
-            <span style={{ fontSize: 11, fontFamily: "'DM Sans',sans-serif", fontWeight: 400 }}>Out</span>
+            <span style={{ fontSize: 20, lineHeight: 1 }}>⚙️</span>
+            <span style={{ fontSize: 10.5, fontFamily: "'DM Sans',sans-serif", fontWeight: 400 }}>More</span>
+            {(friendRequests.length + listInvites.length) > 0 && (
+              <div style={{ position: 'absolute', top: 9, right: 'calc(50% - 16px)', width: 8, height: 8, background: '#d44', borderRadius: '50%', border: '1.5px solid #111' }}/>
+            )}
           </button>
         </div>
 
