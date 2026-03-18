@@ -8,6 +8,26 @@ import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListIn
 import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
 
 import ProfileModal from "./ProfileModal";
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+
+import { createPortal } from 'react-dom';
+
+const portal = document.getElementById('drag-portal');
+const DraggableItem = ({ provided, snapshot, children }) => {
+  const child = (
+    <div
+      ref={provided.innerRef}
+      {...provided.draggableProps}
+      style={{...provided.draggableProps.style, display:'flex', alignItems:'center', gap:2}}
+    >
+      {children}
+    </div>
+  );
+  if (snapshot.isDragging && portal) {
+    return createPortal(child, portal);
+  }
+  return child;
+};
 
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
 const USERS = [
@@ -860,6 +880,7 @@ export default function App() {
   const [newPrio,setNewPrio]=useState('MED');
   const [newAssignee,setNewAssignee]=useState('');
   const [newDue,setNewDue]=useState('');
+  const [newTime, setNewTime] = useState('');
   const [sortBy,setSortBy]=useState('default');
   const [showAI,setShowAI]=useState(false);
   const [expandAdd,setExpandAdd]=useState(false);
@@ -953,13 +974,13 @@ export default function App() {
     if(!newText.trim()||!selId) return;
     const assigneeUser = newAssignee ? [...friends.map(f=>({id:f.uid,name:f.name})), {id:currentUser.id,name:currentUser.name}].find(u=>u.id===newAssignee) : null;
     const task={id:genId(),text:newText.trim(),completed:false,completedBy:null,completedAt:null,
-  assignee:newAssignee||null,assigneeName:assigneeUser?.name||null,priority:newPrio,dueDate:newDue||null,
+  assignee:newAssignee||null,assigneeName:assigneeUser?.name||null,priority:newPrio,dueDate: newDue ? (newTime ? `${newDue}T${newTime}` : newDue) : null,
       emoji:EMOJIS_LIST[Math.floor(Math.random()*5)],reactions:{},comments:[],
       createdBy:currentUser.id,createdAt:ts()};
     const list=lists.find(l=>l.id===selId);
     updateList(selId,l=>({...l,tasks:[...l.tasks,task]}));
     pushActivity(currentUser.id,'added',task.text,list?.name||'');
-    setNewText('');setNewDue('');setNewAssignee('');setExpandAdd(false);
+    setNewText('');setNewDue('');setNewTime('');setNewAssignee('');setExpandAdd(false);
   },[newText,newPrio,newAssignee,newDue,selId,lists,currentUser,updateList,pushActivity]);
 
   const deleteTask=useCallback((taskId)=>{updateList(selId,l=>({...l,tasks:l.tasks.filter(t=>t.id!==taskId)}));},[selId,updateList]);
@@ -1114,7 +1135,7 @@ export default function App() {
           </div>
 
           {/* Nav */}
-          <div style={{padding:'10px 10px',overflow:'auto',flex:1}}>
+          <div style={{padding:'10px 10px',overflowY:'auto',overflowX:'hidden',flex:1}}>
             {[{id:'activity',label:'Activity Feed',icon:'⚡'},{id:'leaderboard',label:'Leaderboard',icon:'🏆'}].map(v=>(
               <button key={v.id} onClick={()=>setView(v.id)} style={{width:'100%',textAlign:'left',background:view===v.id?'#ffffff10':'none',border:'none',borderRadius:8,padding:'8px 10px',cursor:'pointer',color:view===v.id?'#fafafa':'#555',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
                 <span>{v.icon}</span>{v.label}
@@ -1123,26 +1144,71 @@ export default function App() {
 
             <div style={{height:1,background:'#ffffff08',margin:'10px 2px'}}/>
             <div style={{fontSize:9,fontWeight:700,color:'#333',letterSpacing:'.1em',padding:'4px 10px 6px'}}>PERSONAL</div>
-            {personal.map(l=>(
-              <button key={l.id} onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{width:'100%',textAlign:'left',background:selId===l.id&&view==='list'?'#ffffff10':'none',border:'none',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:selId===l.id&&view==='list'?'#fafafa':'#666',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
-                <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0}}/>
-                <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
-                {l.isPrivate&&<span style={{fontSize:9,color:'#333'}}>🔒</span>}
-              </button>
-            ))}
+              <DragDropContext onDragEnd={(result)=>{
+                if(!result.destination) return;
+                const items=[...personal];
+                const [moved]=items.splice(result.source.index,1);
+                items.splice(result.destination.index,0,moved);
+                setLists(prev=>[...items,...prev.filter(l=>l.isGroup)]);
+              }}>
+                <Droppable droppableId="personal-lists">
+                  {(provided)=>(
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      {personal.map((l,index)=>(
+                        <Draggable key={l.id} draggableId={l.id} index={index}>
+                          {(provided)=>(
+                            <div ref={provided.innerRef} {...provided.draggableProps} style={{display:'flex',alignItems:'center',gap:2}}>
+                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#444',fontSize:12,padding:'0 4px',flexShrink:0}}>⠿</div>
+                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'#ffffff10':'none',border:'none',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:selId===l.id&&view==='list'?'#fafafa':'#666',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
+                                <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0}}/>
+                                <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
+                                {l.isPrivate&&<span style={{fontSize:9,color:'#333'}}>🔒</span>}
+                              </button>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
 
-            <div style={{fontSize:9,fontWeight:700,color:'#333',letterSpacing:'.1em',padding:'12px 10px 6px'}}>GROUP</div>
-            {group.map(l=>(
-              <button key={l.id} onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{width:'100%',textAlign:'left',background:selId===l.id&&view==='list'?'#ffffff10':'none',border:'none',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:selId===l.id&&view==='list'?'#fafafa':'#666',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
-                <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0}}/>
-                <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
-                <div style={{display:'flex'}}>
-                  {l.members.slice(0,3).map((m,i)=>(
-                    <div key={m} style={{marginLeft:i>0?-5:0,width:16,height:16,borderRadius:'50%',background:getUser(m).color,fontSize:8,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid #0a0a0a'}}>{getUser(m).avatar}</div>
-                  ))}
-                </div>
-              </button>
-            ))}
+              <div style={{fontSize:9,fontWeight:700,color:'#333',letterSpacing:'.1em',padding:'12px 10px 6px'}}>GROUP</div>
+              <DragDropContext onDragEnd={(result)=>{
+                if(!result.destination) return;
+                const items=[...group];
+                const [moved]=items.splice(result.source.index,1);
+                items.splice(result.destination.index,0,moved);
+                setLists(prev=>[...prev.filter(l=>!l.isGroup),...items]);
+              }}>
+                <Droppable droppableId="group-lists">
+                  {(provided)=>(
+                    <div {...provided.droppableProps} ref={provided.innerRef} style={{minHeight:8}}>
+                      {group.map((l,index)=>(
+                        <Draggable key={l.id} draggableId={l.id} index={index}>
+                          {(provided, snapshot)=>(
+                            <DraggableItem provided={provided} snapshot={snapshot}>
+                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#444',fontSize:12,padding:'0 4px',flexShrink:0}}>⠿</div>
+                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'#ffffff10':'none',border:'none',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:selId===l.id&&view==='list'?'#fafafa':'#666',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
+                                <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0}}/>
+                                <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
+                                <div style={{display:'flex'}}>
+                                  {l.members.slice(0,3).map((m,i)=>(
+                                    <div key={m} style={{marginLeft:i>0?-5:0,width:16,height:16,borderRadius:'50%',background:getUser(m).color,fontSize:8,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid #0a0a0a'}}>{getUser(m).avatar}</div>
+                                  ))}
+                                </div>
+                              </button>
+                            </DraggableItem>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+
 
             <button onClick={() => setShowFriends(true)} style={{
               width:'100%', textAlign:'left', background:'none',
@@ -1291,9 +1357,43 @@ export default function App() {
                   <p style={{fontFamily:'Epilogue,sans-serif',fontSize:14}}>Empty list. Add your first task or try AI suggestions!</p>
                 </div>
               )}
-              {sortedTasks.map(task=>(
-                <TaskItem key={task.id} task={task} currentUser={currentUser} dark={dark} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={setTaskDetail}/>
-              ))}
+              <DragDropContext onDragEnd={(result)=>{
+                if(!result.destination||!sel) return;
+                const items=[...sel.tasks];
+                const [moved]=items.splice(result.source.index,1);
+                items.splice(result.destination.index,0,moved);
+                updateList(selId,l=>({...l,tasks:items}));
+              }}>
+                <Droppable droppableId="tasks">
+                  {(provided)=>(
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      {sortedTasks.map((task,index)=>(
+                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                          {(provided,snapshot)=>(
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              style={{
+                                ...provided.draggableProps.style,
+                                opacity: snapshot.isDragging ? 0.85 : 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 4,
+                              }}
+                            >
+                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:muted,fontSize:14,flexShrink:0,padding:'4px 2px',display:'flex',alignItems:'center'}}>⠿</div>
+                              <div style={{flex:1}}>
+                                <TaskItem task={task} currentUser={currentUser} dark={dark} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={setTaskDetail}/>
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
 
               {/* Add Task */}
               <div style={{background:surface,border:`1.5px solid ${bdr}`,borderRadius:12,padding:'12px 14px',marginTop:4}}>
@@ -1311,9 +1411,16 @@ export default function App() {
                     </div>
                     <select value={newAssignee} onChange={e=>setNewAssignee(e.target.value)} style={{background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:8,padding:'4px 9px',fontSize:12,color:txt,cursor:'pointer',outline:'none'}}>
                       <option value="">Assign to...</option>
-                      {sel.members.map(m=>{const u=getUser(m);return<option key={m} value={m}>{u.avatar} {u.name}</option>;})}
+                      {[{id:currentUser.id,name:currentUser.name,avatar:currentUser.avatar},
+                        ...friends.filter(f=>sel?.memberIds?.includes(f.uid)).map(f=>({id:f.uid,name:f.name,avatar:f.avatar}))
+                      ].map(u=>(
+                        <option key={u.id} value={u.id}>{u.name}</option>
+                      ))}
                     </select>
-                    <input type="date" value={newDue} onChange={e=>setNewDue(e.target.value)} style={{background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:8,padding:'4px 9px',fontSize:12,color:txt,cursor:'pointer',outline:'none'}}/>
+                    <div style={{display:'flex',gap:4}}>
+                      <input type="date" value={newDue} onChange={e=>setNewDue(e.target.value)} style={{background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:8,padding:'4px 9px',fontSize:12,color:txt,cursor:'pointer',outline:'none'}}/>
+                      <input type="time" value={newTime} onChange={e=>setNewTime(e.target.value)} style={{background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:8,padding:'4px 9px',fontSize:12,color:txt,cursor:'pointer',outline:'none',width:100}}/>
+                    </div>
                   </div>
                 )}
               </div>
