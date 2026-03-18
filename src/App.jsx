@@ -250,6 +250,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   const [editTime, setEditTime] = useState(task.dueDate && task.dueDate.includes('T') ? task.dueDate.split('T')[1]?.slice(0,5) : '');
   const [editEmoji, setEditEmoji] = useState(task.emoji||'📌');
   const [tab, setTab] = useState('detail');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const surface = dark?'#1a1a1a':'#fff', txt = dark?'#f0f0f0':'#0a0a0a';
   const muted = dark?'#777':'#aaa', bdr = dark?'#2a2a2a':'#efefef';
 
@@ -294,9 +295,55 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
         <div style={{padding:'18px 20px 0',borderBottom:`1px solid ${bdr}`}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
-              <select value={editEmoji} onChange={e=>setEditEmoji(e.target.value)} style={{background:'none',border:'none',fontSize:22,cursor:'pointer',outline:'none'}}>
-                {EMOJIS_LIST.map(em=><option key={em}>{em}</option>)}
-              </select>
+              <div style={{position:'relative',display:'flex',alignItems:'center'}}>
+                <span
+                  onClick={() => setShowEmojiPicker(v=>!v)}
+                  style={{fontSize:24,cursor:'pointer',userSelect:'none',padding:'0 4px'}}
+                >
+                  {editEmoji}
+                </span>
+                {showEmojiPicker && (
+                  <div style={{
+                    position:'absolute',top:36,left:0,zIndex:100,
+                    background:dark?'#1a1a1a':'#fff',
+                    border:`1px solid ${bdr}`,borderRadius:12,
+                    padding:10,width:260,
+                    boxShadow:'0 4px 24px rgba(0,0,0,.12)'
+                  }}>
+                    {/* พิมพ์ emoji โดยตรง */}
+                    <input
+                      autoFocus
+                      placeholder="พิมพ์ emoji หรือข้อความ..."
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val) setEditEmoji(val.slice(-2) || val.slice(-1));
+                      }}
+                      style={{
+                        width:'100%',padding:'7px 10px',borderRadius:8,marginBottom:8,
+                        border:`1px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',
+                        color:txt,fontSize:14,outline:'none',boxSizing:'border-box',
+                        fontFamily:'Epilogue,sans-serif'
+                      }}
+                    />
+                    {/* เลือกจาก preset */}
+                    <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                      {EMOJIS_LIST.map(em=>(
+                        <button key={em} onClick={()=>{setEditEmoji(em);setShowEmojiPicker(false);}}
+                          style={{
+                            background:editEmoji===em?(dark?'#333':'#f0f0f0'):'transparent',
+                            border:'none',borderRadius:6,padding:'4px 6px',
+                            fontSize:18,cursor:'pointer'
+                          }}>{em}</button>
+                      ))}
+                    </div>
+                    <button onClick={()=>setShowEmojiPicker(false)} style={{
+                      width:'100%',marginTop:8,padding:'6px',borderRadius:8,
+                      border:`1px solid ${bdr}`,background:'transparent',
+                      color:muted,fontFamily:'Epilogue,sans-serif',fontSize:12,cursor:'pointer'
+                    }}>Close</button>
+                  </div>
+                )}
+              </div>
               <input value={editText} onChange={e=>setEditText(e.target.value)} style={{fontFamily:'Fraunces,serif',fontSize:18,color:txt,background:'none',border:'none',outline:'none',width:280}}/>
             </div>
             <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:muted,fontSize:22,lineHeight:1,padding:'0 4px'}}>×</button>
