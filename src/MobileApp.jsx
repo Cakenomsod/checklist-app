@@ -940,7 +940,7 @@ export default function MobileApp({ firebaseUser }) {
   const [confetti, setConfetti] = useState(false);
   const [newText, setNewText] = useState('');
   const [newPrio, setNewPrio] = useState('MED');
-  const [newAssignee, setNewAssignee] = useState('');
+  const [newAssignees, setNewAssignees] = useState([]);
   const [newDue, setNewDue] = useState('');
   const [newTime, setNewTime] = useState('');
   const [expandAdd, setExpandAdd] = useState(false);
@@ -1013,8 +1013,8 @@ export default function MobileApp({ firebaseUser }) {
     const task = {
       id: genId(), text: newText.trim(), completed: false,
       completedBy: null, completedAt: null,
-      assignee: newAssignee || null,
-      assignees: newAssignee ? [newAssignee] : [],
+      assignee: newAssignees[0] || null,
+      assignees: newAssignees,
       assigneeName: null,
       priority: newPrio,
       dueDate: newDue ? (newTime ? `${newDue}T${newTime}` : newDue) : null,
@@ -1024,8 +1024,8 @@ export default function MobileApp({ firebaseUser }) {
     const list = lists.find(l => l.id === selId);
     updateList(selId, l => ({ ...l, tasks: [...l.tasks, task] }));
     pushActivity(currentUser.id, 'added', task.text, list?.name || '');
-    setNewText(''); setNewPrio('MED'); setNewAssignee(''); setNewDue(''); setNewTime(''); setExpandAdd(false);
-  }, [newText, newPrio, newAssignee, newDue, newTime, selId, lists, currentUser, updateList, pushActivity]);
+    setNewText(''); setNewPrio('MED'); setNewAssignees([]); setNewDue(''); setNewTime(''); setExpandAdd(false);
+  }, [newText, newPrio, newAssignees, newDue, newTime, selId, lists, currentUser, updateList, pushActivity]);
 
   const deleteTask = useCallback((taskId) => {
     updateList(selId, l => ({ ...l, tasks: l.tasks.filter(t => t.id !== taskId) }));
@@ -1322,29 +1322,59 @@ export default function MobileApp({ firebaseUser }) {
                     }}>{p}</button>
                   ))}
                 </div>
-                {/* Assignee + date/time row */}
-                <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-                  <select value={newAssignee} onChange={e => setNewAssignee(e.target.value)} style={{
-                    flex: 1, minWidth: 120, padding: '7px 10px', borderRadius: 9, fontSize: 13,
-                    border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
-                    background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
-                  }}>
-                    <option value="">Assign to…</option>
-                    <option value={currentUser.id}>{currentUser.name} (me)</option>
-                    {friends.filter(f => sel?.memberIds?.includes(f.uid)).map(f => (
-                      <option key={f.uid} value={f.uid}>{f.name}</option>
-                    ))}
-                  </select>
-                  <input type="date" value={newDue} onChange={e => setNewDue(e.target.value)} style={{
-                    flex: 1, minWidth: 100, padding: '7px 10px', borderRadius: 9, fontSize: 13,
-                    border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
-                    background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
-                  }}/>
-                  <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} style={{
-                    width: 95, padding: '7px 8px', borderRadius: 9, fontSize: 13,
-                    border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
-                    background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
-                  }}/>
+                {/* Assignee chips (multi-select) + date/time row */}
+                <div style={{ marginBottom: 8 }}>
+                  {/* Member chips */}
+                  {(() => {
+                    const allUsers = [
+                      { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
+                      ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
+                    ];
+                    const memberUsers = [
+                      { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
+                      ...friends.filter(f => sel?.memberIds?.includes(f.uid)).map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
+                    ];
+                    if (memberUsers.length === 0) return null;
+                    return (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                        {memberUsers.map(u => {
+                          const selected = newAssignees.includes(u.id);
+                          return (
+                            <button key={u.id} onClick={() => setNewAssignees(prev =>
+                              prev.includes(u.id) ? prev.filter(id => id !== u.id) : [...prev, u.id]
+                            )} style={{
+                              display: 'flex', alignItems: 'center', gap: 6,
+                              padding: '6px 11px 6px 6px', borderRadius: 99, cursor: 'pointer',
+                              border: `1.5px solid ${selected ? (dark ? '#ccc' : '#111') : (dark ? '#2c2c2c' : '#ddd')}`,
+                              background: selected ? (dark ? '#ccc' : '#111') : 'transparent',
+                              color: selected ? (dark ? '#111' : '#fff') : (dark ? '#555' : '#666'),
+                              fontFamily: "'DM Sans',sans-serif", fontSize: 12.5, fontWeight: selected ? 600 : 400,
+                            }}>
+                              {u.avatar
+                                ? <img src={u.avatar} style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover' }} alt="" />
+                                : <div style={{ width: 20, height: 20, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>👤</div>
+                              }
+                              {u.name}
+                              {selected && <span style={{ fontSize: 10 }}>✓</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                  {/* Date + time */}
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <input type="date" value={newDue} onChange={e => setNewDue(e.target.value)} style={{
+                      flex: 1, minWidth: 100, padding: '7px 10px', borderRadius: 9, fontSize: 13,
+                      border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
+                      background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
+                    }}/>
+                    <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} style={{
+                      width: 95, padding: '7px 8px', borderRadius: 9, fontSize: 13,
+                      border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
+                      background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
+                    }}/>
+                  </div>
                 </div>
               </div>
             )}
