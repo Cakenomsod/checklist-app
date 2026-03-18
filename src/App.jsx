@@ -11,6 +11,13 @@ import ProfileModal from "./ProfileModal";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import { createPortal } from 'react-dom';
+import MobileApp from './MobileApp';
+
+// ── Mobile detection ──────────────────────────────────────────────────────────
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < 768 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+};
 
 const useLongPressSensor = (api) => {
   useEffect(() => {
@@ -1144,6 +1151,11 @@ export default function App() {
   // Not logged in
   if (firebaseUser === null) {
     return <Login />;
+  }
+
+  // ── Route to mobile layout on small screens ──────────────────────────────
+  if (isMobile()) {
+    return <MobileApp firebaseUser={firebaseUser} />;
   }
 
   // Theme vars
