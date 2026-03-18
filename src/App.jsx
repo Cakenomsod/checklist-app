@@ -96,15 +96,17 @@ const timeAgo = (iso) => {
   const h=Math.floor(m/60); if(h<24) return `${h}h ago`;
   return `${Math.floor(h/24)}d ago`;
 };
+
 const fmtDate = (ds) => {
   if(!ds) return null;
-  const diff=Math.floor((new Date(ds)-new Date())/86400000);
-  if(diff<0)  return {label:'Overdue',  urgent:true};
-  if(diff===0) return {label:'Today',   urgent:true};
-  if(diff===1) return {label:'Tomorrow',urgent:false};
-  return {label:new Date(ds).toLocaleDateString('en',{month:'short',day:'numeric'}),urgent:false};
+  const date = new Date(ds);
+  const diff=Math.floor((date-new Date())/86400000);
+  const timeStr = ds.includes('T') ? ` ${date.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}` : '';
+  if(diff<0)  return {label:`Overdue${timeStr}`, urgent:true};
+  if(diff===0) return {label:`Today${timeStr}`, urgent:true};
+  if(diff===1) return {label:`Tomorrow${timeStr}`, urgent:false};
+  return {label:`${new Date(ds).toLocaleDateString('en',{month:'short',day:'numeric'})}${timeStr}`, urgent:false};
 };
-
 const GCSS = `
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Epilogue:wght@300;400;500;600&display=swap');
   *{box-sizing:border-box;} body{margin:0;}
@@ -244,7 +246,8 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   const [editText, setEditText] = useState(task.text);
   const [editPrio, setEditPrio] = useState(task.priority);
   const [editAssignee, setEditAssignee] = useState(task.assignee||'');
-  const [editDue, setEditDue] = useState(task.dueDate||'');
+  const [editDue, setEditDue] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');
+  const [editTime, setEditTime] = useState(task.dueDate && task.dueDate.includes('T') ? task.dueDate.split('T')[1]?.slice(0,5) : '');
   const [editEmoji, setEditEmoji] = useState(task.emoji||'📌');
   const [tab, setTab] = useState('detail');
   const surface = dark?'#1a1a1a':'#fff', txt = dark?'#f0f0f0':'#0a0a0a';
@@ -265,13 +268,14 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
 
   const save = () => {
     const assigneeUser = memberUsers.find(u => u.id === editAssignee);
+    const fullDueDate = editDue ? (editTime ? `${editDue}T${editTime}` : editDue) : null;
     onSave({
       ...task,
       text: editText,
       priority: editPrio,
       assignee: editAssignee || null,
       assigneeName: assigneeUser?.name || null,
-      dueDate: editDue || null,
+      dueDate: fullDueDate,
       emoji: editEmoji
     });
   };
@@ -335,7 +339,10 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
 
               <div>
                 <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:7,letterSpacing:'.06em'}}>DUE DATE</label>
-                <input type="date" value={editDue} onChange={e=>setEditDue(e.target.value)} style={{width:'100%',background:dark?'#252525':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none'}}/>
+                <div style={{display:'flex',gap:8}}>
+                  <input type="date" value={editDue} onChange={e=>setEditDue(e.target.value)} style={{flex:1,background:dark?'#252525':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none'}}/>
+                  <input type="time" value={editTime} onChange={e=>setEditTime(e.target.value)} style={{width:110,background:dark?'#252525':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none'}}/>
+                </div>
               </div>
 
               <div>
