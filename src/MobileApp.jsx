@@ -96,15 +96,15 @@ const PBadge = ({ p }) => (
   </span>
 );
 
-const ProgressBar = ({ tasks }) => {
+const ProgressBar = ({ tasks, dark = false }) => {
   const total = tasks.length, done = tasks.filter(t => t.completed).length;
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <div style={{ flex: 1, height: 4, borderRadius: 99, background: 'rgba(0,0,0,.1)', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: '#111', transition: 'width .4s ease' }} />
+      <div style={{ flex: 1, height: 4, borderRadius: 99, background: dark ? '#2a2a2a' : 'rgba(0,0,0,.1)', overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: dark ? 'rgba(255,255,255,.85)' : '#111', transition: 'width .4s ease' }} />
       </div>
-      <span style={{ fontSize: 12, color: 'rgba(0,0,0,.4)', fontFamily: "'DM Sans',sans-serif", fontWeight: 500, flexShrink: 0 }}>
+      <span style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,.38)' : 'rgba(0,0,0,.4)', fontFamily: "'DM Sans',sans-serif", fontWeight: 500, flexShrink: 0 }}>
         {done}/{total}
       </span>
     </div>
@@ -129,8 +129,11 @@ const Confetti = ({ active }) => {
 };
 
 // ── Drawer (slide-up sheet) ───────────────────────────────────────────────────
-const Drawer = ({ open, onClose, children, title, maxHeight = '85vh' }) => {
+const Drawer = ({ open, onClose, children, title, maxHeight = '85vh', dark = false }) => {
   if (!open) return null;
+  const drawerBg = dark ? '#1c1c1c' : '#fff';
+  const drawerTxt = dark ? '#efefef' : '#111';
+  const drawerMuted = dark ? '#555' : '#888';
   return (
     <div
       onClick={onClose}
@@ -143,7 +146,7 @@ const Drawer = ({ open, onClose, children, title, maxHeight = '85vh' }) => {
         onClick={e => e.stopPropagation()}
         style={{
           position: 'absolute', bottom: 0, left: 0, right: 0,
-          background: '#fff', borderRadius: '20px 20px 0 0',
+          background: drawerBg, borderRadius: '20px 20px 0 0',
           maxHeight, overflow: 'hidden', display: 'flex', flexDirection: 'column',
           animation: 'slideUp .28s cubic-bezier(.34,1.2,.64,1)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -151,12 +154,12 @@ const Drawer = ({ open, onClose, children, title, maxHeight = '85vh' }) => {
       >
         {/* Drag handle */}
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-          <div style={{ width: 36, height: 4, borderRadius: 99, background: '#ddd' }} />
+          <div style={{ width: 36, height: 4, borderRadius: 99, background: dark ? '#444' : '#ddd' }} />
         </div>
         {title && (
           <div style={{ padding: '4px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontFamily: "'Lora',serif", fontSize: 18, fontWeight: 600, color: '#111', fontStyle: 'italic' }}>{title}</span>
-            <button onClick={onClose} style={{ background: '#f2f2f2', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontSize: 15, color: '#888' }}>✕</button>
+            <span style={{ fontFamily: "'Lora',serif", fontSize: 18, fontWeight: 600, color: drawerTxt, fontStyle: 'italic' }}>{title}</span>
+            <button onClick={onClose} style={{ background: dark ? '#2a2a2a' : '#f2f2f2', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontSize: 15, color: drawerMuted }}>✕</button>
           </div>
         )}
         <div style={{ overflow: 'auto', flex: 1 }}>
@@ -168,14 +171,18 @@ const Drawer = ({ open, onClose, children, title, maxHeight = '85vh' }) => {
 };
 
 // ── Task row (mobile-optimised) ───────────────────────────────────────────────
-const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpenDetail }) => {
+const MobileTaskItem = ({ task, currentUser, dark = false, onToggle, onDelete, onReact, onOpenDetail }) => {
   const di = fmtDate(task.dueDate);
   const [showRx, setShowRx] = useState(false);
+  const cardBg = dark ? '#1e1e1e' : '#fff';
+  const cardTxt = dark ? '#efefef' : '#111';
+  const cardMuted = dark ? '#666' : '#bbb';
+  const cardBdr = dark ? '#2c2c2c' : '#ebebeb';
 
   return (
     <div style={{
-      background: '#fff', borderRadius: 12, padding: '13px 15px',
-      marginBottom: 8, boxShadow: '0 1px 4px rgba(0,0,0,.06)',
+      background: cardBg, borderRadius: 12, padding: '13px 15px',
+      marginBottom: 8, boxShadow: dark ? '0 1px 4px rgba(0,0,0,.3)' : '0 1px 4px rgba(0,0,0,.06)',
       display: 'flex', gap: 12, alignItems: 'flex-start',
       opacity: task.completed ? .6 : 1, transition: 'opacity .2s',
       position: 'relative',
@@ -185,13 +192,13 @@ const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpen
         onClick={() => onToggle(task.id)}
         style={{
           width: 26, height: 26, borderRadius: 8, flexShrink: 0, marginTop: 1,
-          border: `2px solid ${task.completed ? '#111' : '#d0d0d0'}`,
-          background: task.completed ? '#111' : 'transparent',
+          border: `2px solid ${task.completed ? (dark ? '#ccc' : '#111') : (dark ? '#3a3a3a' : '#d0d0d0')}`,
+          background: task.completed ? (dark ? '#ccc' : '#111') : 'transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', transition: 'all .15s', padding: 0,
         }}
       >
-        {task.completed && <span style={{ fontSize: 12, color: '#fff', fontWeight: 800, lineHeight: 1 }}>✓</span>}
+        {task.completed && <span style={{ fontSize: 12, color: dark ? '#111' : '#fff', fontWeight: 800, lineHeight: 1 }}>✓</span>}
       </button>
 
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -200,7 +207,7 @@ const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpen
           {task.emoji && <span style={{ fontSize: 15 }}>{task.emoji}</span>}
           <span style={{
             fontFamily: "'DM Sans',sans-serif", fontWeight: 500, fontSize: 15,
-            color: task.completed ? '#bbb' : '#111',
+            color: task.completed ? cardMuted : cardTxt,
             textDecoration: task.completed ? 'line-through' : 'none',
             flex: 1, minWidth: 0,
           }}>{task.text}</span>
@@ -212,21 +219,19 @@ const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpen
           {di && (
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 20,
-              background: di.urgent ? '#FFF0F0' : '#f5f5f5',
-              color: di.urgent ? '#d44' : '#aaa',
+              background: di.urgent ? (dark ? '#3a1010' : '#FFF0F0') : (dark ? '#242424' : '#f5f5f5'),
+              color: di.urgent ? (dark ? '#ff8080' : '#d44') : cardMuted,
               fontFamily: "'DM Sans',sans-serif",
             }}>{di.label}</span>
           )}
           {task.assignee && !task.completed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              {/* Show stacked avatars for multi-assignee */}
               {(task.assignees?.length > 0 ? task.assignees : [task.assignee]).slice(0, 3).map((uid, i) => (
                 <div key={uid} style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 3 - i }}>
-                  {/* Use photo if available via friends lookup — passed as context not available here, fall back to emoji avatar */}
-                  <div title={uid} style={{ width: 20, height: 20, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: '1.5px solid #fff' }}>👤</div>
+                  <div title={uid} style={{ width: 20, height: 20, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: `1.5px solid ${dark ? '#1e1e1e' : '#fff'}` }}>👤</div>
                 </div>
               ))}
-              {(task.assignees?.length || 1) > 3 && <span style={{ fontSize: 10, color: '#aaa' }}>+{(task.assignees?.length || 1) - 3}</span>}
+              {(task.assignees?.length || 1) > 3 && <span style={{ fontSize: 10, color: cardMuted }}>+{(task.assignees?.length || 1) - 3}</span>}
             </div>
           )}
         </div>
@@ -238,16 +243,16 @@ const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpen
               const us = task.reactions[em] || [];
               return us.length > 0 ? (
                 <button key={em} onClick={() => onReact(task.id, em)} style={{
-                  background: us.includes(currentUser.id) ? '#f0f0f0' : 'transparent',
-                  border: '1px solid #ebebeb', borderRadius: 99,
+                  background: us.includes(currentUser.id) ? (dark ? '#2a2a2a' : '#f0f0f0') : 'transparent',
+                  border: `1px solid ${cardBdr}`, borderRadius: 99,
                   padding: '2px 8px', fontSize: 12, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 2,
+                  display: 'flex', alignItems: 'center', gap: 2, color: cardTxt,
                 }}>{em}<span style={{ fontSize: 11 }}>{us.length}</span></button>
               ) : null;
             })}
             {task.comments.length > 0 && (
               <button onClick={() => onOpenDetail(task)} style={{
-                background: 'none', border: 'none', color: '#bbb',
+                background: 'none', border: 'none', color: cardMuted,
                 fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
               }}>💬 {task.comments.length}</button>
             )}
@@ -260,7 +265,7 @@ const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpen
         <button
           onClick={() => setShowRx(v => !v)}
           style={{
-            background: '#f5f5f5', border: 'none', borderRadius: 8,
+            background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
             width: 34, height: 34, cursor: 'pointer', fontSize: 14,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
@@ -268,16 +273,16 @@ const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpen
         <button
           onClick={() => onOpenDetail(task)}
           style={{
-            background: '#f5f5f5', border: 'none', borderRadius: 8,
+            background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
             width: 34, height: 34, cursor: 'pointer', fontSize: 16,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#888',
+            color: cardMuted,
           }}
         >···</button>
         <button
           onClick={() => onDelete(task.id)}
           style={{
-            background: '#fff0f0', border: 'none', borderRadius: 8,
+            background: dark ? '#3a1010' : '#fff0f0', border: 'none', borderRadius: 8,
             width: 34, height: 34, cursor: 'pointer', fontSize: 16,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#d44',
@@ -289,9 +294,9 @@ const MobileTaskItem = ({ task, currentUser, onToggle, onDelete, onReact, onOpen
       {showRx && (
         <div style={{
           position: 'absolute', right: 8, top: 54, zIndex: 200,
-          background: '#fff', border: '1px solid #ebebeb', borderRadius: 12,
+          background: dark ? '#1e1e1e' : '#fff', border: `1px solid ${cardBdr}`, borderRadius: 12,
           padding: '8px 10px', display: 'flex', gap: 6,
-          boxShadow: '0 8px 24px rgba(0,0,0,.12)',
+          boxShadow: dark ? '0 8px 24px rgba(0,0,0,.5)' : '0 8px 24px rgba(0,0,0,.12)',
         }}>
           {REACTIONS_LIST.map(em => (
             <button key={em} onClick={() => { onReact(task.id, em); setShowRx(false); }}
@@ -625,7 +630,7 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
 };
 
 // ── Task Detail Drawer ────────────────────────────────────────────────────────
-const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers }) => {
+const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers, dark = false }) => {
   const [tab, setTab] = useState('detail');
   const [editText, setEditText] = useState('');
   const [editPrio, setEditPrio] = useState('MED');
@@ -646,6 +651,11 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
   }, [task]);
 
   if (!task) return null;
+
+  const dtxt = dark ? '#efefef' : '#111';
+  const dmuted = dark ? '#666' : '#bbb';
+  const dbdr = dark ? '#2c2c2c' : '#eee';
+  const dsurf = dark ? '#242424' : '#f8f8f8';
 
   const allUsers = [
     { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
@@ -673,22 +683,22 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
   };
 
   const completedByUser = task.completedBy ? getUserById(task.completedBy) : null;
-  const inp = { width: '100%', padding: '12px 14px', borderRadius: 11, border: '1px solid #eee', background: '#f8f8f8', color: '#111', fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none' };
+  const inp = { width: '100%', padding: '12px 14px', borderRadius: 11, border: `1px solid ${dbdr}`, background: dsurf, color: dtxt, fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none' };
 
   return (
-    <Drawer open={open} onClose={onClose} maxHeight="92vh">
+    <Drawer open={open} onClose={onClose} maxHeight="92vh" dark={dark}>
       {/* Task title */}
       <div style={{ padding: '4px 20px 0' }}>
         <input value={editText} onChange={e => setEditText(e.target.value)}
-          style={{ width: '100%', fontFamily: "'Lora',serif", fontSize: 20, color: '#111', background: 'none', border: 'none', outline: 'none', fontWeight: 600 }} />
+          style={{ width: '100%', fontFamily: "'Lora',serif", fontSize: 20, color: dtxt, background: 'none', border: 'none', outline: 'none', fontWeight: 600 }} />
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid #eee', marginTop: 10 }}>
+        <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${dbdr}`, marginTop: 10 }}>
           {['detail', 'comments'].map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               padding: '10px 18px', fontFamily: "'DM Sans',sans-serif", fontSize: 14,
-              fontWeight: tab === t ? 600 : 400, color: tab === t ? '#111' : '#bbb',
-              borderBottom: tab === t ? '2px solid #111' : '2px solid transparent',
+              fontWeight: tab === t ? 600 : 400, color: tab === t ? dtxt : dmuted,
+              borderBottom: tab === t ? `2px solid ${dtxt}` : '2px solid transparent',
             }}>
               {t.charAt(0).toUpperCase() + t.slice(1)}{t === 'comments' && task.comments.length > 0 ? ` (${task.comments.length})` : ''}
             </button>
@@ -701,22 +711,22 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* Priority */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>PRIORITY</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: dmuted, letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>PRIORITY</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 {PRIORITIES.map(p => (
                   <button key={p} onClick={() => setEditPrio(p)} style={{
                     flex: 1, padding: '10px 0', borderRadius: 99, fontSize: 13,
                     cursor: 'pointer', fontWeight: 600,
-                    border: `1.5px solid ${editPrio === p ? P_COLOR[p] : '#eee'}`,
+                    border: `1.5px solid ${editPrio === p ? P_COLOR[p] : dbdr}`,
                     background: editPrio === p ? P_BG[p] : 'transparent',
-                    color: editPrio === p ? P_COLOR[p] : '#bbb',
+                    color: editPrio === p ? P_COLOR[p] : dmuted,
                   }}>{p}</button>
                 ))}
               </div>
             </div>
             {/* Assignee — multi-select chips */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>ASSIGN TO</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: dmuted, letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>ASSIGN TO</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {memberUsers.map(u => {
                   const sel = editAssignees.includes(u.id);
@@ -724,25 +734,25 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
                     <button key={u.id} onClick={() => toggleAssignee(u.id)} style={{
                       display: 'flex', alignItems: 'center', gap: 8,
                       padding: '7px 13px 7px 8px', borderRadius: 99, cursor: 'pointer',
-                      border: `1.5px solid ${sel ? '#111' : '#ddd'}`,
-                      background: sel ? '#111' : 'transparent', color: sel ? '#fff' : '#666',
+                      border: `1.5px solid ${sel ? (dark ? '#ccc' : '#111') : dbdr}`,
+                      background: sel ? (dark ? '#ccc' : '#111') : 'transparent', color: sel ? (dark ? '#111' : '#fff') : dmuted,
                       fontFamily: "'DM Sans',sans-serif", fontSize: 13.5, fontWeight: sel ? 600 : 400,
                     }}>
                       {u.avatar
                         ? <img src={u.avatar} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }} alt="" />
-                        : <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>👤</div>
+                        : <div style={{ width: 22, height: 22, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>👤</div>
                       }
                       {u.name}
                       {sel && <span style={{ fontSize: 11 }}>✓</span>}
                     </button>
                   );
                 })}
-                {memberUsers.length === 0 && <span style={{ fontSize: 13, color: '#bbb', fontFamily: "'DM Sans',sans-serif" }}>No members in this list</span>}
+                {memberUsers.length === 0 && <span style={{ fontSize: 13, color: dmuted, fontFamily: "'DM Sans',sans-serif" }}>No members in this list</span>}
               </div>
             </div>
             {/* Due date */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>DUE DATE</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: dmuted, letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>DUE DATE</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} style={{ ...inp }} />
                 <input type="time" value={editTime} onChange={e => setEditTime(e.target.value)} style={{ ...inp, width: 120 }} />
@@ -750,15 +760,15 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
             </div>
             {/* Reactions */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>REACTIONS</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: dmuted, letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>REACTIONS</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {REACTIONS_LIST.map(em => {
                   const us = task.reactions[em] || [];
                   return (
                     <button key={em} onClick={() => onReact(task.id, em)} style={{
-                      background: us.includes(currentUser.id) ? '#f0f0f0' : 'transparent',
-                      border: '1.5px solid #eee', borderRadius: 99, padding: '7px 14px',
-                      cursor: 'pointer', fontSize: 15, display: 'flex', gap: 5, alignItems: 'center',
+                      background: us.includes(currentUser.id) ? (dark ? '#2a2a2a' : '#f0f0f0') : 'transparent',
+                      border: `1.5px solid ${dbdr}`, borderRadius: 99, padding: '7px 14px',
+                      cursor: 'pointer', fontSize: 15, display: 'flex', gap: 5, alignItems: 'center', color: dtxt,
                     }}>{em}{us.length > 0 && <span style={{ fontSize: 13 }}>{us.length}</span>}</button>
                   );
                 })}
@@ -766,10 +776,10 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
             </div>
             {/* Completed by — real photo */}
             {task.completed && completedByUser && (
-              <div style={{ background: '#eef8f1', borderRadius: 11, padding: '11px 14px', display: 'flex', gap: 10, alignItems: 'center' }}>
+              <div style={{ background: dark ? '#162218' : '#eef8f1', borderRadius: 11, padding: '11px 14px', display: 'flex', gap: 10, alignItems: 'center' }}>
                 {completedByUser.avatar
                   ? <img src={completedByUser.avatar} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} alt="" />
-                  : <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#c8eed3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>✓</div>
+                  : <div style={{ width: 28, height: 28, borderRadius: '50%', background: dark ? '#1e4d2a' : '#c8eed3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>✓</div>
                 }
                 <span style={{ fontSize: 14, color: '#3a8f56', fontFamily: "'DM Sans',sans-serif" }}>Completed by <strong>{completedByUser.name}</strong></span>
               </div>
@@ -785,7 +795,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
         {tab === 'comments' && (
           <div>
             {task.comments.length === 0 && (
-              <p style={{ color: '#bbb', fontSize: 14, fontFamily: "'DM Sans',sans-serif", padding: '8px 0' }}>No comments yet. Be the first!</p>
+              <p style={{ color: dmuted, fontSize: 14, fontFamily: "'DM Sans',sans-serif", padding: '8px 0' }}>No comments yet. Be the first!</p>
             )}
             {task.comments.map(c => {
               const u = getUserById(c.userId);
@@ -793,14 +803,14 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
                 <div key={c.id} style={{ display: 'flex', gap: 11, marginBottom: 16 }}>
                   {u.avatar
                     ? <img src={u.avatar} style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0, objectFit: 'cover' }} alt="" />
-                    : <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>👤</div>}
+                    : <div style={{ width: 34, height: 34, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>👤</div>}
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', marginBottom: 5 }}>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: '#111', fontFamily: "'DM Sans',sans-serif" }}>{u.name}</span>
-                      <span style={{ fontSize: 12, color: '#bbb' }}>{timeAgo(c.createdAt)}</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: dtxt, fontFamily: "'DM Sans',sans-serif" }}>{u.name}</span>
+                      <span style={{ fontSize: 12, color: dmuted }}>{timeAgo(c.createdAt)}</span>
                     </div>
-                    <div style={{ background: '#f5f5f5', borderRadius: '3px 12px 12px 12px', padding: '10px 13px' }}>
-                      <p style={{ fontSize: 14, color: '#111', fontFamily: "'DM Sans',sans-serif", margin: 0, lineHeight: 1.5 }}>{c.text}</p>
+                    <div style={{ background: dark ? '#2a2a2a' : '#f5f5f5', borderRadius: '3px 12px 12px 12px', padding: '10px 13px' }}>
+                      <p style={{ fontSize: 14, color: dtxt, fontFamily: "'DM Sans',sans-serif", margin: 0, lineHeight: 1.5 }}>{c.text}</p>
                     </div>
                   </div>
                 </div>
@@ -809,7 +819,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
             <div style={{ display: 'flex', gap: 9, marginTop: 12 }}>
               {currentUser.avatar
                 ? <img src={currentUser.avatar} style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0, objectFit: 'cover' }} alt="" />
-                : <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>👤</div>}
+                : <div style={{ width: 34, height: 34, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>👤</div>}
               <input value={comment} onChange={e => setComment(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addComment()}
                 placeholder="Write a comment…"
@@ -828,8 +838,11 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
 };
 
 // ── Activity view (mobile) ────────────────────────────────────────────────────
-const MobileActivityView = ({ activity, currentUser, friends }) => {
+const MobileActivityView = ({ activity, currentUser, friends, dark = false }) => {
   const actionColor = a => a === 'completed' ? '#2f8a55' : a === 'added' ? '#2a5fb0' : '#888';
+  const txt = dark ? '#efefef' : '#111';
+  const muted = dark ? '#666' : '#bbb';
+  const bdr = dark ? '#2c2c2c' : '#eee';
   const getActivityUser = (userId) => {
     if (userId === currentUser.id) return currentUser;
     const f = friends.find(f => f.uid === userId);
@@ -838,10 +851,10 @@ const MobileActivityView = ({ activity, currentUser, friends }) => {
 
   return (
     <div style={{ padding: '20px 16px 120px' }}>
-      <h2 style={{ fontFamily: "'Lora',serif", fontSize: 26, color: '#111', margin: '0 0 4px', fontStyle: 'italic' }}>Activity</h2>
-      <p style={{ color: '#bbb', fontSize: 13, fontFamily: "'DM Sans',sans-serif", marginBottom: 24, marginTop: 4 }}>Everything happening across your lists</p>
+      <h2 style={{ fontFamily: "'Lora',serif", fontSize: 26, color: txt, margin: '0 0 4px', fontStyle: 'italic' }}>Activity</h2>
+      <p style={{ color: muted, fontSize: 13, fontFamily: "'DM Sans',sans-serif", marginBottom: 24, marginTop: 4 }}>Everything happening across your lists</p>
       {activity.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '44px 0', color: '#bbb' }}>
+        <div style={{ textAlign: 'center', padding: '44px 0', color: muted }}>
           <div style={{ fontSize: 40, marginBottom: 10 }}>⚡</div>
           <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14 }}>ยังไม่มี activity</p>
         </div>
@@ -850,17 +863,17 @@ const MobileActivityView = ({ activity, currentUser, friends }) => {
         const u = getActivityUser(a.userId);
         return (
           <div key={a.id} style={{ display: 'flex', gap: 12, marginBottom: 18, position: 'relative' }}>
-            {i < activity.length - 1 && <div style={{ position: 'absolute', left: 16, top: 34, bottom: -10, width: 1, background: '#eee' }} />}
+            {i < activity.length - 1 && <div style={{ position: 'absolute', left: 16, top: 34, bottom: -10, width: 1, background: bdr }} />}
             {u.avatar
               ? <img src={u.avatar} style={{ width: 33, height: 33, borderRadius: '50%', flexShrink: 0, objectFit: 'cover' }} alt="" />
-              : <div style={{ width: 33, height: 33, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>👤</div>}
+              : <div style={{ width: 33, height: 33, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, flexShrink: 0 }}>👤</div>}
             <div style={{ paddingTop: 4 }}>
-              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: '#111', margin: '0 0 2px', lineHeight: 1.5 }}>
+              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: txt, margin: '0 0 2px', lineHeight: 1.5 }}>
                 <strong>{u.name}</strong>
                 <span style={{ color: actionColor(a.action) }}> {a.action} </span>
-                <span style={{ fontStyle: 'italic', color: '#aaa' }}>"{a.target}"</span>
+                <span style={{ fontStyle: 'italic', color: muted }}>"{a.target}"</span>
               </p>
-              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: '#bbb', margin: 0 }}>
+              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: muted, margin: 0 }}>
                 {a.listName} · {a.createdAt?.toMillis ? timeAgo(new Date(a.createdAt.toMillis()).toISOString()) : timeAgo(a.createdAt)}
               </p>
             </div>
@@ -872,7 +885,10 @@ const MobileActivityView = ({ activity, currentUser, friends }) => {
 };
 
 // ── Leaderboard view (mobile) ─────────────────────────────────────────────────
-const MobileLeaderboard = ({ lists, currentUser, friends }) => {
+const MobileLeaderboard = ({ lists, currentUser, friends, dark = false }) => {
+  const txt = dark ? '#efefef' : '#111';
+  const muted = dark ? '#666' : '#bbb';
+  const cardBg = dark ? '#1e1e1e' : '#fff';
   const people = [currentUser, ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar }))];
   const medals = ['🥇', '🥈', '🥉'];
   const scores = people.map(p => {
@@ -883,23 +899,23 @@ const MobileLeaderboard = ({ lists, currentUser, friends }) => {
 
   return (
     <div style={{ padding: '20px 16px 120px' }}>
-      <h2 style={{ fontFamily: "'Lora',serif", fontSize: 26, color: '#111', margin: '0 0 4px', fontStyle: 'italic' }}>Leaderboard 🏆</h2>
-      <p style={{ color: '#bbb', fontSize: 13, fontFamily: "'DM Sans',sans-serif", marginBottom: 24, marginTop: 4 }}>คะแนนจากการทำและสร้าง tasks</p>
+      <h2 style={{ fontFamily: "'Lora',serif", fontSize: 26, color: txt, margin: '0 0 4px', fontStyle: 'italic' }}>Leaderboard 🏆</h2>
+      <p style={{ color: muted, fontSize: 13, fontFamily: "'DM Sans',sans-serif", marginBottom: 24, marginTop: 4 }}>คะแนนจากการทำและสร้าง tasks</p>
       {scores.map((s, i) => (
         <div key={s.id} style={{
-          background: '#fff', borderRadius: 14, padding: '14px 18px', marginBottom: 10,
+          background: cardBg, borderRadius: 14, padding: '14px 18px', marginBottom: 10,
           display: 'flex', alignItems: 'center', gap: 14,
-          boxShadow: i === 0 ? '0 2px 12px rgba(0,0,0,.06)' : '0 1px 4px rgba(0,0,0,.04)',
+          boxShadow: i === 0 ? `0 2px 12px rgba(0,0,0,${dark ? .3 : .06})` : `0 1px 4px rgba(0,0,0,${dark ? .2 : .04})`,
         }}>
-          <div style={{ fontSize: 22, width: 28, flexShrink: 0 }}>{medals[i] || <span style={{ fontSize: 14, color: '#bbb', fontWeight: 600 }}>{i + 1}</span>}</div>
+          <div style={{ fontSize: 22, width: 28, flexShrink: 0 }}>{medals[i] || <span style={{ fontSize: 14, color: muted, fontWeight: 600 }}>{i + 1}</span>}</div>
           {s.avatar
             ? <img src={s.avatar} style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} alt="" />
-            : <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>👤</div>}
+            : <div style={{ width: 42, height: 42, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>👤</div>}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 600, fontSize: 15, color: '#111', fontFamily: "'DM Sans',sans-serif" }}>{s.name}</div>
-            <div style={{ fontSize: 12, color: '#bbb', fontFamily: "'DM Sans',sans-serif", marginTop: 2 }}>✅ {s.completed} · ➕ {s.added}</div>
+            <div style={{ fontWeight: 600, fontSize: 15, color: txt, fontFamily: "'DM Sans',sans-serif" }}>{s.name}</div>
+            <div style={{ fontSize: 12, color: muted, fontFamily: "'DM Sans',sans-serif", marginTop: 2 }}>✅ {s.completed} · ➕ {s.added}</div>
           </div>
-          <div style={{ fontFamily: "'Lora',serif", fontSize: 24, color: '#111', fontWeight: 600 }}>{s.score}</div>
+          <div style={{ fontFamily: "'Lora',serif", fontSize: 24, color: txt, fontWeight: 600 }}>{s.score}</div>
         </div>
       ))}
     </div>
@@ -912,7 +928,10 @@ export default function MobileApp({ firebaseUser }) {
   const [lists, setLists] = useState([]);
   const [activity, setActivity] = useState([]);
   const [selId, setSelId] = useState(null);
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(() => {
+    try { return localStorage.getItem('checkmate-dark') === 'true'; } catch { return false; }
+  });
+  useEffect(() => { try { localStorage.setItem('checkmate-dark', dark); } catch {} }, [dark]);
   const [tab, setTab] = useState('lists');
   const [showPanel, setShowPanel] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -1044,6 +1063,24 @@ export default function MobileApp({ firebaseUser }) {
     if (selId === id) setSelId(lists.find(l => l.id !== id)?.id || null);
   }, [lists, selId]);
 
+  // ── Swipe from left edge to open list panel ───────────────────────────────
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+  const handleTouchStart = useCallback((e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+  const handleTouchEnd = useCallback((e) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+    if (touchStartX.current < 60 && dx > 60 && dy < 80) {
+      setShowPanel(true);
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+  }, []);
+
   const bg = dark ? '#141414' : '#f5f5f4';
   const surface = dark ? '#1c1c1c' : '#fff';
   const txt = dark ? '#efefef' : '#111';
@@ -1074,10 +1111,10 @@ export default function MobileApp({ firebaseUser }) {
       {showFriends && <FriendPanel currentUser={currentUser} dark={false} onClose={() => setShowFriends(false)} />}
 
       {/* Invites drawer */}
-      <Drawer open={showInvites} onClose={() => setShowInvites(false)} title="📬 List Invites">
+      <Drawer open={showInvites} onClose={() => setShowInvites(false)} title="📬 List Invites" dark={dark}>
         <div style={{ padding: '4px 20px 40px' }}>
           {listInvites.length === 0 && (
-            <p style={{ color: '#bbb', fontSize: 14, fontFamily: "'DM Sans',sans-serif" }}>ไม่มี invite ตอนนี้ครับ</p>
+            <p style={{ color: muted, fontSize: 14, fontFamily: "'DM Sans',sans-serif" }}>ไม่มี invite ตอนนี้ครับ</p>
           )}
           {listInvites.map(inv => (
             <div key={inv.listId} style={{ background: inv.listColor || '#D6E8FF', borderRadius: 14, padding: '15px 17px', marginBottom: 10 }}>
@@ -1104,6 +1141,7 @@ export default function MobileApp({ firebaseUser }) {
         onReact={reactToTask}
         friends={friends}
         listMembers={sel?.memberIds || []}
+        dark={dark}
       />
 
       {/* List Panel (slide-in drawer) */}
@@ -1115,7 +1153,10 @@ export default function MobileApp({ firebaseUser }) {
       />
 
       {/* ── MAIN SCROLL AREA ── */}
-      <div style={{
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{
         height: '100dvh', background: bg, display: 'flex', flexDirection: 'column',
         fontFamily: "'DM Sans',sans-serif", overflow: 'hidden',
         paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -1171,7 +1212,7 @@ export default function MobileApp({ firebaseUser }) {
             <button
               onClick={() => setShowProfile(true)}
               style={{
-                width: 42, height: 42, borderRadius: 11,
+                width: 42, height: 42, borderRadius: '50%',
                 background: 'rgba(0,0,0,.07)', border: 'none',
                 cursor: 'pointer', overflow: 'hidden', flexShrink: 0,
               }}
@@ -1187,16 +1228,16 @@ export default function MobileApp({ firebaseUser }) {
         {/* ── CONTENT ── */}
         <div style={{ flex: 1, overflow: 'auto' }}>
           {/* Activity / Leaderboard tabs */}
-          {tab === 'activity' && <MobileActivityView activity={activity} currentUser={currentUser} friends={friends} />}
-          {tab === 'leaderboard' && <MobileLeaderboard lists={lists} currentUser={currentUser} friends={friends} />}
+          {tab === 'activity' && <MobileActivityView activity={activity} currentUser={currentUser} friends={friends} dark={dark} />}
+          {tab === 'leaderboard' && <MobileLeaderboard lists={lists} currentUser={currentUser} friends={friends} dark={dark} />}
 
           {/* Lists tab */}
           {tab === 'lists' && (
             <div style={{ padding: '16px 16px 160px' }}>
               {!sel && (
-                <div style={{ textAlign: 'center', padding: '80px 0', color: '#bbb' }}>
+                <div style={{ textAlign: 'center', padding: '80px 0', color: muted }}>
                   <div style={{ fontSize: 48, marginBottom: 14 }}>📋</div>
-                  <p style={{ fontFamily: "'Lora',serif", fontSize: 18, color: '#999', fontStyle: 'italic', marginBottom: 20 }}>Pick or create a list</p>
+                  <p style={{ fontFamily: "'Lora',serif", fontSize: 18, color: txt, fontStyle: 'italic', marginBottom: 20 }}>Pick or create a list</p>
                   <button onClick={() => setShowCreate(true)} style={{
                     background: '#111', color: '#fff', border: 'none', borderRadius: 12,
                     padding: '13px 28px', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif",
@@ -1209,12 +1250,12 @@ export default function MobileApp({ firebaseUser }) {
                 <>
                   {/* Progress row */}
                   <div style={{ marginBottom: 14 }}>
-                    <ProgressBar tasks={sel.tasks} />
+                    <ProgressBar tasks={sel.tasks} dark={dark} />
                   </div>
 
                   {/* Tasks */}
                   {sel.tasks.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '40px 0', color: '#bbb' }}>
+                    <div style={{ textAlign: 'center', padding: '40px 0', color: muted }}>
                       <div style={{ fontSize: 36, marginBottom: 10 }}>🌱</div>
                       <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14 }}>Empty list — add your first task!</p>
                     </div>
@@ -1223,6 +1264,7 @@ export default function MobileApp({ firebaseUser }) {
                   {sel.tasks.map(task => (
                     <MobileTaskItem
                       key={task.id} task={task} currentUser={currentUser}
+                      dark={dark}
                       onToggle={toggleTask} onDelete={deleteTask}
                       onReact={reactToTask} onOpenDetail={setTaskDetail}
                     />
@@ -1232,14 +1274,14 @@ export default function MobileApp({ firebaseUser }) {
                   {!showAI && (
                     <button onClick={() => setShowAI(true)} style={{
                       width: '100%', background: 'none',
-                      border: '1.5px dashed #ddd', borderRadius: 12, padding: '13px',
-                      cursor: 'pointer', color: '#bbb', fontFamily: "'DM Sans',sans-serif",
+                      border: `1.5px dashed ${dark ? '#3a3a3a' : '#ddd'}`, borderRadius: 12, padding: '13px',
+                      cursor: 'pointer', color: muted, fontFamily: "'DM Sans',sans-serif",
                       fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
                       gap: 7, marginTop: 4,
                     }}>✨ AI Suggest for this list</button>
                   )}
                   {showAI && (
-                    <Drawer open={showAI} onClose={() => setShowAI(false)} title="✨ AI Suggestions">
+                    <Drawer open={showAI} onClose={() => setShowAI(false)} title="✨ AI Suggestions" dark={dark}>
                       <AISuggestions
                         listName={sel.name}
                         onClose={() => setShowAI(false)}
@@ -1331,33 +1373,33 @@ export default function MobileApp({ firebaseUser }) {
         )}
 
         {/* ── SETTINGS DRAWER ── */}
-        <Drawer open={showSettings} onClose={() => setShowSettings(false)} title="Settings">
+        <Drawer open={showSettings} onClose={() => setShowSettings(false)} title="Settings" dark={dark}>
           <div style={{ padding: '4px 20px 40px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {/* Dark mode toggle */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: '#f5f5f4', borderRadius: 13 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: dark ? '#2a2a2a' : '#f5f5f4', borderRadius: 13 }}>
               <div>
-                <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 500, color: '#111' }}>{dark ? '🌙 Dark Mode' : '☀️ Light Mode'}</div>
-                <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: '#aaa', marginTop: 2 }}>Switch app theme</div>
+                <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 500, color: dark ? '#efefef' : '#111' }}>{dark ? '🌙 Dark Mode' : '☀️ Light Mode'}</div>
+                <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: dark ? '#666' : '#aaa', marginTop: 2 }}>Switch app theme</div>
               </div>
               <button onClick={() => setDark(v => !v)} style={{
                 width: 48, height: 28, borderRadius: 14, border: 'none', padding: 0,
-                background: dark ? '#111' : '#ddd', position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0,
+                background: dark ? '#fff' : '#ddd', position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0,
               }}>
-                <div style={{ position: 'absolute', top: 3, left: dark ? 23 : 3, width: 22, height: 22, borderRadius: '50%', background: '#fff', transition: 'left .2s', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
+                <div style={{ position: 'absolute', top: 3, left: dark ? 23 : 3, width: 22, height: 22, borderRadius: '50%', background: dark ? '#111' : '#fff', transition: 'left .2s', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
               </button>
             </div>
             {/* Friends */}
-            <button onClick={() => { setShowFriends(true); setShowSettings(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '14px 16px', background: '#f5f5f4', borderRadius: 13, border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#111', fontWeight: 500, textAlign: 'left' }}>
+            <button onClick={() => { setShowFriends(true); setShowSettings(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '14px 16px', background: dark ? '#2a2a2a' : '#f5f5f4', borderRadius: 13, border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: dark ? '#efefef' : '#111', fontWeight: 500, textAlign: 'left' }}>
               👥 Friends
               {friendRequests.length > 0 && <span style={{ background: '#d44', color: '#fff', borderRadius: 99, padding: '1px 8px', fontSize: 11, fontWeight: 700, marginLeft: 'auto' }}>{friendRequests.length}</span>}
             </button>
             {/* Invites */}
-            <button onClick={() => { setShowInvites(true); setShowSettings(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '14px 16px', background: '#f5f5f4', borderRadius: 13, border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#111', fontWeight: 500, textAlign: 'left' }}>
+            <button onClick={() => { setShowInvites(true); setShowSettings(false); }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 13, padding: '14px 16px', background: dark ? '#2a2a2a' : '#f5f5f4', borderRadius: 13, border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: dark ? '#efefef' : '#111', fontWeight: 500, textAlign: 'left' }}>
               📬 List Invites
               {listInvites.length > 0 && <span style={{ background: '#d44', color: '#fff', borderRadius: 99, padding: '1px 8px', fontSize: 11, fontWeight: 700, marginLeft: 'auto' }}>{listInvites.length}</span>}
             </button>
             {/* Sign out — separated, red, requires deliberate tap */}
-            <div style={{ marginTop: 8, borderTop: '1px solid #eee', paddingTop: 12 }}>
+            <div style={{ marginTop: 8, borderTop: `1px solid ${dark ? '#2c2c2c' : '#eee'}`, paddingTop: 12 }}>
               <button onClick={() => signOut(auth)} style={{ width: '100%', padding: '14px 16px', background: 'rgba(200,50,50,.06)', border: '1px solid rgba(200,50,50,.18)', borderRadius: 13, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#c0392b', fontWeight: 500 }}>
                 🚪 Sign Out
               </button>

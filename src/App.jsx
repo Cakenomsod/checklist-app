@@ -1025,7 +1025,10 @@ export default function App() {
   const [lists, setLists] = useState([]);
   const [activity, setActivity] = useState([]);
   const [selId,setSelId]=useState('list1');
-  const [dark,setDark]=useState(false);
+  const [dark,setDark]=useState(()=>{
+    try { return localStorage.getItem('checkmate-dark')==='true'; } catch { return false; }
+  });
+  useEffect(()=>{ try { localStorage.setItem('checkmate-dark', dark); } catch {} }, [dark]);
   const [view,setView]=useState('list');
   const [showCreate,setShowCreate]=useState(false);
   const [taskDetail,setTaskDetail]=useState(null);
