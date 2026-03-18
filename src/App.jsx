@@ -104,68 +104,7 @@ const CATEGORIES = ['Travel','Shopping','Education','Work','Health','Personal','
 const genId = () => Math.random().toString(36).substr(2,9);
 const ts    = () => new Date().toISOString();
 
-const SAMPLE_LISTS = [
-  {
-    id:'list1', name:'Trip to Japan 🗾', category:'Travel', color:'#D6E8FF',
-    isPrivate:false, isGroup:true, members:['way','bell','john'],
-    createdBy:'way', createdAt:ts(),
-    tasks:[
-      { id:'t1', text:'Book flights', completed:true, completedBy:'way', completedAt:ts(),
-        assignee:'way', priority:'HIGH', dueDate:'2026-03-15', emoji:'✈️',
-        reactions:{'👍':['bell','john'],'🔥':['bell']},
-        comments:[{id:'c1',userId:'bell',text:'Found cheap ones on Skyscanner!',createdAt:ts()}],
-        createdBy:'way', createdAt:ts() },
-      { id:'t2', text:'Reserve Airbnb in Tokyo', completed:false, completedBy:null, completedAt:null,
-        assignee:'bell', priority:'HIGH', dueDate:'2026-03-20', emoji:'🏠',
-        reactions:{'❤️':['way']}, comments:[], createdBy:'way', createdAt:ts() },
-      { id:'t3', text:'Buy travel insurance', completed:false, completedBy:null, completedAt:null,
-        assignee:'john', priority:'MED', dueDate:'2026-03-25', emoji:'🛡️',
-        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
-      { id:'t4', text:'Pack luggage', completed:false, completedBy:null, completedAt:null,
-        assignee:null, priority:'LOW', dueDate:null, emoji:'🧳',
-        reactions:{}, comments:[], createdBy:'bell', createdAt:ts() },
-    ],
-  },
-  {
-    id:'list2', name:'Grocery Run 🛒', category:'Shopping', color:'#D6FFE4',
-    isPrivate:true, isGroup:false, members:['way'],
-    createdBy:'way', createdAt:ts(),
-    tasks:[
-      { id:'t5', text:'Milk', completed:true, completedBy:'way', completedAt:ts(),
-        assignee:'way', priority:'LOW', dueDate:null, emoji:'🥛',
-        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
-      { id:'t6', text:'Eggs', completed:true, completedBy:'way', completedAt:ts(),
-        assignee:'way', priority:'LOW', dueDate:null, emoji:'🥚',
-        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
-      { id:'t7', text:'Bread', completed:false, completedBy:null, completedAt:null,
-        assignee:'way', priority:'MED', dueDate:null, emoji:'🍞',
-        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
-    ],
-  },
-  {
-    id:'list3', name:'Study Goals 📚', category:'Education', color:'#E8D6FF',
-    isPrivate:false, isGroup:true, members:['way','alex'],
-    createdBy:'alex', createdAt:ts(),
-    tasks:[
-      { id:'t8', text:'Submit application SOP', completed:true, completedBy:'way', completedAt:ts(),
-        assignee:'way', priority:'HIGH', dueDate:'2026-03-10', emoji:'📝',
-        reactions:{'🎉':['alex']}, comments:[], createdBy:'way', createdAt:ts() },
-      { id:'t9', text:'Prepare portfolio PDF', completed:false, completedBy:null, completedAt:null,
-        assignee:'way', priority:'HIGH', dueDate:'2026-03-12', emoji:'🎨',
-        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
-      { id:'t10', text:'Send recommendation letter request', completed:false, completedBy:null, completedAt:null,
-        assignee:'alex', priority:'MED', dueDate:'2026-03-14', emoji:'📧',
-        reactions:{}, comments:[], createdBy:'alex', createdAt:ts() },
-    ],
-  },
-];
 
-const SAMPLE_ACTIVITY = [
-  { id:'a1', userId:'bell', action:'added',     target:'Reserve Airbnb in Tokyo', listName:'Trip to Japan 🗾', createdAt:new Date(Date.now()-15*60000).toISOString() },
-  { id:'a2', userId:'way',  action:'completed', target:'Book flights',            listName:'Trip to Japan 🗾', createdAt:new Date(Date.now()-45*60000).toISOString() },
-  { id:'a3', userId:'alex', action:'added',     target:'Recommendation letter',   listName:'Study Goals 📚',  createdAt:new Date(Date.now()-120*60000).toISOString() },
-  { id:'a4', userId:'john', action:'reacted to',target:'Book flights',            listName:'Trip to Japan 🗾', createdAt:new Date(Date.now()-180*60000).toISOString() },
-];
 
 const getUser = (id) => USERS.find(u=>u.id===id)||USERS[0];
 const timeAgo = (iso) => {
