@@ -179,18 +179,101 @@ const fmtDate = (ds) => {
   return {label:`${new Date(ds).toLocaleDateString('en',{month:'short',day:'numeric'})}${timeStr}`, urgent:false};
 };
 const GCSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Epilogue:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
   *{box-sizing:border-box;} body{margin:0;}
+
+  :root {
+    --fs-xs:   11px;
+    --fs-sm:   12.5px;
+    --fs-base: 14px;
+    --fs-md:   15.5px;
+    --fs-lg:   18px;
+    --fs-xl:   22px;
+    --fs-2xl:  28px;
+    --sp-sm:   10px;
+    --sp-md:   18px;
+    --sp-lg:   28px;
+    --sp-xl:   40px;
+    --content-max: 760px;
+    --content-pad: clamp(24px, 4vw, 64px);
+    --sidebar-default: 240px;
+  }
+
+  @media (min-width: 1440px) {
+    :root {
+      --fs-xs:   12px;
+      --fs-sm:   13.5px;
+      --fs-base: 15px;
+      --fs-md:   17px;
+      --fs-lg:   20px;
+      --fs-xl:   25px;
+      --fs-2xl:  32px;
+      --sp-sm:   12px;
+      --sp-md:   22px;
+      --sp-lg:   36px;
+      --sp-xl:   52px;
+      --content-max: 860px;
+      --content-pad: clamp(40px, 5vw, 100px);
+      --sidebar-default: 270px;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    :root {
+      --fs-xs:   13px;
+      --fs-sm:   14.5px;
+      --fs-base: 16px;
+      --fs-md:   18px;
+      --fs-lg:   22px;
+      --fs-xl:   28px;
+      --fs-2xl:  36px;
+      --sp-sm:   14px;
+      --sp-md:   26px;
+      --sp-lg:   44px;
+      --sp-xl:   64px;
+      --content-max: 960px;
+      --content-pad: clamp(60px, 6vw, 140px);
+      --sidebar-default: 300px;
+    }
+  }
+
   @keyframes fall {
     0%  {transform:translateY(-20px) rotate(0deg);   opacity:1;}
     100%{transform:translateY(108vh) rotate(540deg); opacity:0;}
   }
-  @keyframes fadeUp {from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-  @keyframes shimmer {0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes fadeUp {from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes shimmer {0%,100%{opacity:1}50%{opacity:.3}}
+
   ::-webkit-scrollbar{width:4px;}
   ::-webkit-scrollbar-track{background:transparent;}
-  ::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px;}
-  input,select,textarea{font-family:Epilogue,sans-serif;}
+  ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.14);border-radius:4px;}
+
+  input,select,textarea{font-family:'DM Sans',sans-serif;}
+  button{transition:opacity .12s,background .15s,border-color .15s,box-shadow .15s;}
+  button:active{opacity:.8;}
+  input[type=date]::-webkit-calendar-picker-indicator,
+  input[type=time]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer;}
+
+  /* ── Responsive content wrapper ── */
+  .main-content {
+    padding: var(--sp-lg) var(--content-pad);
+    max-width: calc(var(--content-max) + var(--content-pad) * 2);
+    width: 100%;
+  }
+
+  /* ── Task card ── */
+  .task-card {
+    font-size: var(--fs-base);
+  }
+  .task-card .task-text {
+    font-size: var(--fs-base);
+  }
+
+  /* ── Sidebar nav items ── */
+  .sidebar-item {
+    font-size: var(--fs-sm);
+    padding: calc(var(--sp-sm) * .7) var(--sp-sm);
+  }
 `;
 
 // ── Confetti ──────────────────────────────────────────────────────────────────
@@ -213,27 +296,27 @@ const Confetti = ({active}) => {
 // ── Avatar ────────────────────────────────────────────────────────────────────
 const Avatar = ({userId,size=28}) => {
   const u=getUser(userId);
-  return <div title={u.name} style={{width:size,height:size,borderRadius:'50%',background:u.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:size*.44,border:'1.5px solid rgba(0,0,0,.08)',flexShrink:0}}>{u.avatar}</div>;
+  return <div title={u.name} style={{width:size,height:size,borderRadius:'50%',background:u.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:size*.42,border:'1.5px solid rgba(0,0,0,.07)',flexShrink:0,userSelect:'none'}}>{u.avatar}</div>;
 };
 
 // ── Priority Badge ────────────────────────────────────────────────────────────
 const PBadge = ({p}) => (
-  <span style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,color:P_COLOR[p],background:P_BG[p],letterSpacing:'.05em',flexShrink:0,fontFamily:'Epilogue,sans-serif'}}>{p}</span>
+  <span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:'clamp(9.5px,.7vw,11.5px)',fontWeight:600,padding:'2px 8px 2px 6px',borderRadius:20,color:P_COLOR[p],background:P_BG[p],letterSpacing:'.03em',flexShrink:0,fontFamily:"'DM Sans',sans-serif"}}>
+    <span style={{width:5,height:5,borderRadius:'50%',background:P_COLOR[p],display:'inline-block',flexShrink:0}}/>
+    {p}
+  </span>
 );
 
 // ── Progress Bar ──────────────────────────────────────────────────────────────
 const ProgressBar = ({tasks,dark}) => {
   const total=tasks.length, done=tasks.filter(t=>t.completed).length;
   const pct=total===0?0:Math.round((done/total)*100);
-  const B=12, filled=Math.round((done/Math.max(total,1))*B);
   return (
     <div style={{display:'flex',alignItems:'center',gap:10}}>
-      <div style={{display:'flex',gap:2}}>
-        {Array.from({length:B},(_,i)=>(
-          <div key={i} style={{width:14,height:7,borderRadius:2,background:i<filled?(dark?'#fafafa':'#0a0a0a'):(dark?'#2a2a2a':'#e0e0e0'),transition:'background .3s'}}/>
-        ))}
+      <div style={{flex:1,maxWidth:'clamp(120px,10vw,180px)',height:'clamp(3px,.25vw,5px)',borderRadius:99,background:dark?'#2a2a2a':'rgba(0,0,0,.1)',overflow:'hidden'}}>
+        <div style={{height:'100%',width:`${pct}%`,borderRadius:99,background:dark?'rgba(255,255,255,.85)':'#111',transition:'width .4s ease'}}/>
       </div>
-      <span style={{color:dark?'#888':'#999',fontFamily:'Epilogue,sans-serif',fontSize:12}}>{done}/{total} · {pct}%</span>
+      <span style={{color:dark?'rgba(255,255,255,.38)':'rgba(0,0,0,.35)',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(10.5px,.75vw,13px)',fontWeight:500,flexShrink:0}}>{done}/{total}</span>
     </div>
   );
 };
@@ -242,70 +325,79 @@ const ProgressBar = ({tasks,dark}) => {
 const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}) => {
   const [hov,setHov]=useState(false);
   const [showRx,setShowRx]=useState(false);
-  const surface=dark?'#1c1c1c':'#fff', bdr=dark?'#2a2a2a':'#f0f0f0';
-  const txt=dark?'#f0f0f0':'#0a0a0a', muted=dark?'#666':'#aaa';
+  const surface=dark?'#1e1e1e':'#fff', bdr=dark?'#2c2c2c':'#f0f0f0';
+  const txt=dark?'#efefef':'#111', muted=dark?'#555':'#bbb';
   const di=fmtDate(task.dueDate);
 
   return (
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>{setHov(false);setShowRx(false);}} style={{
-      background:surface,border:`1.5px solid ${hov?(dark?'#444':'#ccc'):bdr}`,
-      borderRadius:12,padding:'11px 14px',marginBottom:7,
-      boxShadow:hov?`0 2px 10px rgba(0,0,0,${dark?.15:.06})`:'none',
-      display:'flex',gap:10,alignItems:'flex-start',
-      opacity:task.completed?.72:1,animation:'fadeUp .18s ease-out',transition:'border-color .12s,box-shadow .12s',
+      background:surface,
+      border:`1px solid ${hov?(dark?'#3a3a3a':'#e0e0e0'):bdr}`,
+      borderRadius:10,
+      padding:'clamp(9px,.85vw,13px) clamp(11px,1vw,16px)',
+      marginBottom:'clamp(4px,.35vw,7px)',
+      boxShadow:hov?`0 1px 12px rgba(0,0,0,${dark?.18:.05})`:'0 1px 3px rgba(0,0,0,.03)',
+      display:'flex',gap:'clamp(8px,.75vw,12px)',alignItems:'flex-start',
+      opacity:task.completed?.65:1,
+      transition:'border-color .12s,box-shadow .12s,opacity .2s',
     }}>
+      {/* Checkbox */}
       <button onClick={()=>onToggle(task.id)} style={{
-        width:20,height:20,borderRadius:6,flexShrink:0,marginTop:1,cursor:'pointer',
-        border:`2px solid ${task.completed?(dark?'#ddd':'#0a0a0a'):(dark?'#444':'#ccc')}`,
-        background:task.completed?(dark?'#ddd':'#0a0a0a'):'transparent',
-        display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s',
-      }}>{task.completed&&<span style={{fontSize:11,color:dark?'#111':'#fafafa',fontWeight:700}}>✓</span>}</button>
+        width:'clamp(16px,1.25vw,21px)',height:'clamp(16px,1.25vw,21px)',
+        borderRadius:5,flexShrink:0,marginTop:2,cursor:'pointer',
+        border:`1.5px solid ${task.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,
+        background:task.completed?(dark?'#ccc':'#111'):'transparent',
+        display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s',padding:0,
+      }}>{task.completed&&<span style={{fontSize:'clamp(8px,.6vw,10px)',color:dark?'#111':'#fff',fontWeight:800,lineHeight:1}}>✓</span>}</button>
 
       <div style={{flex:1,minWidth:0}}>
-        <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap',marginBottom:4}}>
-          {task.emoji&&<span style={{fontSize:15}}>{task.emoji}</span>}
-          <span style={{fontFamily:'Epilogue,sans-serif',fontWeight:500,fontSize:14,color:txt,textDecoration:task.completed?'line-through':'none',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:220}}>{task.text}</span>
+        {/* Top row: emoji + text + badges */}
+        <div style={{display:'flex',alignItems:'center',gap:'clamp(4px,.4vw,7px)',flexWrap:'wrap',marginBottom:task.completed||!task.assignee?0:3}}>
+          {task.emoji&&<span style={{fontSize:'clamp(12px,.9vw,15px)',lineHeight:1,flexShrink:0}}>{task.emoji}</span>}
+          <span style={{fontFamily:"'DM Sans',sans-serif",fontWeight:task.completed?400:500,fontSize:'clamp(13px,.95vw,16px)',color:task.completed?muted:txt,textDecoration:task.completed?'line-through':'none',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'clamp(160px,18vw,320px)'}}>{task.text}</span>
           <PBadge p={task.priority}/>
-          {di&&<span style={{fontSize:10,padding:'2px 7px',borderRadius:20,flexShrink:0,background:di.urgent?'#FF6B6B22':(dark?'#2a2a2a':'#f5f5f5'),color:di.urgent?'#FF6B6B':muted,fontFamily:'Epilogue,sans-serif'}}>{di.label}</span>}
+          {di&&<span style={{fontSize:'clamp(9.5px,.7vw,11.5px)',padding:'1px 7px',borderRadius:20,flexShrink:0,background:di.urgent?(dark?'#3a1010':'#FFF0F0'):(dark?'#242424':'#f7f7f7'),color:di.urgent?(dark?'#ff8080':'#d44'):(dark?'#666':'#aaa'),fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>{di.label}</span>}
         </div>
-        <div style={{display:'flex',alignItems:'center',gap:7,flexWrap:'wrap'}}>
+        {/* Bottom row: assignee, reactions, comments */}
+        <div style={{display:'flex',alignItems:'center',gap:'clamp(5px,.5vw,8px)',flexWrap:'wrap',marginTop:task.emoji||task.text?3:0}}>
           {task.assignee&&!task.completed&&(
-            <div style={{display:'flex',alignItems:'center',gap:4}}>
-              <Avatar userId={task.assignee} size={16}/>
-              <span style={{fontSize:11,color:muted,fontFamily:'Epilogue,sans-serif'}}>→ {task.assigneeName || task.assignee}</span>
+            <div style={{display:'flex',alignItems:'center',gap:3}}>
+              <Avatar userId={task.assignee} size={Math.round(window.innerWidth >= 1920 ? 17 : 14)}/>
+              <span style={{fontSize:'clamp(10px,.72vw,12px)',color:muted,fontFamily:"'DM Sans',sans-serif"}}>{task.assigneeName || task.assignee}</span>
             </div>
           )}
           {task.completed&&task.completedBy&&(
-            <div style={{display:'flex',alignItems:'center',gap:4}}>
-              <Avatar userId={task.completedBy} size={16}/>
-              <span style={{fontSize:11,color:'#2f8a55',fontFamily:'Epilogue,sans-serif'}}>done by {getUser(task.completedBy).name}</span>
+            <div style={{display:'flex',alignItems:'center',gap:3}}>
+              <Avatar userId={task.completedBy} size={Math.round(window.innerWidth >= 1920 ? 17 : 14)}/>
+              <span style={{fontSize:'clamp(10px,.72vw,12px)',color:'#5a9e6f',fontFamily:"'DM Sans',sans-serif"}}>done by {getUser(task.completedBy).name}</span>
             </div>
           )}
           {REACTIONS_LIST.map(em=>{
             const us=task.reactions[em]||[];
             return us.length>0?(
-              <button key={em} onClick={()=>onReact(task.id,em)} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f0f0f0'):'transparent',border:`1px solid ${dark?'#333':'#e8e8e8'}`,borderRadius:20,padding:'1px 8px',fontSize:12,cursor:'pointer',color:txt,display:'flex',alignItems:'center',gap:3}}>{em}<span style={{fontSize:11}}>{us.length}</span></button>
+              <button key={em} onClick={()=>onReact(task.id,em)} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f3f3f3'):'transparent',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:99,padding:'1px 7px',fontSize:'clamp(10.5px,.75vw,12.5px)',cursor:'pointer',color:txt,display:'flex',alignItems:'center',gap:2}}>{em}<span style={{fontSize:'clamp(9.5px,.68vw,11.5px)'}}>{us.length}</span></button>
             ):null;
           })}
           {task.comments.length>0&&(
-            <button onClick={()=>onOpenDetail(task)} style={{background:'none',border:'none',color:muted,fontSize:11,cursor:'pointer',padding:0}}>💬 {task.comments.length}</button>
+            <button onClick={()=>onOpenDetail(task)} style={{background:'none',border:'none',color:muted,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',padding:'1px 4px',display:'flex',alignItems:'center',gap:2,fontFamily:"'DM Sans',sans-serif"}}>💬 {task.comments.length}</button>
           )}
         </div>
       </div>
 
-      <div style={{display:'flex',gap:4,opacity:hov?1:0,transition:'opacity .12s',flexShrink:0,alignItems:'center'}}>
+      {/* Hover actions */}
+      <div style={{display:'flex',gap:3,opacity:hov?1:0,transition:'opacity .12s',flexShrink:0,alignItems:'center'}}>
         <div style={{position:'relative'}}>
-          <button onClick={()=>setShowRx(!showRx)} style={{background:'none',border:`1px solid ${dark?'#333':'#e8e8e8'}`,borderRadius:7,padding:'3px 7px',cursor:'pointer',fontSize:13,color:txt}}>😊</button>
+          <button onClick={()=>setShowRx(!showRx)} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,13px)',color:muted,lineHeight:1}}>+😊</button>
           {showRx&&(
-            <div style={{position:'absolute',right:0,top:'calc(100% + 4px)',background:surface,border:`1px solid ${bdr}`,borderRadius:10,padding:'6px 8px',display:'flex',gap:4,zIndex:200,boxShadow:`0 6px 20px rgba(0,0,0,${dark?.3:.1})`}}>
+            <div style={{position:'absolute',right:0,top:'calc(100% + 4px)',background:dark?'#1e1e1e':'#fff',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:10,padding:'6px 8px',display:'flex',gap:4,zIndex:200,boxShadow:`0 8px 24px rgba(0,0,0,${dark?.28:.1})`}}>
               {REACTIONS_LIST.map(em=>(
-                <button key={em} onClick={()=>{onReact(task.id,em);setShowRx(false);}} style={{background:'none',border:'none',cursor:'pointer',fontSize:18,borderRadius:6,padding:'2px 3px'}}>{em}</button>
+                <button key={em} onClick={()=>{onReact(task.id,em);setShowRx(false);}} style={{background:'none',border:'none',cursor:'pointer',fontSize:'clamp(15px,1.2vw,19px)',borderRadius:6,padding:'2px 3px'}}>{em}</button>
               ))}
             </div>
           )}
         </div>
-        <button onClick={()=>onOpenDetail(task)} style={{background:'none',border:`1px solid ${dark?'#333':'#e8e8e8'}`,borderRadius:7,padding:'3px 9px',cursor:'pointer',fontSize:14,color:muted}}>···</button>
-        <button onClick={()=>onDelete(task.id)} style={{background:'none',border:`1px solid ${dark?'#333':'#e8e8e8'}`,borderRadius:7,padding:'3px 7px',cursor:'pointer',fontSize:14,color:'#e05555'}}>×</button>
+        <button onClick={()=>onOpenDetail(task)} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
+        <button onClick={()=>onDelete(task.id)} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:'#d44',lineHeight:1}}>×</button>
       </div>
     </div>
   );
@@ -322,8 +414,8 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   const [editEmoji, setEditEmoji] = useState(task.emoji||'📌');
   const [tab, setTab] = useState('detail');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const surface = dark?'#1a1a1a':'#fff', txt = dark?'#f0f0f0':'#0a0a0a';
-  const muted = dark?'#777':'#aaa', bdr = dark?'#2a2a2a':'#efefef';
+  const surface = dark?'#1c1c1c':'#fff', txt = dark?'#efefef':'#111';
+  const muted = dark?'#555':'#bbb', bdr = dark?'#2c2c2c':'#f0f0f0';
 
   // รวม currentUser + friends เพื่อใช้แสดงชื่อจริง
   const allUsers = [
@@ -359,69 +451,36 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   };
 
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,backdropFilter:'blur(4px)'}} onClick={onClose}>
-      <div style={{background:surface,borderRadius:18,width:480,maxWidth:'95vw',maxHeight:'85vh',overflow:'hidden',display:'flex',flexDirection:'column',animation:'fadeUp .2s ease-out'}} onClick={e=>e.stopPropagation()}>
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,backdropFilter:'blur(6px)'}} onClick={onClose}>
+      <div style={{background:surface,borderRadius:16,width:480,maxWidth:'95vw',maxHeight:'85vh',overflow:'hidden',display:'flex',flexDirection:'column',animation:'fadeUp .18s ease-out',boxShadow:`0 24px 60px rgba(0,0,0,${dark?.5:.15})`}} onClick={e=>e.stopPropagation()}>
 
         {/* Header */}
         <div style={{padding:'18px 20px 0',borderBottom:`1px solid ${bdr}`}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
-            <div style={{display:'flex',alignItems:'center',gap:8}}>
-              <div style={{position:'relative',display:'flex',alignItems:'center'}}>
-                <span
-                  onClick={() => setShowEmojiPicker(v=>!v)}
-                  style={{fontSize:24,cursor:'pointer',userSelect:'none',padding:'0 4px'}}
-                >
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,flex:1,minWidth:0}}>
+              <div style={{position:'relative',display:'flex',alignItems:'center',flexShrink:0}}>
+                <span onClick={() => setShowEmojiPicker(v=>!v)} style={{fontSize:22,cursor:'pointer',userSelect:'none',padding:'3px 5px',borderRadius:8,background:dark?'#2a2a2a':'#f5f5f5',lineHeight:1}}>
                   {editEmoji}
                 </span>
                 {showEmojiPicker && (
-                  <div style={{
-                    position:'absolute',top:36,left:0,zIndex:100,
-                    background:dark?'#1a1a1a':'#fff',
-                    border:`1px solid ${bdr}`,borderRadius:12,
-                    padding:10,width:260,
-                    boxShadow:'0 4px 24px rgba(0,0,0,.12)'
-                  }}>
-                    {/* พิมพ์ emoji โดยตรง */}
-                    <input
-                      autoFocus
-                      placeholder="พิมพ์ emoji หรือข้อความ..."
-                      onChange={e => {
-                        const val = e.target.value;
-                        if (val) setEditEmoji(val.slice(-2) || val.slice(-1));
-                      }}
-                      style={{
-                        width:'100%',padding:'7px 10px',borderRadius:8,marginBottom:8,
-                        border:`1px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',
-                        color:txt,fontSize:14,outline:'none',boxSizing:'border-box',
-                        fontFamily:'Epilogue,sans-serif'
-                      }}
-                    />
-                    {/* เลือกจาก preset */}
+                  <div style={{position:'absolute',top:38,left:0,zIndex:100,background:dark?'#1c1c1c':'#fff',border:`1px solid ${bdr}`,borderRadius:12,padding:10,width:260,boxShadow:'0 8px 32px rgba(0,0,0,.14)'}}>
+                    <input autoFocus placeholder="Type emoji..." onChange={e => { const val = e.target.value; if (val) setEditEmoji(val.slice(-2) || val.slice(-1)); }} style={{width:'100%',padding:'7px 10px',borderRadius:8,marginBottom:8,border:`1px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:"'DM Sans',sans-serif"}}/>
                     <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
                       {EMOJIS_LIST.map(em=>(
-                        <button key={em} onClick={()=>{setEditEmoji(em);setShowEmojiPicker(false);}}
-                          style={{
-                            background:editEmoji===em?(dark?'#333':'#f0f0f0'):'transparent',
-                            border:'none',borderRadius:6,padding:'4px 6px',
-                            fontSize:18,cursor:'pointer'
-                          }}>{em}</button>
+                        <button key={em} onClick={()=>{setEditEmoji(em);setShowEmojiPicker(false);}} style={{background:editEmoji===em?(dark?'#333':'#efefef'):'transparent',border:'none',borderRadius:6,padding:'4px 6px',fontSize:17,cursor:'pointer'}}>{em}</button>
                       ))}
                     </div>
-                    <button onClick={()=>setShowEmojiPicker(false)} style={{
-                      width:'100%',marginTop:8,padding:'6px',borderRadius:8,
-                      border:`1px solid ${bdr}`,background:'transparent',
-                      color:muted,fontFamily:'Epilogue,sans-serif',fontSize:12,cursor:'pointer'
-                    }}>Close</button>
+                    <button onClick={()=>setShowEmojiPicker(false)} style={{width:'100%',marginTop:8,padding:'6px',borderRadius:8,border:`1px solid ${bdr}`,background:'transparent',color:muted,fontFamily:"'DM Sans',sans-serif",fontSize:12,cursor:'pointer'}}>Close</button>
                   </div>
                 )}
               </div>
-              <input value={editText} onChange={e=>setEditText(e.target.value)} style={{fontFamily:'Fraunces,serif',fontSize:18,color:txt,background:'none',border:'none',outline:'none',width:280}}/>
+              <input value={editText} onChange={e=>setEditText(e.target.value)} style={{fontFamily:"'Lora',serif",fontSize:17,color:txt,background:'none',border:'none',outline:'none',flex:1,minWidth:0}}/>
             </div>
-            <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:muted,fontSize:22,lineHeight:1,padding:'0 4px'}}>×</button>
+            <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:muted,fontSize:20,lineHeight:1,padding:'2px 6px',borderRadius:6,flexShrink:0}}>×</button>
           </div>
-          <div style={{display:'flex',gap:4}}>
+          <div style={{display:'flex',gap:0}}>
             {['detail','comments'].map(t=>(
-              <button key={t} onClick={()=>setTab(t)} style={{background:'none',border:'none',cursor:'pointer',padding:'7px 14px',fontFamily:'Epilogue,sans-serif',fontSize:13,fontWeight:tab===t?600:400,color:tab===t?txt:muted,borderBottom:tab===t?`2px solid ${txt}`:'2px solid transparent'}}>
+              <button key={t} onClick={()=>setTab(t)} style={{background:'none',border:'none',cursor:'pointer',padding:'8px 16px',fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:tab===t?600:400,color:tab===t?txt:muted,borderBottom:tab===t?`2px solid ${txt}`:'2px solid transparent',letterSpacing:'.01em'}}>
                 {t.charAt(0).toUpperCase()+t.slice(1)}{t==='comments'&&task.comments.length>0?` (${task.comments.length})`:''}
               </button>
             ))}
@@ -432,59 +491,56 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
 
           {/* Detail Tab */}
           {tab==='detail'&&(
-            <div style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div style={{display:'flex',flexDirection:'column',gap:14}}>
               <div>
-                <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:7,letterSpacing:'.06em'}}>PRIORITY</label>
+                <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:7,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>PRIORITY</label>
                 <div style={{display:'flex',gap:6}}>
                   {PRIORITIES.map(p=>(
-                    <button key={p} onClick={()=>setEditPrio(p)} style={{padding:'5px 14px',borderRadius:20,fontSize:12,cursor:'pointer',fontWeight:700,border:`1.5px solid ${editPrio===p?P_COLOR[p]:bdr}`,background:editPrio===p?P_BG[p]:'transparent',color:editPrio===p?P_COLOR[p]:muted}}>{p}</button>
+                    <button key={p} onClick={()=>setEditPrio(p)} style={{padding:'5px 14px',borderRadius:99,fontSize:11,cursor:'pointer',fontWeight:600,border:`1px solid ${editPrio===p?P_COLOR[p]:(dark?'#2c2c2c':'#e8e8e8')}`,background:editPrio===p?P_BG[p]:'transparent',color:editPrio===p?P_COLOR[p]:muted,fontFamily:"'DM Sans',sans-serif"}}>{p}</button>
                   ))}
                 </div>
               </div>
 
-              {/* Assign to — ใช้ชื่อจริง */}
               <div>
-                <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:7,letterSpacing:'.06em'}}>ASSIGN TO</label>
-                <select value={editAssignee} onChange={e=>setEditAssignee(e.target.value)} style={{width:'100%',background:dark?'#252525':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none'}}>
+                <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:7,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>ASSIGN TO</label>
+                <select value={editAssignee} onChange={e=>setEditAssignee(e.target.value)} style={{width:'100%',background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:8,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}>
                   <option value="">Unassigned</option>
                   {memberUsers.map(u=>(
-                    <option key={u.id} value={u.id}>
-                      {u.name}
-                    </option>
+                    <option key={u.id} value={u.id}>{u.name}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:7,letterSpacing:'.06em'}}>DUE DATE</label>
+                <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:7,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>DUE DATE</label>
                 <div style={{display:'flex',gap:8}}>
-                  <input type="date" value={editDue} onChange={e=>setEditDue(e.target.value)} style={{flex:1,background:dark?'#252525':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none'}}/>
-                  <input type="time" value={editTime} onChange={e=>setEditTime(e.target.value)} style={{width:110,background:dark?'#252525':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none'}}/>
+                  <input type="date" value={editDue} onChange={e=>setEditDue(e.target.value)} style={{flex:1,background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:8,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}/>
+                  <input type="time" value={editTime} onChange={e=>setEditTime(e.target.value)} style={{width:110,background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:8,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}/>
                 </div>
               </div>
 
               <div>
-                <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:8,letterSpacing:'.06em'}}>REACTIONS</label>
+                <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:8,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>REACTIONS</label>
                 <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                   {REACTIONS_LIST.map(em=>{
                     const us=task.reactions[em]||[];
-                    return <button key={em} onClick={()=>onReact(task.id,em)} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f0f0f0'):'transparent',border:`1.5px solid ${bdr}`,borderRadius:20,padding:'5px 12px',cursor:'pointer',fontSize:13,color:txt,display:'flex',gap:4,alignItems:'center'}}>{em}{us.length>0&&<span style={{fontSize:12}}>{us.length}</span>}</button>;
+                    return <button key={em} onClick={()=>onReact(task.id,em)} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f0f0f0'):'transparent',border:`1px solid ${dark?'#2c2c2c':'#e8e8e8'}`,borderRadius:99,padding:'5px 12px',cursor:'pointer',fontSize:13,color:txt,display:'flex',gap:4,alignItems:'center'}}>{em}{us.length>0&&<span style={{fontSize:11,fontFamily:"'DM Sans',sans-serif"}}>{us.length}</span>}</button>;
                   })}
                 </div>
               </div>
 
               {task.completed&&task.completedBy&&(
-                <div style={{background:dark?'#1a2a20':'#E4F7EC',borderRadius:10,padding:'10px 14px',display:'flex',gap:8,alignItems:'center'}}>
-                  <div style={{width:24,height:24,borderRadius:'50%',background:'#D6FFE4',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12}}>
+                <div style={{background:dark?'#162218':'#eef8f1',borderRadius:9,padding:'10px 14px',display:'flex',gap:8,alignItems:'center'}}>
+                  <div style={{width:24,height:24,borderRadius:'50%',background:'#c8eed3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,flexShrink:0}}>
                     {getUserById(task.completedBy).avatar
                       ? <img src={getUserById(task.completedBy).avatar} style={{width:24,height:24,borderRadius:'50%'}} alt=""/>
                       : '👤'
                     }
                   </div>
-                  <span style={{fontSize:13,color:'#2f8a55',fontFamily:'Epilogue,sans-serif'}}>Completed by <strong>{getUserById(task.completedBy).name}</strong></span>
+                  <span style={{fontSize:12.5,color:'#3a8f56',fontFamily:"'DM Sans',sans-serif"}}>Completed by <strong>{getUserById(task.completedBy).name}</strong></span>
                 </div>
               )}
-              <button onClick={save} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:10,padding:11,cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontWeight:600,fontSize:14}}>Save Changes</button>
+              <button onClick={save} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:9,padding:'11px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:'.01em'}}>Save Changes</button>
             </div>
           )}
 
@@ -492,35 +548,35 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
           {tab==='comments'&&(
             <div>
               {task.comments.length===0&&(
-                <p style={{color:muted,fontSize:13,fontFamily:'Epilogue,sans-serif',padding:'8px 0'}}>No comments yet. Be the first!</p>
+                <p style={{color:muted,fontSize:13,fontFamily:"'DM Sans',sans-serif",padding:'8px 0'}}>No comments yet. Be the first!</p>
               )}
               {task.comments.map(c=>{
                 const u = getUserById(c.userId);
                 return (
                   <div key={c.id} style={{display:'flex',gap:10,marginBottom:14}}>
                     {u.avatar
-                      ? <img src={u.avatar} style={{width:30,height:30,borderRadius:'50%',flexShrink:0}} alt=""/>
-                      : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>👤</div>
+                      ? <img src={u.avatar} style={{width:28,height:28,borderRadius:'50%',flexShrink:0,objectFit:'cover'}} alt=""/>
+                      : <div style={{width:28,height:28,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,flexShrink:0}}>👤</div>
                     }
                     <div style={{flex:1}}>
-                      <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:4}}>
-                        <span style={{fontSize:13,fontWeight:600,color:txt,fontFamily:'Epilogue,sans-serif'}}>{u.name}</span>
-                        <span style={{fontSize:11,color:muted}}>{timeAgo(c.createdAt)}</span>
+                      <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:3}}>
+                        <span style={{fontSize:12.5,fontWeight:600,color:txt,fontFamily:"'DM Sans',sans-serif"}}>{u.name}</span>
+                        <span style={{fontSize:10.5,color:muted}}>{timeAgo(c.createdAt)}</span>
                       </div>
-                      <div style={{background:dark?'#252525':'#f5f5f5',borderRadius:'4px 12px 12px 12px',padding:'8px 12px'}}>
-                        <p style={{fontSize:13,color:txt,fontFamily:'Epilogue,sans-serif',margin:0}}>{c.text}</p>
+                      <div style={{background:dark?'#242424':'#f5f5f5',borderRadius:'3px 10px 10px 10px',padding:'8px 11px'}}>
+                        <p style={{fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif",margin:0,lineHeight:1.5}}>{c.text}</p>
                       </div>
                     </div>
                   </div>
                 );
               })}
-              <div style={{display:'flex',gap:8,marginTop:10}}>
+              <div style={{display:'flex',gap:8,marginTop:12}}>
                 {currentUser.avatar
-                  ? <img src={currentUser.avatar} style={{width:30,height:30,borderRadius:'50%',flexShrink:0}} alt=""/>
-                  : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>👤</div>
+                  ? <img src={currentUser.avatar} style={{width:28,height:28,borderRadius:'50%',flexShrink:0,objectFit:'cover'}} alt=""/>
+                  : <div style={{width:28,height:28,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,flexShrink:0}}>👤</div>
                 }
-                <input value={comment} onChange={e=>setComment(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addComment()} placeholder="Write a comment..." style={{flex:1,background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:10,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}/>
-                <button onClick={addComment} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:10,padding:'8px 14px',cursor:'pointer',fontSize:13,fontFamily:'Epilogue,sans-serif'}}>Send</button>
+                <input value={comment} onChange={e=>setComment(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addComment()} placeholder="Write a comment..." style={{flex:1,background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:9,padding:'8px 12px',color:txt,fontSize:13,outline:'none',fontFamily:"'DM Sans',sans-serif"}}/>
+                <button onClick={addComment} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:9,padding:'8px 14px',cursor:'pointer',fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>Send</button>
               </div>
             </div>
           )}
@@ -541,8 +597,8 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
     (list.memberIds || []).filter(id => id !== currentUser.id)
   );
 
-  const txt = dark?'#f0f0f0':'#0a0a0a', bg = dark?'#1a1a1a':'#fff';
-  const bdr = dark?'#2a2a2a':'#efefef', muted = dark?'#666':'#aaa';
+  const txt = dark?'#efefef':'#111', bg = dark?'#1c1c1c':'#fff';
+  const bdr = dark?'#2c2c2c':'#eee', muted = dark?'#555':'#bbb';
 
   const toggleFriend = (uid) => {
     setSelectedFriends(prev =>
@@ -565,38 +621,39 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
     });
   };
 
+  const inputStyle = {width:'100%',padding:'9px 13px',borderRadius:9,border:`1px solid ${bdr}`,background:dark?'#242424':'#f7f7f7',color:txt,fontFamily:"'DM Sans',sans-serif",fontSize:13.5,outline:'none',boxSizing:'border-box'};
+  const labelStyle = {fontSize:10,fontWeight:600,color:muted,letterSpacing:'.08em',marginBottom:6,display:'block',fontFamily:"'DM Sans',sans-serif"};
+
   return (
-    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:16}}>
-      <div onClick={e=>e.stopPropagation()} style={{background:bg,borderRadius:20,padding:28,width:'100%',maxWidth:400,maxHeight:'85vh',overflow:'auto'}}>
+    <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:16,backdropFilter:'blur(4px)'}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:bg,borderRadius:16,padding:'24px 26px',width:'100%',maxWidth:400,maxHeight:'85vh',overflow:'auto',boxShadow:`0 20px 50px rgba(0,0,0,${dark?.4:.12})`}}>
 
         {/* Header */}
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-          <h2 style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt,margin:0}}>Edit List</h2>
-          <button onClick={onClose} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:muted}}>✕</button>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:22}}>
+          <h2 style={{fontFamily:"'Lora',serif",fontSize:20,color:txt,margin:0,fontWeight:600}}>Edit List</h2>
+          <button onClick={onClose} style={{background:'none',border:'none',fontSize:18,cursor:'pointer',color:muted,lineHeight:1,padding:'3px 6px',borderRadius:6}}>✕</button>
         </div>
 
         {/* Name */}
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>LIST NAME</div>
-          <input value={name} onChange={e=>setName(e.target.value)}
-            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1.5px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14,outline:'none',boxSizing:'border-box'}}/>
+          <div style={labelStyle}>LIST NAME</div>
+          <input value={name} onChange={e=>setName(e.target.value)} style={inputStyle}/>
         </div>
 
         {/* Category */}
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>CATEGORY</div>
-          <select value={cat} onChange={e=>setCat(e.target.value)}
-            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1.5px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14,outline:'none'}}>
+          <div style={labelStyle}>CATEGORY</div>
+          <select value={cat} onChange={e=>setCat(e.target.value)} style={inputStyle}>
             {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
           </select>
         </div>
 
         {/* Color */}
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>COLOR</div>
-          <div style={{display:'flex',gap:8}}>
+          <div style={labelStyle}>COLOR</div>
+          <div style={{display:'flex',gap:7}}>
             {PASTEL_COLORS.map(c=>(
-              <button key={c} onClick={()=>setColor(c)} style={{width:28,height:28,borderRadius:'50%',background:c,border:color===c?'2.5px solid #0a0a0a':'2px solid transparent',cursor:'pointer'}}/>
+              <button key={c} onClick={()=>setColor(c)} style={{width:26,height:26,borderRadius:'50%',background:c,border:color===c?'2.5px solid #111':'2px solid transparent',cursor:'pointer',outline:'none'}}/>
             ))}
           </div>
         </div>
@@ -604,31 +661,31 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
         {/* Private toggle */}
         <div style={{marginBottom:14,display:'flex',alignItems:'center',gap:10}}>
           <button onClick={()=>setIsPrivate(!isPrivate)} style={{
-            width:38,height:22,borderRadius:11,border:'none',cursor:'pointer',
-            background:isPrivate?'#0a0a0a':'#ddd',position:'relative',transition:'background .2s'
+            width:36,height:20,borderRadius:10,border:'none',cursor:'pointer',padding:0,
+            background:isPrivate?'#111':'#ddd',position:'relative',transition:'background .2s',flexShrink:0
           }}>
-            <div style={{position:'absolute',top:3,left:isPrivate?18:3,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s'}}/>
+            <div style={{position:'absolute',top:2,left:isPrivate?17:2,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s'}}/>
           </button>
-          <span style={{fontSize:13,color:txt}}>🔒 Private (เฉพาะคุณเห็น)</span>
+          <span style={{fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif"}}>🔒 Private (เฉพาะคุณเห็น)</span>
         </div>
 
         {/* Members */}
         {!isPrivate && friends.length > 0 && (
           <div style={{marginBottom:14}}>
-            <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>MEMBERS</div>
+            <div style={labelStyle}>MEMBERS</div>
             {friends.map(f=>(
               <div key={f.uid} onClick={()=>toggleFriend(f.uid)} style={{
-                display:'flex',alignItems:'center',gap:10,padding:'8px 10px',
-                borderRadius:10,cursor:'pointer',marginBottom:4,
-                background:selectedFriends.includes(f.uid)?(dark?'#252525':'#f0f0f0'):'transparent'
+                display:'flex',alignItems:'center',gap:10,padding:'7px 10px',
+                borderRadius:9,cursor:'pointer',marginBottom:3,
+                background:selectedFriends.includes(f.uid)?(dark?'#242424':'#f2f2f2'):'transparent'
               }}>
                 {f.avatar
-                  ? <img src={f.avatar} style={{width:30,height:30,borderRadius:'50%'}} alt=""/>
-                  : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>👤</div>
+                  ? <img src={f.avatar} style={{width:28,height:28,borderRadius:'50%',objectFit:'cover'}} alt=""/>
+                  : <div style={{width:28,height:28,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13}}>👤</div>
                 }
-                <span style={{flex:1,fontSize:13,color:txt}}>{f.name}</span>
+                <span style={{flex:1,fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif"}}>{f.name}</span>
                 {selectedFriends.includes(f.uid)
-                  ? <span style={{color:'#2f8a55',fontWeight:700}}>✓</span>
+                  ? <span style={{color:'#3a8f56',fontWeight:700,fontSize:13}}>✓</span>
                   : <span style={{color:muted,fontSize:12}}>+ Add</span>
                 }
               </div>
@@ -638,9 +695,9 @@ const EditListModal = ({dark, currentUser, friends=[], list, onClose, onSave}) =
 
         {/* Save */}
         <button onClick={handleSave} style={{
-          width:'100%',padding:'12px',borderRadius:12,background:'#0a0a0a',
-          color:'#fafafa',border:'none',cursor:'pointer',fontFamily:'Epilogue,sans-serif',
-          fontSize:15,fontWeight:600,marginTop:4
+          width:'100%',padding:'11px',borderRadius:10,background:'#111',
+          color:'#fafafa',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+          fontSize:14,fontWeight:600,marginTop:4,letterSpacing:'.01em'
         }}>Save Changes</button>
 
       </div>
@@ -659,8 +716,8 @@ const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => 
   const [isGroup,setIsGroup]=useState(false);
   const [selectedFriends,setSelectedFriends]=useState([]);
 
-  const txt=dark?'#f0f0f0':'#0a0a0a', bg=dark?'#1a1a1a':'#fff';
-  const bdr=dark?'#2a2a2a':'#efefef', muted=dark?'#666':'#aaa';
+  const txt=dark?'#efefef':'#111', bg=dark?'#1c1c1c':'#fff';
+  const bdr=dark?'#2c2c2c':'#eee', muted=dark?'#555':'#bbb';
 
   const toggleFriend=(uid)=>{
     setSelectedFriends(prev=>
@@ -675,43 +732,44 @@ const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => 
       id: genId(), name: name.trim(), category: cat, color,
       isPrivate, isGroup: isGroup || selectedFriends.length > 0,
       members: memberIds, memberIds,
-      selectedFriends, // ส่ง selectedFriends ออกไปด้วย
+      selectedFriends,
       createdBy: currentUser.id, createdAt: ts(), tasks: []
     });
     onClose();
   };
 
+  const inputStyle = {width:'100%',padding:'9px 13px',borderRadius:9,border:`1px solid ${bdr}`,background:dark?'#242424':'#f7f7f7',color:txt,fontFamily:"'DM Sans',sans-serif",fontSize:13.5,outline:'none',boxSizing:'border-box'};
+  const labelStyle = {fontSize:10,fontWeight:600,color:muted,letterSpacing:'.08em',marginBottom:6,display:'block',fontFamily:"'DM Sans',sans-serif"};
+
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:16}}>
-      <div style={{background:bg,borderRadius:20,padding:28,width:'100%',maxWidth:400,maxHeight:'85vh',overflow:'auto'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-          <h2 style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt,margin:0}}>New List</h2>
-          <button onClick={onClose} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:muted}}>✕</button>
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:999,padding:16,backdropFilter:'blur(4px)'}}>
+      <div style={{background:bg,borderRadius:16,padding:'24px 26px',width:'100%',maxWidth:400,maxHeight:'85vh',overflow:'auto',boxShadow:`0 20px 50px rgba(0,0,0,${dark?.4:.12})`}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:22}}>
+          <h2 style={{fontFamily:"'Lora',serif",fontSize:20,color:txt,margin:0,fontWeight:600}}>New List</h2>
+          <button onClick={onClose} style={{background:'none',border:'none',fontSize:18,cursor:'pointer',color:muted,lineHeight:1,padding:'3px 6px',borderRadius:6}}>✕</button>
         </div>
 
         {/* Name */}
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>LIST NAME</div>
+          <div style={labelStyle}>LIST NAME</div>
           <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleCreate()}
-            placeholder="e.g. Trip to Japan 🗾"
-            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1.5px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14,outline:'none',boxSizing:'border-box'}}/>
+            placeholder="e.g. Trip to Japan 🗾" style={inputStyle}/>
         </div>
 
         {/* Category */}
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>CATEGORY</div>
-          <select value={cat} onChange={e=>setCat(e.target.value)}
-            style={{width:'100%',padding:'10px 14px',borderRadius:10,border:`1.5px solid ${bdr}`,background:dark?'#252525':'#f5f5f5',color:txt,fontFamily:'Epilogue,sans-serif',fontSize:14,outline:'none'}}>
+          <div style={labelStyle}>CATEGORY</div>
+          <select value={cat} onChange={e=>setCat(e.target.value)} style={inputStyle}>
             {CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}
           </select>
         </div>
 
         {/* Color */}
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>COLOR</div>
-          <div style={{display:'flex',gap:8}}>
+          <div style={labelStyle}>COLOR</div>
+          <div style={{display:'flex',gap:7}}>
             {PASTEL_COLORS.map(c=>(
-              <button key={c} onClick={()=>setColor(c)} style={{width:28,height:28,borderRadius:'50%',background:c,border:color===c?'2.5px solid #0a0a0a':'2px solid transparent',cursor:'pointer'}}/>
+              <button key={c} onClick={()=>setColor(c)} style={{width:26,height:26,borderRadius:'50%',background:c,border:color===c?'2.5px solid #111':'2px solid transparent',cursor:'pointer',outline:'none'}}/>
             ))}
           </div>
         </div>
@@ -719,39 +777,39 @@ const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => 
         {/* Private toggle */}
         <div style={{marginBottom:14,display:'flex',alignItems:'center',gap:10}}>
           <button onClick={()=>setIsPrivate(!isPrivate)} style={{
-            width:38,height:22,borderRadius:11,border:'none',cursor:'pointer',
-            background:isPrivate?'#0a0a0a':'#ddd',position:'relative',transition:'background .2s'
+            width:36,height:20,borderRadius:10,border:'none',cursor:'pointer',padding:0,
+            background:isPrivate?'#111':'#ddd',position:'relative',transition:'background .2s',flexShrink:0
           }}>
-            <div style={{position:'absolute',top:3,left:isPrivate?18:3,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s'}}/>
+            <div style={{position:'absolute',top:2,left:isPrivate?17:2,width:16,height:16,borderRadius:'50%',background:'#fff',transition:'left .2s'}}/>
           </button>
-          <span style={{fontSize:13,color:txt}}>🔒 Private (เฉพาะคุณเห็น)</span>
+          <span style={{fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif"}}>🔒 Private (เฉพาะคุณเห็น)</span>
         </div>
 
         {/* Invite Friends */}
         {!isPrivate && friends.length > 0 && (
           <div style={{marginBottom:14}}>
-            <div style={{fontSize:11,fontWeight:700,color:muted,letterSpacing:'.08em',marginBottom:6}}>INVITE FRIENDS</div>
+            <div style={labelStyle}>INVITE FRIENDS</div>
             {friends.map(f=>(
               <div key={f.uid} onClick={()=>toggleFriend(f.uid)} style={{
-                display:'flex',alignItems:'center',gap:10,padding:'8px 10px',
-                borderRadius:10,cursor:'pointer',marginBottom:4,
-                background:selectedFriends.includes(f.uid)?(dark?'#252525':'#f0f0f0'):'transparent'
+                display:'flex',alignItems:'center',gap:10,padding:'7px 10px',
+                borderRadius:9,cursor:'pointer',marginBottom:3,
+                background:selectedFriends.includes(f.uid)?(dark?'#242424':'#f2f2f2'):'transparent'
               }}>
                 {f.avatar
-                  ? <img src={f.avatar} style={{width:30,height:30,borderRadius:'50%'}} alt=""/>
-                  : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>👤</div>
+                  ? <img src={f.avatar} style={{width:28,height:28,borderRadius:'50%',objectFit:'cover'}} alt=""/>
+                  : <div style={{width:28,height:28,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13}}>👤</div>
                 }
-                <span style={{flex:1,fontSize:13,color:txt}}>{f.name}</span>
-                {selectedFriends.includes(f.uid) && <span style={{color:'#2f8a55',fontWeight:700}}>✓</span>}
+                <span style={{flex:1,fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif"}}>{f.name}</span>
+                {selectedFriends.includes(f.uid) && <span style={{color:'#3a8f56',fontWeight:700,fontSize:13}}>✓</span>}
               </div>
             ))}
           </div>
         )}
 
         <button onClick={handleCreate} style={{
-          width:'100%',padding:'12px',borderRadius:12,background:'#0a0a0a',
-          color:'#fafafa',border:'none',cursor:'pointer',fontFamily:'Epilogue,sans-serif',
-          fontSize:15,fontWeight:600,marginTop:4
+          width:'100%',padding:'11px',borderRadius:10,background:'#111',
+          color:'#fafafa',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",
+          fontSize:14,fontWeight:600,marginTop:4,letterSpacing:'.01em'
         }}>Create List</button>
       </div>
     </div>
@@ -763,8 +821,8 @@ const AISuggestions = ({listName,dark,onAddTask,onClose}) => {
   const [items,setItems]=useState([]);
   const [loading,setLoading]=useState(true);
   const [added,setAdded]=useState([]);
-  const surface=dark?'#1c1c1c':'#fff', txt=dark?'#f0f0f0':'#0a0a0a';
-  const bdr=dark?'#2a2a2a':'#f0f0f0', muted=dark?'#666':'#aaa';
+  const surface=dark?'#1e1e1e':'#fff', txt=dark?'#efefef':'#111';
+  const bdr=dark?'#2c2c2c':'#ebebeb', muted=dark?'#555':'#bbb';
 
   useEffect(()=>{
     (async()=>{
@@ -786,20 +844,20 @@ const AISuggestions = ({listName,dark,onAddTask,onClose}) => {
   },[listName]);
 
   return (
-    <div style={{background:surface,border:`1.5px solid ${bdr}`,borderRadius:14,padding:16,marginTop:8,animation:'fadeUp .2s ease-out'}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+    <div style={{background:dark?'#1e1e1e':'#fafafa',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:12,padding:'14px 16px',marginTop:8,animation:'fadeUp .18s ease-out'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:11}}>
         <div style={{display:'flex',alignItems:'center',gap:6}}>
-          <span>✨</span>
-          <span style={{fontFamily:'Fraunces,serif',fontSize:15,color:txt}}>AI Suggestions</span>
-          {loading&&<span style={{fontSize:11,color:muted,animation:'shimmer 1.4s ease infinite'}}>thinking...</span>}
+          <span style={{fontSize:13}}>✨</span>
+          <span style={{fontFamily:"'Lora',serif",fontSize:14,color:txt,fontStyle:'italic'}}>AI Suggestions</span>
+          {loading&&<span style={{fontSize:11,color:muted,animation:'shimmer 1.4s ease infinite',fontFamily:"'DM Sans',sans-serif"}}>thinking…</span>}
         </div>
-        <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:muted,fontSize:18,lineHeight:1}}>×</button>
+        <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:muted,fontSize:16,lineHeight:1,padding:'2px 5px',borderRadius:5}}>×</button>
       </div>
-      <div style={{display:'flex',flexWrap:'wrap',gap:7}}>
+      <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
         {loading
-          ?Array.from({length:4},(_,i)=><div key={i} style={{height:30,width:80+i*20,borderRadius:20,background:dark?'#2a2a2a':'#f0f0f0',animation:`shimmer 1.4s ease ${i*.1}s infinite`}}/>)
+          ?Array.from({length:4},(_,i)=><div key={i} style={{height:28,width:70+i*22,borderRadius:99,background:dark?'#2a2a2a':'#ebebeb',animation:`shimmer 1.4s ease ${i*.1}s infinite`}}/>)
           :items.map((s,i)=>(
-            <button key={i} onClick={()=>{if(!added.includes(i)){onAddTask(s);setAdded(a=>[...a,i]);}}} style={{padding:'6px 13px',borderRadius:20,fontFamily:'Epilogue,sans-serif',fontSize:13,cursor:'pointer',border:`1.5px solid ${added.includes(i)?'#0a0a0a':(dark?'#333':'#ddd')}`,background:added.includes(i)?'#0a0a0a':'transparent',color:added.includes(i)?'#fafafa':txt,transition:'all .15s'}}>
+            <button key={i} onClick={()=>{if(!added.includes(i)){onAddTask(s);setAdded(a=>[...a,i]);}}} style={{padding:'5px 12px',borderRadius:99,fontFamily:"'DM Sans',sans-serif",fontSize:12.5,cursor:'pointer',border:`1px solid ${added.includes(i)?'#111':(dark?'#2c2c2c':'#ddd')}`,background:added.includes(i)?'#111':'transparent',color:added.includes(i)?'#fafafa':txt,transition:'all .15s',fontWeight:added.includes(i)?500:400}}>
               {added.includes(i)?'✓ ':''}{s}
             </button>
           ))
@@ -811,8 +869,8 @@ const AISuggestions = ({listName,dark,onAddTask,onClose}) => {
 
 // ── Leaderboard ───────────────────────────────────────────────────────────────
 const LeaderboardView = ({lists, dark, friends, currentUser}) => {
-  const txt=dark?'#f0f0f0':'#0a0a0a', bg=dark?'#1a1a1a':'#fff';
-  const muted=dark?'#666':'#aaa', bdr=dark?'#2a2a2a':'#efefef';
+  const txt=dark?'#efefef':'#111', bg=dark?'#1c1c1c':'#fff';
+  const muted=dark?'#555':'#bbb', bdr=dark?'#2c2c2c':'#ececec';
 
   // รวม currentUser + friends เพื่อแสดงใน leaderboard
   const people = [currentUser, ...friends.map(f => ({
@@ -830,31 +888,32 @@ const LeaderboardView = ({lists, dark, friends, currentUser}) => {
   const medals = ['🥇','🥈','🥉'];
 
   return (
-    <div style={{padding:'28px',maxWidth:520}}>
-      <h2 style={{fontFamily:'Fraunces,serif',fontSize:26,color:txt,marginBottom:4}}>Leaderboard 🏆</h2>
-      <p style={{color:muted,fontSize:13,fontFamily:'Epilogue,sans-serif',marginBottom:24}}>คะแนนจากการทำและสร้าง tasks</p>
+    <div className="main-content">
+      <h2 style={{fontFamily:"'Lora',serif",fontSize:'clamp(22px,2vw,34px)',color:txt,margin:'0 0 4px'}}>Leaderboard 🏆</h2>
+      <p style={{color:muted,fontSize:'clamp(12px,.85vw,15px)',fontFamily:"'DM Sans',sans-serif",marginBottom:'clamp(20px,2vw,36px)',marginTop:6}}>คะแนนจากการทำและสร้าง tasks</p>
       {scores.map((s, i) => (
         <div key={s.id} style={{
-          background:bg, border:`1.5px solid ${bdr}`, borderRadius:14,
-          padding:'14px 18px', marginBottom:10,
-          display:'flex', alignItems:'center', gap:14
+          background:bg, border:`1px solid ${bdr}`, borderRadius:12,
+          padding:'clamp(11px,1vw,17px) clamp(14px,1.4vw,22px)', marginBottom:8,
+          display:'flex', alignItems:'center', gap:'clamp(11px,1vw,17px)',
+          boxShadow:i===0?`0 2px 12px rgba(0,0,0,${dark?.1:.04})`:'none',
         }}>
-          <div style={{fontSize:22, width:28}}>{medals[i] || `${i+1}`}</div>
+          <div style={{fontSize:'clamp(18px,1.4vw,24px)',width:'clamp(24px,1.8vw,32px)',flexShrink:0}}>{medals[i] || <span style={{fontSize:'clamp(12px,.85vw,15px)',color:muted,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>{i+1}</span>}</div>
           {s.avatar
-            ? <img src={s.avatar} style={{width:38,height:38,borderRadius:'50%'}} alt=""/>
-            : <div style={{width:38,height:38,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>👤</div>
+            ? <img src={s.avatar} style={{width:'clamp(34px,2.5vw,44px)',height:'clamp(34px,2.5vw,44px)',borderRadius:'50%',objectFit:'cover',flexShrink:0}} alt=""/>
+            : <div style={{width:'clamp(34px,2.5vw,44px)',height:'clamp(34px,2.5vw,44px)',borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:17,flexShrink:0}}>👤</div>
           }
-          <div style={{flex:1}}>
-            <div style={{fontWeight:600,fontSize:15,color:txt}}>{s.name}</div>
-            <div style={{fontSize:12,color:muted}}>✅ {s.completed} completed · ➕ {s.added} added</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontWeight:600,fontSize:'clamp(13.5px,.95vw,16px)',color:txt,fontFamily:"'DM Sans',sans-serif"}}>{s.name}</div>
+            <div style={{fontSize:'clamp(11px,.78vw,13px)',color:muted,fontFamily:"'DM Sans',sans-serif",marginTop:1}}>✅ {s.completed} completed · ➕ {s.added} added</div>
           </div>
-          <div style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt,fontWeight:700}}>{s.score}</div>
+          <div style={{fontFamily:"'Lora',serif",fontSize:'clamp(20px,1.6vw,28px)',color:txt,fontWeight:600}}>{s.score}</div>
         </div>
       ))}
       {scores.length === 0 && (
         <div style={{textAlign:'center',padding:'44px 0',color:muted}}>
           <div style={{fontSize:40,marginBottom:10}}>🏆</div>
-          <p style={{fontFamily:'Epilogue,sans-serif',fontSize:14}}>เพิ่ม friend และทำ tasks เพื่อดู leaderboard</p>
+          <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,.9vw,15px)'}}>เพิ่ม friend และทำ tasks เพื่อดู leaderboard</p>
         </div>
       )}
     </div>
@@ -864,7 +923,7 @@ const LeaderboardView = ({lists, dark, friends, currentUser}) => {
 
 // ── Activity Feed ─────────────────────────────────────────────────────────────
 const ActivityView = ({activity, dark, currentUser, friends}) => {
-  const txt=dark?'#f0f0f0':'#0a0a0a', muted=dark?'#777':'#aaa', bdr=dark?'#2a2a2a':'#f0f0f0';
+  const txt=dark?'#efefef':'#111', muted=dark?'#555':'#bbb', bdr=dark?'#2c2c2c':'#ececec';
   const actionColor=(a)=>a==='completed'?'#2f8a55':a==='added'?'#2a5fb0':'#888';
 
   const getActivityUser = (userId) => {
@@ -875,32 +934,32 @@ const ActivityView = ({activity, dark, currentUser, friends}) => {
   };
 
   return (
-    <div style={{padding:28,animation:'fadeUp .2s ease-out'}}>
-      <h2 style={{fontFamily:'Fraunces,serif',fontSize:32,color:txt,marginBottom:4}}>Activity</h2>
-      <p style={{color:muted,fontFamily:'Epilogue,sans-serif',fontSize:14,marginBottom:28}}>Everything happening across your lists</p>
-      <div style={{maxWidth:520}}>
+    <div className="main-content" style={{animation:'fadeUp .2s ease-out'}}>
+      <h2 style={{fontFamily:"'Lora',serif",fontSize:'clamp(22px,2vw,34px)',color:txt,margin:'0 0 4px'}}>Activity</h2>
+      <p style={{color:muted,fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.85vw,15px)',marginBottom:'clamp(20px,2vw,36px)',marginTop:6}}>Everything happening across your lists</p>
+      <div style={{maxWidth:'var(--content-max)'}}>
         {activity.length === 0 && (
           <div style={{textAlign:'center',padding:'44px 0',color:muted}}>
             <div style={{fontSize:40,marginBottom:10}}>⚡</div>
-            <p style={{fontFamily:'Epilogue,sans-serif',fontSize:14}}>ยังไม่มี activity ลองสร้าง list หรือเพิ่ม task ดูครับ</p>
+            <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,.9vw,15px)'}}>ยังไม่มี activity ลองสร้าง list หรือเพิ่ม task ดูครับ</p>
           </div>
         )}
         {activity.map((a,i)=>{
           const u = getActivityUser(a.userId);
           return (
-            <div key={a.id} style={{display:'flex',gap:12,marginBottom:18,position:'relative'}}>
-              {i<activity.length-1&&<div style={{position:'absolute',left:14,top:32,bottom:-10,width:1.5,background:bdr}}/>}
+            <div key={a.id} style={{display:'flex',gap:'clamp(10px,1vw,16px)',marginBottom:'clamp(13px,1.2vw,20px)',position:'relative'}}>
+              {i<activity.length-1&&<div style={{position:'absolute',left:13,top:30,bottom:-8,width:1,background:bdr}}/>}
               {u.avatar
-                ? <img src={u.avatar} style={{width:30,height:30,borderRadius:'50%',flexShrink:0}} alt=""/>
-                : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>👤</div>
+                ? <img src={u.avatar} style={{width:'clamp(26px,2vw,34px)',height:'clamp(26px,2vw,34px)',borderRadius:'50%',flexShrink:0,objectFit:'cover'}} alt=""/>
+                : <div style={{width:'clamp(26px,2vw,34px)',height:'clamp(26px,2vw,34px)',borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,flexShrink:0}}>👤</div>
               }
               <div style={{paddingTop:3}}>
-                <p style={{fontFamily:'Epilogue,sans-serif',fontSize:13,color:txt,margin:'0 0 2px'}}>
+                <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12.5px,.88vw,15px)',color:txt,margin:'0 0 2px',lineHeight:1.5}}>
                   <strong>{u.name}</strong>
                   <span style={{color:actionColor(a.action)}}> {a.action} </span>
-                  <span style={{fontStyle:'italic'}}>"{a.target}"</span>
+                  <span style={{fontStyle:'italic',color:muted}}>"{a.target}"</span>
                 </p>
-                <p style={{fontFamily:'Epilogue,sans-serif',fontSize:11,color:muted,margin:0}}>
+                <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(10.5px,.72vw,12.5px)',color:muted,margin:0}}>
                   {a.listName} · {a.createdAt?.toMillis ? timeAgo(new Date(a.createdAt.toMillis()).toISOString()) : timeAgo(a.createdAt)}
                 </p>
               </div>
@@ -941,7 +1000,9 @@ export default function App() {
   const [editingList, setEditingList] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
 
-  const [sidebarWidth, setSidebarWidth] = useState(212);
+  const [sidebarWidth, setSidebarWidth] = useState(
+    window.innerWidth >= 1920 ? 300 : window.innerWidth >= 1440 ? 270 : 240
+  );
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isResizing = useRef(false);
   const currentUser = firebaseUser ? {
@@ -1072,10 +1133,10 @@ export default function App() {
     return (
       <div style={{
         height: '100vh', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', fontFamily: 'Epilogue, sans-serif',
-        fontSize: 14, color: '#888'
+        justifyContent: 'center', fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13, color: '#aaa', letterSpacing: '.02em'
       }}>
-        Loading...
+        Loading…
       </div>
     );
   }
@@ -1086,10 +1147,10 @@ export default function App() {
   }
 
   // Theme vars
-  const bg=dark?'#111':'#f8f8f8', txt=dark?'#f0f0f0':'#0a0a0a';
+  const bg=dark?'#141414':'#f5f5f4', txt=dark?'#efefef':'#111';
   const effectiveSidebarWidth = sidebarCollapsed ? 0 : sidebarWidth;
-  const muted=dark?'#666':'#aaa', bdr=dark?'#2a2a2a':'#efefef';
-  const surface=dark?'#1a1a1a':'#fff';
+  const muted=dark?'#555':'#bbb', bdr=dark?'#2c2c2c':'#ececec';
+  const surface=dark?'#1c1c1c':'#fff';
   const personal=lists.filter(l=>!l.isGroup), group=lists.filter(l=>l.isGroup);
 
   return (
@@ -1122,22 +1183,22 @@ export default function App() {
       )}
       {showFriends && <FriendPanel currentUser={currentUser} dark={dark} onClose={() => setShowFriends(false)} />}
       {showInvites && (
-        <div onClick={() => setShowInvites(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:16}}>
-          <div onClick={e => e.stopPropagation()} style={{background:surface,borderRadius:20,padding:28,width:'100%',maxWidth:420,maxHeight:'80vh',overflow:'auto'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
-              <h2 style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt,margin:0}}>📬 List Invites</h2>
-              <button onClick={() => setShowInvites(false)} style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:muted}}>✕</button>
+        <div onClick={() => setShowInvites(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:16,backdropFilter:'blur(4px)'}}>
+          <div onClick={e => e.stopPropagation()} style={{background:surface,borderRadius:16,padding:'24px 26px',width:'100%',maxWidth:420,maxHeight:'80vh',overflow:'auto',boxShadow:`0 20px 50px rgba(0,0,0,${dark?.4:.12})`}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+              <h2 style={{fontFamily:"'Lora',serif",fontSize:20,color:txt,margin:0,fontWeight:600}}>📬 List Invites</h2>
+              <button onClick={() => setShowInvites(false)} style={{background:'none',border:'none',fontSize:18,cursor:'pointer',color:muted,padding:'3px 6px',borderRadius:6}}>✕</button>
             </div>
             {listInvites.length === 0 && (
-              <div style={{textAlign:'center',padding:'32px 0',color:muted,fontSize:13}}>ไม่มี invite ตอนนี้ครับ</div>
+              <div style={{textAlign:'center',padding:'32px 0',color:muted,fontSize:13,fontFamily:"'DM Sans',sans-serif"}}>ไม่มี invite ตอนนี้ครับ</div>
             )}
             {listInvites.map(inv => (
-              <div key={inv.listId} style={{background:inv.listColor||'#D6E8FF',borderRadius:14,padding:'14px 16px',marginBottom:10}}>
-                <div style={{fontFamily:'Fraunces,serif',fontSize:16,color:'#0a0a0a',marginBottom:4}}>{inv.listName}</div>
-                <div style={{fontSize:12,color:'rgba(0,0,0,.5)',marginBottom:12}}>invited by {inv.invitedBy}</div>
-                <div style={{display:'flex',gap:8}}>
-                  <button onClick={async () => { await acceptListInvite(firebaseUser.uid, inv); }} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:8,padding:'7px 16px',cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontSize:13,fontWeight:600}}>✓ Join List</button>
-                  <button onClick={async () => { await declineListInvite(firebaseUser.uid, inv.listId); }} style={{background:'rgba(200,50,50,.1)',color:'#c0392b',border:'none',borderRadius:8,padding:'7px 14px',cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontSize:13}}>✕ Decline</button>
+              <div key={inv.listId} style={{background:inv.listColor||'#D6E8FF',borderRadius:12,padding:'13px 15px',marginBottom:8}}>
+                <div style={{fontFamily:"'Lora',serif",fontSize:15,color:'#111',marginBottom:3,fontWeight:600}}>{inv.listName}</div>
+                <div style={{fontSize:11.5,color:'rgba(0,0,0,.45)',marginBottom:11,fontFamily:"'DM Sans',sans-serif"}}>invited by {inv.invitedBy}</div>
+                <div style={{display:'flex',gap:7}}>
+                  <button onClick={async () => { await acceptListInvite(firebaseUser.uid, inv); }} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:8,padding:'7px 15px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontSize:12.5,fontWeight:600}}>✓ Join List</button>
+                  <button onClick={async () => { await declineListInvite(firebaseUser.uid, inv.listId); }} style={{background:'rgba(200,50,50,.1)',color:'#c0392b',border:'none',borderRadius:8,padding:'7px 13px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontSize:12.5}}>✕ Decline</button>
                 </div>
               </div>
             ))}
@@ -1146,56 +1207,52 @@ export default function App() {
       )}
       {taskDetail&&<TaskDetailModal task={taskDetail} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onSave={(updatedTask)=>{updateTask(updatedTask);setTaskDetail(null);}} onReact={reactToTask} friends={friends} listMembers={sel?.memberIds||[]}/>}
 
-      <div style={{display:'flex',height:'100vh',background:bg,fontFamily:'Epilogue,sans-serif',overflow:'hidden',position:'relative'}}>
+      <div style={{display:'flex',height:'100vh',background:bg,fontFamily:"'DM Sans',sans-serif",overflow:'hidden',position:'relative'}}>
 
         {/* ── SIDEBAR ──────────────────── */}
         <div style={{
           width: effectiveSidebarWidth,
           minWidth: sidebarCollapsed ? 0 : 160,
           maxWidth: 400,
-          background:'#0a0a0a',
+          background:'#111',
           display:'flex',
           flexDirection:'column',
           flexShrink:0,
           overflow:'hidden',
           position:'relative',
-          transition: isResizing.current ? 'none' : 'width .2s ease'
+          transition: isResizing.current ? 'none' : 'width .2s ease',
+          borderRight:'1px solid rgba(255,255,255,.04)',
         }}>
-          {/* Decorative shapes */}
-          <div style={{position:'absolute',top:-40,right:-40,width:100,height:100,borderRadius:'50%',background:'#FFD6E00d',pointerEvents:'none'}}/>
-          <div style={{position:'absolute',bottom:100,left:-20,width:55,height:55,borderRadius:'50%',background:'#D6FFE40d',pointerEvents:'none'}}/>
-          <div style={{position:'absolute',top:'42%',right:-8,width:24,height:24,background:'#E8D6FF11',pointerEvents:'none',transform:'rotate(10deg)'}}/>
-
           {/* Logo */}
-          <div style={{padding:'18px 16px 14px',borderBottom:'1px solid #ffffff0a',display:'flex',alignItems:'center',gap:9}}>
-            <div style={{width:30,height:30,background:'#fafafa',borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800,color:'#0a0a0a'}}>✓</div>
-            <span style={{fontFamily:'Fraunces,serif',fontSize:19,color:'#fafafa',letterSpacing:'-.02em'}}>checkmate</span>
+          <div style={{padding:'clamp(14px,1.3vw,22px) clamp(14px,1.2vw,20px)',borderBottom:'1px solid rgba(255,255,255,.06)',display:'flex',alignItems:'center',gap:9}}>
+            <div style={{width:'clamp(26px,2vw,34px)',height:'clamp(26px,2vw,34px)',background:'#fff',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'clamp(12px,.9vw,16px)',fontWeight:800,color:'#111',flexShrink:0}}>✓</div>
+            <span style={{fontFamily:"'Lora',serif",fontSize:'clamp(15px,1.1vw,19px)',color:'#e8e8e8',letterSpacing:'-.02em',fontStyle:'italic'}}>checkmate</span>
           </div>
 
           {/* User */}
           <div
             onClick={() => setShowProfile(true)}
-            style={{padding:'12px 16px',borderBottom:'1px solid #ffffff0a',display:'flex',alignItems:'center',gap:10,cursor:'pointer',transition:'background .15s'}}
-            onMouseEnter={e => e.currentTarget.style.background='#ffffff08'}
+            style={{padding:'clamp(9px,.9vw,14px) clamp(14px,1.2vw,20px)',borderBottom:'1px solid rgba(255,255,255,.06)',display:'flex',alignItems:'center',gap:9,cursor:'pointer',transition:'background .15s'}}
+            onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,.05)'}
             onMouseLeave={e => e.currentTarget.style.background='transparent'}
           >
-            <Avatar userId={currentUser.id} size={32}/>
-            <div>
-              <div style={{fontFamily:'Epilogue,sans-serif',fontWeight:600,fontSize:13,color:'#fafafa'}}>{currentUser.name}</div>
-              <div style={{fontSize:10,color:'#444'}}>logged in as you</div>
+            <Avatar userId={currentUser.id} size={Math.round(window.innerWidth >= 1920 ? 34 : 30)}/>
+            <div style={{minWidth:0}}>
+              <div style={{fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:'clamp(12px,.88vw,15px)',color:'#e8e8e8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{currentUser.name}</div>
+              <div style={{fontSize:'clamp(9px,.65vw,11px)',color:'#3a3a3a',marginTop:1}}>logged in</div>
             </div>
           </div>
 
           {/* Nav */}
-          <div style={{padding:'10px 10px',overflowY:'auto',overflowX:'hidden',flex:1}}>
-            {[{id:'activity',label:'Activity Feed',icon:'⚡'},{id:'leaderboard',label:'Leaderboard',icon:'🏆'}].map(v=>(
-              <button key={v.id} onClick={()=>setView(v.id)} style={{width:'100%',textAlign:'left',background:view===v.id?'#ffffff10':'none',border:'none',borderRadius:8,padding:'8px 10px',cursor:'pointer',color:view===v.id?'#fafafa':'#555',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
-                <span>{v.icon}</span>{v.label}
+          <div style={{padding:'clamp(6px,.6vw,10px) clamp(6px,.6vw,10px)',overflowY:'auto',overflowX:'hidden',flex:1}}>
+            {[{id:'activity',label:'Activity',icon:'⚡'},{id:'leaderboard',label:'Leaderboard',icon:'🏆'}].map(v=>(
+              <button key={v.id} onClick={()=>setView(v.id)} style={{width:'100%',textAlign:'left',background:view===v.id?'rgba(255,255,255,.08)':'none',border:'none',borderRadius:7,padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',cursor:'pointer',color:view===v.id?'#f0f0f0':'#484848',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
+                <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>{v.icon}</span>{v.label}
               </button>
             ))}
 
-            <div style={{height:1,background:'#ffffff08',margin:'10px 2px'}}/>
-            <div style={{fontSize:9,fontWeight:700,color:'#333',letterSpacing:'.1em',padding:'4px 10px 6px'}}>PERSONAL</div>
+            <div style={{height:1,background:'rgba(255,255,255,.06)',margin:'clamp(8px,.8vw,12px) 4px'}}/>
+            <div style={{fontSize:'clamp(8.5px,.65vw,11px)',fontWeight:700,color:'#2e2e2e',letterSpacing:'.12em',padding:'clamp(3px,.3vw,5px) clamp(9px,.85vw,13px) clamp(4px,.4vw,6px)',fontFamily:"'DM Sans',sans-serif"}}>PERSONAL</div>
             <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
               if(!result.destination) return;
               const items=[...personal];
@@ -1212,11 +1269,11 @@ export default function App() {
                         <Draggable key={l.id} draggableId={l.id} index={index}>
                           {(provided, snapshot)=>(
                             <DraggableItem provided={provided} snapshot={snapshot}>
-                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#444',fontSize:12,padding:'0 4px',flexShrink:0}}>⠿</div>
-                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'#ffffff10':'none',border:'none',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:selId===l.id&&view==='list'?'#fafafa':'#666',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
-                                <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0}}/>
+                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#363636',fontSize:11,padding:'0 3px',flexShrink:0}}>⠿</div>
+                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'rgba(255,255,255,.08)':'none',border:'none',borderRadius:7,padding:'clamp(5px,.55vw,8px) clamp(8px,.8vw,12px)',cursor:'pointer',color:selId===l.id&&view==='list'?'#f0f0f0':'#4a4a4a',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginBottom:1}}>
+                                <div style={{width:7,height:7,borderRadius:'50%',background:l.color,flexShrink:0}}/>
                                 <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
-                                {l.isPrivate&&<span style={{fontSize:9,color:'#333'}}>🔒</span>}
+                                {l.isPrivate&&<span style={{fontSize:9,color:'#2e2e2e'}}>🔒</span>}
                               </button>
                             </DraggableItem>
                           )}
@@ -1228,7 +1285,7 @@ export default function App() {
                 </Droppable>
               </DragDropContext>
 
-              <div style={{fontSize:9,fontWeight:700,color:'#333',letterSpacing:'.1em',padding:'12px 10px 6px'}}>GROUP</div>
+              <div style={{fontSize:'clamp(8.5px,.65vw,11px)',fontWeight:700,color:'#2e2e2e',letterSpacing:'.12em',padding:'clamp(8px,.8vw,12px) clamp(9px,.85vw,13px) clamp(4px,.4vw,6px)',fontFamily:"'DM Sans',sans-serif"}}>GROUP</div>
               <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
                 if(!result.destination) return;
                 const items=[...group];
@@ -1245,13 +1302,13 @@ export default function App() {
                         <Draggable key={l.id} draggableId={l.id} index={index}>
                           {(provided, snapshot)=>(
                             <DraggableItem provided={provided} snapshot={snapshot}>
-                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#444',fontSize:12,padding:'0 4px',flexShrink:0}}>⠿</div>
-                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'#ffffff10':'none',border:'none',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:selId===l.id&&view==='list'?'#fafafa':'#666',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
-                                <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0}}/>
+                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#363636',fontSize:11,padding:'0 3px',flexShrink:0}}>⠿</div>
+                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'rgba(255,255,255,.08)':'none',border:'none',borderRadius:7,padding:'clamp(5px,.55vw,8px) clamp(8px,.8vw,12px)',cursor:'pointer',color:selId===l.id&&view==='list'?'#f0f0f0':'#4a4a4a',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginBottom:1}}>
+                                <div style={{width:7,height:7,borderRadius:'50%',background:l.color,flexShrink:0}}/>
                                 <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
                                 <div style={{display:'flex'}}>
                                   {l.members.slice(0,3).map((m,i)=>(
-                                    <div key={m} style={{marginLeft:i>0?-5:0,width:16,height:16,borderRadius:'50%',background:getUser(m).color,fontSize:8,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid #0a0a0a'}}>{getUser(m).avatar}</div>
+                                    <div key={m} style={{marginLeft:i>0?-4:0,width:14,height:14,borderRadius:'50%',background:getUser(m).color,fontSize:7,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid #111'}}>{getUser(m).avatar}</div>
                                   ))}
                                 </div>
                               </button>
@@ -1265,42 +1322,41 @@ export default function App() {
                 </Droppable>
               </DragDropContext>
 
+            <div style={{height:1,background:'rgba(255,255,255,.06)',margin:'clamp(6px,.6vw,10px) 4px'}}/>
 
             <button onClick={() => setShowFriends(true)} style={{
               width:'100%', textAlign:'left', background:'none',
-              border:'1px dashed #222', borderRadius:8, padding:'7px 10px',
-              cursor:'pointer', color:'#444', fontFamily:'Epilogue,sans-serif',
-              fontSize:13, display:'flex', alignItems:'center', gap:8, marginTop:8
+              border:'none', borderRadius:7, padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',
+              cursor:'pointer', color:'#4a4a4a', fontFamily:"'DM Sans',sans-serif",
+              fontSize:'clamp(12px,.88vw,15px)', display:'flex', alignItems:'center', gap:7, marginBottom:1
             }}>
-              👥 Friends {friendRequests.length > 0 && <span style={{background:'#e05555',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center'}}>{friendRequests.length}</span>}
+              <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>👥</span> Friends {friendRequests.length > 0 && <span style={{background:'#d44',color:'#fff',borderRadius:'50%',width:15,height:15,fontSize:9.5,display:'flex',alignItems:'center',justifyContent:'center',marginLeft:'auto'}}>{friendRequests.length}</span>}
             </button>
 
             <button onClick={() => setShowInvites(true)} style={{
               width:'100%', textAlign:'left', background:'none',
-              border:'1px dashed #222', borderRadius:8, padding:'7px 10px',
-              cursor:'pointer', color:'#444', fontFamily:'Epilogue,sans-serif',
-              fontSize:13, display:'flex', alignItems:'center', gap:8, marginTop:4
+              border:'none', borderRadius:7, padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',
+              cursor:'pointer', color:'#4a4a4a', fontFamily:"'DM Sans',sans-serif",
+              fontSize:'clamp(12px,.88vw,15px)', display:'flex', alignItems:'center', gap:7, marginBottom:1
             }}>
-              📬 Invites {listInvites.length > 0 && <span style={{background:'#e05555',color:'#fff',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center'}}>{listInvites.length}</span>}
+              <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>📬</span> Invites {listInvites.length > 0 && <span style={{background:'#d44',color:'#fff',borderRadius:'50%',width:15,height:15,fontSize:9.5,display:'flex',alignItems:'center',justifyContent:'center',marginLeft:'auto'}}>{listInvites.length}</span>}
             </button>
 
-            <button onClick={()=>setShowCreate(true)} style={{width:'100%',textAlign:'left',background:'none',border:'1px dashed #222',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:'#444',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginTop:8}}>
-              ＋ New List
+            <button onClick={()=>setShowCreate(true)} style={{width:'100%',textAlign:'left',background:'rgba(255,255,255,.04)',border:'1px dashed rgba(255,255,255,.1)',borderRadius:7,padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',cursor:'pointer',color:'#4a4a4a',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginTop:6}}>
+              <span style={{color:'#888',fontSize:'clamp(13px,.95vw,17px)'}}>＋</span> New List
             </button>
-
 
           </div>
 
           {/* Bottom */}
-            <div style={{padding:'10px 16px',borderTop:'1px solid #ffffff08',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <span style={{fontSize:9,color:'#2a2a2a',fontFamily:'Epilogue,sans-serif',letterSpacing:'.05em'}}>CHECKMATE v1.0</span>
-              <div style={{display:'flex',gap:6}}>
-                <button onClick={()=>signOut(auth)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:11}}>Sign out</button>
-                <button onClick={()=>setSidebarCollapsed(!sidebarCollapsed)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:13}}>{sidebarCollapsed ? '→' : '←'}</button>
-                <button onClick={()=>setDark(!dark)} style={{background:'#ffffff0f',border:'none',borderRadius:16,padding:'4px 10px',cursor:'pointer',color:'#fafafa',fontSize:13}}>{dark?'☀️':'🌙'}</button>
+            <div style={{padding:'clamp(8px,.8vw,12px) clamp(12px,1.1vw,18px)',borderTop:'1px solid rgba(255,255,255,.05)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style={{fontSize:'clamp(8.5px,.65vw,10.5px)',color:'#383838',fontFamily:"'DM Sans',sans-serif",letterSpacing:'.06em',fontWeight:600}}>CHECKMATE</span>
+              <div style={{display:'flex',gap:4}}>
+                <button onClick={()=>signOut(auth)} style={{background:'rgba(255,255,255,.06)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#888',fontSize:'clamp(10px,.72vw,12.5px)',fontFamily:"'DM Sans',sans-serif"}}>Sign out</button>
+                <button onClick={()=>setSidebarCollapsed(!sidebarCollapsed)} style={{background:'rgba(255,255,255,.06)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#888',fontSize:'clamp(11px,.8vw,14px)'}}>{sidebarCollapsed ? '→' : '←'}</button>
+                <button onClick={()=>setDark(!dark)} style={{background:'rgba(255,255,255,.06)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#888',fontSize:'clamp(11px,.8vw,14px)'}}>{dark?'☀️':'🌙'}</button>
               </div>
             </div>
-            
 
             {/* Resize Handle */}
             <div
@@ -1332,21 +1388,20 @@ export default function App() {
                 background:'transparent',
                 zIndex:10,
               }}
-              onMouseEnter={e => e.currentTarget.style.background='#ffffff20'}
+              onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,.1)'}
               onMouseLeave={e => e.currentTarget.style.background='transparent'}
             />
 
             </div>
-
 
             {sidebarCollapsed && (
               <button
                 onClick={() => setSidebarCollapsed(false)}
                 style={{
                   position:'absolute', left:0, top:'50%', transform:'translateY(-50%)',
-                  background:'#0a0a0a', color:'#fafafa', border:'none',
-                  borderRadius:'0 8px 8px 0', padding:'12px 6px',
-                  cursor:'pointer', fontSize:14, zIndex:20,
+                  background:'#111', color:'#888', border:'none',
+                  borderRadius:'0 7px 7px 0', padding:'12px 5px',
+                  cursor:'pointer', fontSize:12, zIndex:20,
                   writingMode:'vertical-rl'
                 }}
               >
@@ -1356,52 +1411,50 @@ export default function App() {
 
 
         {/* ── MAIN ─────────────────────── */}
-        <div style={{flex:1,overflow:'auto'}}>
+        <div style={{flex:1,overflow:'auto',display:'flex',flexDirection:'column'}}>
           {view==='leaderboard'&&<LeaderboardView lists={lists} dark={dark} friends={friends} currentUser={currentUser}/>}
           {view==='activity'&&<ActivityView activity={activity} dark={dark} currentUser={currentUser} friends={friends}/>}
 
           {view==='list'&&!sel&&(
-            <div style={{height:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16,color:muted}}>
-              <div style={{fontSize:52}}>📋</div>
-              <p style={{fontFamily:'Fraunces,serif',fontSize:22,color:txt}}>Pick or create a list</p>
-              <button onClick={()=>setShowCreate(true)} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:12,padding:'11px 26px',cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontSize:14,fontWeight:600}}>Create a List</button>
+            <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,color:muted}}>
+              <div style={{fontSize:'clamp(40px,4vw,60px)'}}>📋</div>
+              <p style={{fontFamily:"'Lora',serif",fontSize:'clamp(17px,1.4vw,24px)',color:txt,fontStyle:'italic',margin:0}}>Pick or create a list</p>
+              <button onClick={()=>setShowCreate(true)} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:10,padding:'clamp(9px,0.8vw,13px) clamp(22px,2vw,34px)',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,1vw,16px)',fontWeight:600,marginTop:4}}>Create a List</button>
             </div>
           )}
 
           {view==='list'&&sel&&(
-            <div style={{padding:'24px 28px',maxWidth:680,animation:'fadeUp .18s ease-out'}}>
+            <div className="main-content" style={{animation:'fadeUp .15s ease-out'}}>
 
               {/* Header card */}
-              <div style={{background:sel.color,borderRadius:18,padding:'22px 26px',marginBottom:20,position:'relative',overflow:'hidden'}}>
-                <div style={{position:'absolute',right:-28,top:-28,width:90,height:90,borderRadius:'50%',background:'rgba(0,0,0,.05)',pointerEvents:'none'}}/>
-                <div style={{position:'absolute',right:22,bottom:-18,width:50,height:50,background:'rgba(0,0,0,.05)',transform:'rotate(18deg)',pointerEvents:'none'}}/>
-                <div style={{position:'absolute',left:200,top:10,width:16,height:16,borderRadius:'50%',background:'rgba(0,0,0,.06)',pointerEvents:'none'}}/>
-
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',position:'relative'}}>
-                  <div>
-                    <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:5,flexWrap:'wrap'}}>
-                      <h1 style={{fontFamily:'Fraunces,serif',fontSize:24,color:'#0a0a0a',lineHeight:1.1}}>{sel.name}</h1>
-                      {sel.isPrivate&&<span style={{fontSize:10,background:'rgba(0,0,0,.1)',padding:'2px 8px',borderRadius:20,color:'#333',fontFamily:'Epilogue,sans-serif',fontWeight:700}}>🔒 PRIVATE</span>}
-                      {sel.isGroup&&<span style={{fontSize:10,background:'rgba(0,0,0,.1)',padding:'2px 8px',borderRadius:20,color:'#333',fontFamily:'Epilogue,sans-serif',fontWeight:700}}>👥 GROUP</span>}
+              <div style={{background:sel.color,borderRadius:14,padding:'clamp(18px,2vw,28px) clamp(20px,2.5vw,32px)',marginBottom:'clamp(14px,1.5vw,22px)',position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',right:-20,top:-20,width:80,height:80,borderRadius:'50%',background:'rgba(0,0,0,.04)',pointerEvents:'none'}}/>
+                <div style={{position:'absolute',right:50,bottom:-14,width:40,height:40,background:'rgba(0,0,0,.03)',transform:'rotate(20deg)',pointerEvents:'none'}}/>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',position:'relative',gap:12}}>
+                  <div style={{minWidth:0,flex:1}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4,flexWrap:'wrap'}}>
+                      <h1 style={{fontFamily:"'Lora',serif",fontSize:'clamp(19px,1.6vw,26px)',color:'#111',lineHeight:1.2,margin:0,fontWeight:600}}>{sel.name}</h1>
+                      {sel.isPrivate&&<span style={{fontSize:'clamp(9px,.65vw,11px)',background:'rgba(0,0,0,.09)',padding:'2px 8px',borderRadius:99,color:'#333',fontFamily:"'DM Sans',sans-serif",fontWeight:700,letterSpacing:'.04em'}}>🔒 PRIVATE</span>}
+                      {sel.isGroup&&<span style={{fontSize:'clamp(9px,.65vw,11px)',background:'rgba(0,0,0,.09)',padding:'2px 8px',borderRadius:99,color:'#333',fontFamily:"'DM Sans',sans-serif",fontWeight:700,letterSpacing:'.04em'}}>👥 GROUP</span>}
                     </div>
-                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-                      <span style={{fontSize:12,color:'rgba(0,0,0,.4)',fontFamily:'Epilogue,sans-serif'}}>{sel.category}</span>
-                      <span style={{color:'rgba(0,0,0,.2)'}}>·</span>
+                    <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:12}}>
+                      <span style={{fontSize:'clamp(11px,.8vw,13.5px)',color:'rgba(0,0,0,.38)',fontFamily:"'DM Sans',sans-serif"}}>{sel.category}</span>
+                      <span style={{color:'rgba(0,0,0,.18)',fontSize:10}}>·</span>
                       <div style={{display:'flex'}}>
-                        {sel.members.map((m,i)=><div key={m} style={{marginLeft:i>0?-6:0}}><Avatar userId={m} size={22}/></div>)}
+                        {sel.members.map((m,i)=><div key={m} style={{marginLeft:i>0?-5:0}}><Avatar userId={m} size={22}/></div>)}
                       </div>
                     </div>
                     <ProgressBar tasks={sel.tasks} dark={false}/>
                   </div>
-                  <div style={{display:'flex',gap:6,flexShrink:0}}>
-                    <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{background:'rgba(0,0,0,.1)',border:'none',borderRadius:8,padding:'6px 9px',fontSize:12,cursor:'pointer',fontFamily:'Epilogue,sans-serif',color:'#333',outline:'none'}}>
+                  <div style={{display:'flex',gap:5,flexShrink:0,flexWrap:'wrap',justifyContent:'flex-end',alignItems:'flex-start'}}>
+                    <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{background:'rgba(0,0,0,.07)',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(7px,.75vw,11px)',fontSize:'clamp(10.5px,.72vw,13px)',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",color:'#333',outline:'none'}}>
                       <option value="default">Default</option>
                       <option value="priority">Priority</option>
                       <option value="deadline">Deadline</option>
                       <option value="completion">Completion</option>
                     </select>
-                    <button onClick={()=>setEditingList(sel)} style={{background:'rgba(0,0,0,.08)',border:'none',borderRadius:8,padding:'6px 11px',cursor:'pointer',fontSize:12,color:'#333',fontFamily:'Epilogue,sans-serif'}}>Edit</button>
-                    <button onClick={()=>deleteList(sel.id)} style={{background:'rgba(200,50,50,.14)',border:'none',borderRadius:8,padding:'6px 11px',cursor:'pointer',fontSize:12,color:'#c0392b',fontFamily:'Epilogue,sans-serif'}}>Delete list</button>
+                    <button onClick={()=>setEditingList(sel)} style={{background:'rgba(0,0,0,.07)',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(9px,.85vw,13px)',cursor:'pointer',fontSize:'clamp(10.5px,.72vw,13px)',color:'#333',fontFamily:"'DM Sans',sans-serif"}}>Edit</button>
+                    <button onClick={()=>deleteList(sel.id)} style={{background:'rgba(200,50,50,.1)',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(9px,.85vw,13px)',cursor:'pointer',fontSize:'clamp(10.5px,.72vw,13px)',color:'#b83232',fontFamily:"'DM Sans',sans-serif"}}>Delete</button>
                   </div>
                 </div>
               </div>
@@ -1409,8 +1462,8 @@ export default function App() {
               {/* Tasks */}
               {sortedTasks.length===0&&(
                 <div style={{textAlign:'center',padding:'44px 0',color:muted}}>
-                  <div style={{fontSize:40,marginBottom:10}}>🌱</div>
-                  <p style={{fontFamily:'Epilogue,sans-serif',fontSize:14}}>Empty list. Add your first task or try AI suggestions!</p>
+                  <div style={{fontSize:36,marginBottom:10}}>🌱</div>
+                  <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,1vw,15px)'}}>Empty list — add your first task or try AI suggestions!</p>
                 </div>
               )}
               <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
@@ -1431,13 +1484,13 @@ export default function App() {
                               {...provided.draggableProps}
                               style={{
                                 ...provided.draggableProps.style,
-                                opacity: snapshot.isDragging ? 0.85 : 1,
+                                opacity: snapshot.isDragging ? 0.82 : 1,
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 4,
+                                gap: 3,
                               }}
                             >
-                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:muted,fontSize:14,flexShrink:0,padding:'4px 2px',display:'flex',alignItems:'center'}}>⠿</div>
+                              <div {...provided.dragHandleProps} style={{cursor:'grab',color:muted,fontSize:12,flexShrink:0,padding:'4px 2px',display:'flex',alignItems:'center',opacity:.5}}>⠿</div>
                               <div style={{flex:1}}>
                                 <TaskItem task={task} currentUser={currentUser} dark={dark} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={setTaskDetail}/>
                               </div>
@@ -1452,21 +1505,21 @@ export default function App() {
               </DragDropContext>
 
               {/* Add Task */}
-              <div style={{background:surface,border:`1.5px solid ${bdr}`,borderRadius:12,padding:'12px 14px',marginTop:4}}>
-                <div style={{display:'flex',gap:10,alignItems:'center'}}>
-                  <div style={{width:20,height:20,borderRadius:6,border:`2px solid ${dark?'#333':'#ccc'}`,flexShrink:0}}/>
-                  <input value={newText} onChange={e=>setNewText(e.target.value)} onFocus={()=>setExpandAdd(true)} onKeyDown={e=>{if(e.key==='Enter')addTask();if(e.key==='Escape'){setExpandAdd(false);setNewText('');}}} placeholder="Add a task..." style={{flex:1,background:'none',border:'none',outline:'none',fontFamily:'Epilogue,sans-serif',fontSize:14,color:txt}}/>
-                  {newText&&<button onClick={addTask} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:8,padding:'5px 14px',cursor:'pointer',fontSize:13,fontFamily:'Epilogue,sans-serif',fontWeight:600,flexShrink:0}}>Add</button>}
+              <div style={{background:surface,border:`1px solid ${bdr}`,borderRadius:10,padding:'clamp(9px,1vw,13px) clamp(12px,1.2vw,17px)',marginTop:4}}>
+                <div style={{display:'flex',gap:9,alignItems:'center'}}>
+                  <div style={{width:'clamp(16px,1.2vw,20px)',height:'clamp(16px,1.2vw,20px)',borderRadius:5,border:`1.5px solid ${dark?'#2c2c2c':'#d5d5d5'}`,flexShrink:0}}/>
+                  <input value={newText} onChange={e=>setNewText(e.target.value)} onFocus={()=>setExpandAdd(true)} onKeyDown={e=>{if(e.key==='Enter')addTask();if(e.key==='Escape'){setExpandAdd(false);setNewText('');}}} placeholder="Add a task…" style={{flex:1,background:'none',border:'none',outline:'none',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,1vw,16px)',color:txt}}/>
+                  {newText&&<button onClick={addTask} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(11px,1vw,16px)',cursor:'pointer',fontSize:'clamp(12px,.85vw,14px)',fontFamily:"'DM Sans',sans-serif",fontWeight:600,flexShrink:0}}>Add</button>}
                 </div>
                 {expandAdd&&(
-                  <div style={{display:'flex',gap:8,flexWrap:'wrap',paddingLeft:30,marginTop:10,animation:'fadeUp .15s ease-out'}}>
-                    <div style={{display:'flex',gap:5}}>
+                  <div style={{display:'flex',gap:7,flexWrap:'wrap',paddingLeft:'clamp(24px,1.8vw,30px)',marginTop:9,animation:'fadeUp .12s ease-out'}}>
+                    <div style={{display:'flex',gap:4}}>
                       {PRIORITIES.map(p=>(
-                        <button key={p} onClick={()=>setNewPrio(p)} style={{padding:'4px 11px',borderRadius:20,fontSize:11,cursor:'pointer',fontWeight:700,border:`1.5px solid ${newPrio===p?P_COLOR[p]:(dark?'#2a2a2a':'#e5e5e5')}`,background:newPrio===p?P_BG[p]:'transparent',color:newPrio===p?P_COLOR[p]:muted}}>{p}</button>
+                        <button key={p} onClick={()=>setNewPrio(p)} style={{padding:'clamp(3px,.3vw,5px) clamp(9px,.8vw,13px)',borderRadius:99,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',fontWeight:600,border:`1px solid ${newPrio===p?P_COLOR[p]:(dark?'#2c2c2c':'#e0e0e0')}`,background:newPrio===p?P_BG[p]:'transparent',color:newPrio===p?P_COLOR[p]:muted,fontFamily:"'DM Sans',sans-serif"}}>{p}</button>
                       ))}
                     </div>
-                    <select value={newAssignee} onChange={e=>setNewAssignee(e.target.value)} style={{background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:8,padding:'4px 9px',fontSize:12,color:txt,cursor:'pointer',outline:'none'}}>
-                      <option value="">Assign to...</option>
+                    <select value={newAssignee} onChange={e=>setNewAssignee(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none'}}>
+                      <option value="">Assign to…</option>
                       {[{id:currentUser.id,name:currentUser.name,avatar:currentUser.avatar},
                         ...friends.filter(f=>sel?.memberIds?.includes(f.uid)).map(f=>({id:f.uid,name:f.name,avatar:f.avatar}))
                       ].map(u=>(
@@ -1474,16 +1527,16 @@ export default function App() {
                       ))}
                     </select>
                     <div style={{display:'flex',gap:4}}>
-                      <input type="date" value={newDue} onChange={e=>setNewDue(e.target.value)} style={{background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:8,padding:'4px 9px',fontSize:12,color:txt,cursor:'pointer',outline:'none'}}/>
-                      <input type="time" value={newTime} onChange={e=>setNewTime(e.target.value)} style={{background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:8,padding:'4px 9px',fontSize:12,color:txt,cursor:'pointer',outline:'none',width:100}}/>
+                      <input type="date" value={newDue} onChange={e=>setNewDue(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none'}}/>
+                      <input type="time" value={newTime} onChange={e=>setNewTime(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none',width:'clamp(90px,7vw,120px)'}}/>
                     </div>
                   </div>
                 )}
               </div>
 
               {/* AI */}
-              <div style={{display:'flex',justifyContent:'flex-end',marginTop:10}}>
-                {!showAI&&<button onClick={()=>setShowAI(true)} style={{background:'none',border:`1.5px solid ${bdr}`,borderRadius:20,padding:'6px 16px',cursor:'pointer',color:muted,fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:6}}>✨ AI Suggest for "{sel.name.length>18?sel.name.slice(0,18)+'…':sel.name}"</button>}
+              <div style={{display:'flex',justifyContent:'flex-end',marginTop:9}}>
+                {!showAI&&<button onClick={()=>setShowAI(true)} style={{background:'none',border:`1px solid ${bdr}`,borderRadius:99,padding:'clamp(4px,.45vw,7px) clamp(12px,1.1vw,18px)',cursor:'pointer',color:muted,fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(11.5px,.82vw,13.5px)',display:'flex',alignItems:'center',gap:5}}>✨ Suggest for "{sel.name.length>18?sel.name.slice(0,18)+'…':sel.name}"</button>}
               </div>
               {showAI&&<AISuggestions listName={sel.name} dark={dark} onClose={()=>setShowAI(false)} onAddTask={(text)=>{
                 const task={id:genId(),text,completed:false,completedBy:null,completedAt:null,assignee:null,priority:'MED',dueDate:null,emoji:'📌',reactions:{},comments:[],createdBy:currentUser.id,createdAt:ts()};
