@@ -199,7 +199,7 @@ const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}
           {task.assignee&&!task.completed&&(
             <div style={{display:'flex',alignItems:'center',gap:4}}>
               <Avatar userId={task.assignee} size={16}/>
-              <span style={{fontSize:11,color:muted,fontFamily:'Epilogue,sans-serif'}}>→ {getUser(task.assignee).name}</span>
+              <span style={{fontSize:11,color:muted,fontFamily:'Epilogue,sans-serif'}}>→ {task.assigneeName || task.assignee}</span>
             </div>
           )}
           {task.completed&&task.completedBy&&(
@@ -239,27 +239,54 @@ const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}
 };
 
 // ── Task Detail Modal ─────────────────────────────────────────────────────────
-const TaskDetailModal = ({task,currentUser,dark,onClose,onUpdate,onReact}) => {
-  const [comment,setComment]=useState('');
-  const [editText,setEditText]=useState(task.text);
-  const [editPrio,setEditPrio]=useState(task.priority);
-  const [editAssignee,setEditAssignee]=useState(task.assignee||'');
-  const [editDue,setEditDue]=useState(task.dueDate||'');
-  const [editEmoji,setEditEmoji]=useState(task.emoji||'📌');
-  const [tab,setTab]=useState('detail');
-  const surface=dark?'#1a1a1a':'#fff', txt=dark?'#f0f0f0':'#0a0a0a';
-  const muted=dark?'#777':'#aaa', bdr=dark?'#2a2a2a':'#efefef';
+const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, onReact, friends=[], listMembers=[]}) => {
+  const [comment, setComment] = useState('');
+  const [editText, setEditText] = useState(task.text);
+  const [editPrio, setEditPrio] = useState(task.priority);
+  const [editAssignee, setEditAssignee] = useState(task.assignee||'');
+  const [editDue, setEditDue] = useState(task.dueDate||'');
+  const [editEmoji, setEditEmoji] = useState(task.emoji||'📌');
+  const [tab, setTab] = useState('detail');
+  const surface = dark?'#1a1a1a':'#fff', txt = dark?'#f0f0f0':'#0a0a0a';
+  const muted = dark?'#777':'#aaa', bdr = dark?'#2a2a2a':'#efefef';
 
-  const save=()=>onUpdate({...task,text:editText,priority:editPrio,assignee:editAssignee||null,dueDate:editDue||null,emoji:editEmoji});
-  const addComment=()=>{
-    if(!comment.trim()) return;
-    onUpdate({...task,comments:[...task.comments,{id:genId(),userId:currentUser.id,text:comment.trim(),createdAt:ts()}]});
+  // รวม currentUser + friends เพื่อใช้แสดงชื่อจริง
+  const allUsers = [
+    { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
+    ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar }))
+  ];
+
+  const getUserById = (uid) => allUsers.find(u => u.id === uid) || { id: uid, name: 'Unknown', avatar: null };
+
+  // members ของ list สำหรับ Assign to
+  const memberUsers = listMembers
+    .map(uid => allUsers.find(u => u.id === uid))
+    .filter(Boolean);
+
+  const save = () => {
+    const assigneeUser = memberUsers.find(u => u.id === editAssignee);
+    onSave({
+      ...task,
+      text: editText,
+      priority: editPrio,
+      assignee: editAssignee || null,
+      assigneeName: assigneeUser?.name || null,
+      dueDate: editDue || null,
+      emoji: editEmoji
+    });
+  };
+
+  const addComment = () => {
+    if (!comment.trim()) return;
+    onUpdate({...task, comments:[...task.comments, {id:genId(), userId:currentUser.id, text:comment.trim(), createdAt:ts()}]});
     setComment('');
   };
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,backdropFilter:'blur(4px)'}} onClick={onClose}>
       <div style={{background:surface,borderRadius:18,width:480,maxWidth:'95vw',maxHeight:'85vh',overflow:'hidden',display:'flex',flexDirection:'column',animation:'fadeUp .2s ease-out'}} onClick={e=>e.stopPropagation()}>
+
+        {/* Header */}
         <div style={{padding:'18px 20px 0',borderBottom:`1px solid ${bdr}`}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
@@ -280,6 +307,8 @@ const TaskDetailModal = ({task,currentUser,dark,onClose,onUpdate,onReact}) => {
         </div>
 
         <div style={{overflow:'auto',flex:1,padding:'18px 20px'}}>
+
+          {/* Detail Tab */}
           {tab==='detail'&&(
             <div style={{display:'flex',flexDirection:'column',gap:16}}>
               <div>
@@ -290,17 +319,25 @@ const TaskDetailModal = ({task,currentUser,dark,onClose,onUpdate,onReact}) => {
                   ))}
                 </div>
               </div>
+
+              {/* Assign to — ใช้ชื่อจริง */}
               <div>
                 <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:7,letterSpacing:'.06em'}}>ASSIGN TO</label>
                 <select value={editAssignee} onChange={e=>setEditAssignee(e.target.value)} style={{width:'100%',background:dark?'#252525':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none'}}>
                   <option value="">Unassigned</option>
-                  {USERS.map(u=><option key={u.id} value={u.id}>{u.avatar} {u.name}</option>)}
+                  {memberUsers.map(u=>(
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
+                  ))}
                 </select>
               </div>
+
               <div>
                 <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:7,letterSpacing:'.06em'}}>DUE DATE</label>
                 <input type="date" value={editDue} onChange={e=>setEditDue(e.target.value)} style={{width:'100%',background:dark?'#252525':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none'}}/>
               </div>
+
               <div>
                 <label style={{fontSize:10,fontWeight:700,color:muted,display:'block',marginBottom:8,letterSpacing:'.06em'}}>REACTIONS</label>
                 <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
@@ -310,29 +347,40 @@ const TaskDetailModal = ({task,currentUser,dark,onClose,onUpdate,onReact}) => {
                   })}
                 </div>
               </div>
+
               {task.completed&&task.completedBy&&(
                 <div style={{background:dark?'#1a2a20':'#E4F7EC',borderRadius:10,padding:'10px 14px',display:'flex',gap:8,alignItems:'center'}}>
-                  <Avatar userId={task.completedBy} size={24}/>
-                  <span style={{fontSize:13,color:'#2f8a55',fontFamily:'Epilogue,sans-serif'}}>Completed by <strong>{getUser(task.completedBy).name}</strong></span>
+                  <div style={{width:24,height:24,borderRadius:'50%',background:'#D6FFE4',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12}}>
+                    {getUserById(task.completedBy).avatar
+                      ? <img src={getUserById(task.completedBy).avatar} style={{width:24,height:24,borderRadius:'50%'}} alt=""/>
+                      : '👤'
+                    }
+                  </div>
+                  <span style={{fontSize:13,color:'#2f8a55',fontFamily:'Epilogue,sans-serif'}}>Completed by <strong>{getUserById(task.completedBy).name}</strong></span>
                 </div>
               )}
               <button onClick={save} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:10,padding:11,cursor:'pointer',fontFamily:'Epilogue,sans-serif',fontWeight:600,fontSize:14}}>Save Changes</button>
             </div>
           )}
+
+          {/* Comments Tab */}
           {tab==='comments'&&(
             <div>
-              {task.comments.length===0&&<p style={{color:muted,fontSize:13,fontFamily:'Epilogue,sans-serif',padding:'8px 0'}}>No comments yet. Be the first!</p>}
+              {task.comments.length===0&&(
+                <p style={{color:muted,fontSize:13,fontFamily:'Epilogue,sans-serif',padding:'8px 0'}}>No comments yet. Be the first!</p>
+              )}
               {task.comments.map(c=>{
-                const u=getUser(c.userId);
+                const u = getUserById(c.userId);
                 return (
                   <div key={c.id} style={{display:'flex',gap:10,marginBottom:14}}>
-                    <Avatar userId={c.userId} size={30}/>
+                    {u.avatar
+                      ? <img src={u.avatar} style={{width:30,height:30,borderRadius:'50%',flexShrink:0}} alt=""/>
+                      : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>👤</div>
+                    }
                     <div style={{flex:1}}>
                       <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:4}}>
                         <span style={{fontSize:13,fontWeight:600,color:txt,fontFamily:'Epilogue,sans-serif'}}>{u.name}</span>
-                        <span style={{fontSize:11,color:muted}}>
-                          {a.createdAt?.toMillis ? timeAgo(new Date(a.createdAt.toMillis()).toISOString()) : timeAgo(a.createdAt)}
-                        </span>
+                        <span style={{fontSize:11,color:muted}}>{timeAgo(c.createdAt)}</span>
                       </div>
                       <div style={{background:dark?'#252525':'#f5f5f5',borderRadius:'4px 12px 12px 12px',padding:'8px 12px'}}>
                         <p style={{fontSize:13,color:txt,fontFamily:'Epilogue,sans-serif',margin:0}}>{c.text}</p>
@@ -342,7 +390,10 @@ const TaskDetailModal = ({task,currentUser,dark,onClose,onUpdate,onReact}) => {
                 );
               })}
               <div style={{display:'flex',gap:8,marginTop:10}}>
-                <Avatar userId={currentUser.id} size={30}/>
+                {currentUser.avatar
+                  ? <img src={currentUser.avatar} style={{width:30,height:30,borderRadius:'50%',flexShrink:0}} alt=""/>
+                  : <div style={{width:30,height:30,borderRadius:'50%',background:'#D6E8FF',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>👤</div>
+                }
                 <input value={comment} onChange={e=>setComment(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addComment()} placeholder="Write a comment..." style={{flex:1,background:dark?'#252525':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:10,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}/>
                 <button onClick={addComment} style={{background:'#0a0a0a',color:'#fafafa',border:'none',borderRadius:10,padding:'8px 14px',cursor:'pointer',fontSize:13,fontFamily:'Epilogue,sans-serif'}}>Send</button>
               </div>
@@ -846,8 +897,9 @@ export default function App() {
 
   const addTask=useCallback(()=>{
     if(!newText.trim()||!selId) return;
+    const assigneeUser = newAssignee ? [...friends.map(f=>({id:f.uid,name:f.name})), {id:currentUser.id,name:currentUser.name}].find(u=>u.id===newAssignee) : null;
     const task={id:genId(),text:newText.trim(),completed:false,completedBy:null,completedAt:null,
-      assignee:newAssignee||null,priority:newPrio,dueDate:newDue||null,
+  assignee:newAssignee||null,assigneeName:assigneeUser?.name||null,priority:newPrio,dueDate:newDue||null,
       emoji:EMOJIS_LIST[Math.floor(Math.random()*5)],reactions:{},comments:[],
       createdBy:currentUser.id,createdAt:ts()};
     const list=lists.find(l=>l.id===selId);
@@ -965,7 +1017,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {taskDetail&&<TaskDetailModal task={taskDetail} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onReact={reactToTask}/>}
+      {taskDetail&&<TaskDetailModal task={taskDetail} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onSave={(updatedTask)=>{updateTask(updatedTask);setTaskDetail(null);}} onReact={reactToTask} friends={friends} listMembers={sel?.memberIds||[]}/>}
 
       <div style={{display:'flex',height:'100vh',background:bg,fontFamily:'Epilogue,sans-serif',overflow:'hidden',position:'relative'}}>
 
