@@ -163,3 +163,12 @@ export function useActivity(uid, friendIds = []) {
   }, [uid, friendIds.join(',')]);
   return activity;
 }
+
+
+export async function updateListOrder(listId, order) {
+  try {
+    await updateDoc(doc(db, "lists", listId), { order });
+  } catch (err) {
+    console.error("updateListOrder error:", err);
+  }
+}

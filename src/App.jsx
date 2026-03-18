@@ -4,13 +4,64 @@ import { auth } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import Login from "./login";
 
-import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite, pushActivityToDB, useActivity } from "./useFirestore";
+import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite, pushActivityToDB, useActivity, updateListOrder } from "./useFirestore";
 import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
 
 import ProfileModal from "./ProfileModal";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import { createPortal } from 'react-dom';
+
+const useLongPressSensor = (api) => {
+  useEffect(() => {
+    const delay = 300; // ms กดค้างกี่ ms ถึงเริ่มลาก
+    let timeoutId = null;
+    let isDragging = false;
+
+    const onMouseDown = (e) => {
+      const draggable = e.target.closest('[data-rfd-drag-handle-draggable-id]');
+      if (!draggable) return;
+      const id = draggable.getAttribute('data-rfd-drag-handle-draggable-id');
+
+      timeoutId = setTimeout(() => {
+        const preDrag = api.tryGetLock(id);
+        if (!preDrag) return;
+        isDragging = true;
+        const drag = preDrag.snapLift();
+
+        const onMouseMove = (ev) => {
+          drag.move({ x: ev.clientX, y: ev.clientY });
+        };
+
+        const onMouseUp = () => {
+          isDragging = false;
+          drag.drop();
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseup', onMouseUp);
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+      }, delay);
+    };
+
+    const onMouseUp = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+    };
+
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      window.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup', onMouseUp);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [api]);
+};
 
 const portal = document.getElementById('drag-portal');
 const DraggableItem = ({ provided, snapshot, children }) => {
@@ -919,7 +970,8 @@ export default function App() {
   }, [firebaseUser]);
 
   useEffect(() => {
-    setLists(firestoreLists);
+    const sorted = [...firestoreLists].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    setLists(sorted);
   }, [firestoreLists]);
 
   useEffect(() => {
@@ -1144,27 +1196,29 @@ export default function App() {
 
             <div style={{height:1,background:'#ffffff08',margin:'10px 2px'}}/>
             <div style={{fontSize:9,fontWeight:700,color:'#333',letterSpacing:'.1em',padding:'4px 10px 6px'}}>PERSONAL</div>
-              <DragDropContext onDragEnd={(result)=>{
-                if(!result.destination) return;
-                const items=[...personal];
-                const [moved]=items.splice(result.source.index,1);
-                items.splice(result.destination.index,0,moved);
-                setLists(prev=>[...items,...prev.filter(l=>l.isGroup)]);
-              }}>
+            <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
+              if(!result.destination) return;
+              const items=[...personal];
+              const [moved]=items.splice(result.source.index,1);
+              items.splice(result.destination.index,0,moved);
+              // บันทึก order ลง Firestore
+              items.forEach((l, i) => updateListOrder(l.id, i));
+              setLists(prev=>[...items,...prev.filter(l=>l.isGroup)]);
+            }}>
                 <Droppable droppableId="personal-lists">
                   {(provided)=>(
                     <div {...provided.droppableProps} ref={provided.innerRef}>
                       {personal.map((l,index)=>(
                         <Draggable key={l.id} draggableId={l.id} index={index}>
-                          {(provided)=>(
-                            <div ref={provided.innerRef} {...provided.draggableProps} style={{display:'flex',alignItems:'center',gap:2}}>
+                          {(provided, snapshot)=>(
+                            <DraggableItem provided={provided} snapshot={snapshot}>
                               <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#444',fontSize:12,padding:'0 4px',flexShrink:0}}>⠿</div>
                               <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'#ffffff10':'none',border:'none',borderRadius:8,padding:'7px 10px',cursor:'pointer',color:selId===l.id&&view==='list'?'#fafafa':'#666',fontFamily:'Epilogue,sans-serif',fontSize:13,display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
                                 <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0}}/>
                                 <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
                                 {l.isPrivate&&<span style={{fontSize:9,color:'#333'}}>🔒</span>}
                               </button>
-                            </div>
+                            </DraggableItem>
                           )}
                         </Draggable>
                       ))}
@@ -1175,11 +1229,13 @@ export default function App() {
               </DragDropContext>
 
               <div style={{fontSize:9,fontWeight:700,color:'#333',letterSpacing:'.1em',padding:'12px 10px 6px'}}>GROUP</div>
-              <DragDropContext onDragEnd={(result)=>{
+              <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
                 if(!result.destination) return;
                 const items=[...group];
                 const [moved]=items.splice(result.source.index,1);
                 items.splice(result.destination.index,0,moved);
+                // บันทึก order ลง Firestore
+                items.forEach((l, i) => updateListOrder(l.id, i + 1000)); // +1000 เพื่อแยก personal กับ group
                 setLists(prev=>[...prev.filter(l=>!l.isGroup),...items]);
               }}>
                 <Droppable droppableId="group-lists">
@@ -1357,7 +1413,7 @@ export default function App() {
                   <p style={{fontFamily:'Epilogue,sans-serif',fontSize:14}}>Empty list. Add your first task or try AI suggestions!</p>
                 </div>
               )}
-              <DragDropContext onDragEnd={(result)=>{
+              <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
                 if(!result.destination||!sel) return;
                 const items=[...sel.tasks];
                 const [moved]=items.splice(result.source.index,1);
@@ -1368,7 +1424,7 @@ export default function App() {
                   {(provided)=>(
                     <div {...provided.droppableProps} ref={provided.innerRef}>
                       {sortedTasks.map((task,index)=>(
-                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                        <Draggable key={task.id} draggableId={task.id} index={index} disableInteractiveElementBlocking>
                           {(provided,snapshot)=>(
                             <div
                               ref={provided.innerRef}
