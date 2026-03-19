@@ -1036,7 +1036,7 @@ export default function App() {
   const [confetti,setConfetti]=useState(false);
   const [newText,setNewText]=useState('');
   const [newPrio,setNewPrio]=useState('MED');
-  const [newAssignee,setNewAssignee]=useState('');
+  const [newAssignees,setNewAssignees]=useState([]);
   const [newDue,setNewDue]=useState('');
   const [newTime, setNewTime] = useState('');
   const [sortBy,setSortBy]=useState('default');
@@ -1133,16 +1133,16 @@ export default function App() {
 
   const addTask=useCallback(()=>{
     if(!newText.trim()||!selId) return;
-    const assigneeUser = newAssignee ? [...friends.map(f=>({id:f.uid,name:f.name})), {id:currentUser.id,name:currentUser.name}].find(u=>u.id===newAssignee) : null;
     const task={id:genId(),text:newText.trim(),completed:false,completedBy:null,completedAt:null,
-  assignee:newAssignee||null,assigneeName:assigneeUser?.name||null,priority:newPrio,dueDate: newDue ? (newTime ? `${newDue}T${newTime}` : newDue) : null,
+      assignee:newAssignees[0]||null,assignees:newAssignees,assigneeName:null,
+      priority:newPrio,dueDate:newDue?(newTime?`${newDue}T${newTime}`:newDue):null,
       emoji:EMOJIS_LIST[Math.floor(Math.random()*5)],reactions:{},comments:[],
       createdBy:currentUser.id,createdAt:ts()};
     const list=lists.find(l=>l.id===selId);
     updateList(selId,l=>({...l,tasks:[...l.tasks,task]}));
     pushActivity(currentUser.id,'added',task.text,list?.name||'');
-    setNewText('');setNewDue('');setNewTime('');setNewAssignee('');setExpandAdd(false);
-  },[newText,newPrio,newAssignee,newDue,selId,lists,currentUser,updateList,pushActivity]);
+    setNewText('');setNewDue('');setNewTime('');setNewAssignees([]);setExpandAdd(false);
+  },[newText,newPrio,newAssignees,newDue,newTime,selId,lists,currentUser,updateList,pushActivity]);
 
   const deleteTask=useCallback((taskId)=>{updateList(selId,l=>({...l,tasks:l.tasks.filter(t=>t.id!==taskId)}));},[selId,updateList]);
   const reactToTask=useCallback((taskId,emoji)=>{
@@ -1571,20 +1571,48 @@ export default function App() {
                   {newText&&<button onClick={addTask} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(11px,1vw,16px)',cursor:'pointer',fontSize:'clamp(12px,.85vw,14px)',fontFamily:"'DM Sans',sans-serif",fontWeight:600,flexShrink:0}}>Add</button>}
                 </div>
                 {expandAdd&&(
-                  <div style={{display:'flex',gap:7,flexWrap:'wrap',paddingLeft:'clamp(24px,1.8vw,30px)',marginTop:9,animation:'fadeUp .12s ease-out'}}>
-                    <div style={{display:'flex',gap:4}}>
+                  <div style={{paddingLeft:'clamp(24px,1.8vw,30px)',marginTop:9,animation:'fadeUp .12s ease-out'}}>
+                    {/* Priority */}
+                    <div style={{display:'flex',gap:4,marginBottom:8}}>
                       {PRIORITIES.map(p=>(
                         <button key={p} onClick={()=>setNewPrio(p)} style={{padding:'clamp(3px,.3vw,5px) clamp(9px,.8vw,13px)',borderRadius:99,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',fontWeight:600,border:`1px solid ${newPrio===p?P_COLOR[p]:(dark?'#2c2c2c':'#e0e0e0')}`,background:newPrio===p?P_BG[p]:'transparent',color:newPrio===p?P_COLOR[p]:muted,fontFamily:"'DM Sans',sans-serif"}}>{p}</button>
                       ))}
                     </div>
-                    <select value={newAssignee} onChange={e=>setNewAssignee(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none'}}>
-                      <option value="">Assign to…</option>
-                      {[{id:currentUser.id,name:currentUser.name,avatar:currentUser.avatar},
+                    {/* Assignee chips — multi-select */}
+                    {(()=>{
+                      const memberUsers=[
+                        {id:currentUser.id,name:currentUser.name,avatar:currentUser.avatar},
                         ...friends.filter(f=>sel?.memberIds?.includes(f.uid)).map(f=>({id:f.uid,name:f.name,avatar:f.avatar}))
-                      ].map(u=>(
-                        <option key={u.id} value={u.id}>{u.name}</option>
-                      ))}
-                    </select>
+                      ];
+                      if(memberUsers.length===0) return null;
+                      return (
+                        <div style={{display:'flex',gap:5,flexWrap:'wrap',marginBottom:8}}>
+                          {memberUsers.map(u=>{
+                            const selected=newAssignees.includes(u.id);
+                            return (
+                              <button key={u.id} onClick={()=>setNewAssignees(prev=>prev.includes(u.id)?prev.filter(id=>id!==u.id):[...prev,u.id])} style={{
+                                display:'flex',alignItems:'center',gap:5,
+                                padding:'clamp(3px,.3vw,5px) clamp(8px,.75vw,11px) clamp(3px,.3vw,5px) clamp(5px,.5vw,7px)',
+                                borderRadius:99,cursor:'pointer',
+                                border:`1.5px solid ${selected?(dark?'#ccc':'#333'):(dark?'#2c2c2c':'#ddd')}`,
+                                background:selected?(dark?'#ccc':'#111'):'transparent',
+                                color:selected?(dark?'#111':'#fff'):(dark?'#555':'#666'),
+                                fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(10.5px,.76vw,12.5px)',fontWeight:selected?600:400,
+                                transition:'all .12s',
+                              }}>
+                                {u.avatar
+                                  ?<img src={u.avatar} style={{width:'clamp(14px,1.1vw,18px)',height:'clamp(14px,1.1vw,18px)',borderRadius:'50%',objectFit:'cover'}} alt=""/>
+                                  :<div style={{width:'clamp(14px,1.1vw,18px)',height:'clamp(14px,1.1vw,18px)',borderRadius:'50%',background:dark?'#2a3a4a':'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8}}>👤</div>
+                                }
+                                {u.name}
+                                {selected&&<span style={{fontSize:9}}>✓</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                    {/* Date + time */}
                     <div style={{display:'flex',gap:4}}>
                       <input type="date" value={newDue} onChange={e=>setNewDue(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none'}}/>
                       <input type="time" value={newTime} onChange={e=>setNewTime(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none',width:'clamp(90px,7vw,120px)'}}/>
