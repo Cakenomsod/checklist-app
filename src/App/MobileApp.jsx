@@ -5,11 +5,12 @@ import {
   useLists,
   updateListInDB, deleteListInDB, sendListInvite,
   useListInvites, acceptListInvite, declineListInvite,
-  pushActivityToDB, useActivity, createListInDB, updateListOrder,
+  pushActivityToDB, useActivity, createListInDB
 } from "../useFirestore";
 import FriendPanel, { useFriends, useFriendRequests } from "./page/FriendSystem";
 import ProfileModal from "./page/ProfileModal";
 import MobileCalendar from "./page/MobileCalendar";
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 // ── Shared constants (copied from App.jsx) ────────────────────────────────────
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
@@ -172,13 +173,20 @@ const Drawer = ({ open, onClose, children, title, maxHeight = '85vh', dark = fal
 };
 
 // ── Task row (mobile-optimised) ───────────────────────────────────────────────
-const MobileTaskItem = ({ task, currentUser, dark = false, onToggle, onDelete, onReact, onOpenDetail }) => {
+const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggle, onDelete, onReact, onOpenDetail }) => {
   const di = fmtDate(task.dueDate);
   const [showRx, setShowRx] = useState(false);
   const cardBg = dark ? '#1e1e1e' : '#fff';
   const cardTxt = dark ? '#efefef' : '#111';
   const cardMuted = dark ? '#666' : '#bbb';
   const cardBdr = dark ? '#2c2c2c' : '#ebebeb';
+
+  const allUsers = [
+    { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
+    ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
+  ];
+  const getUserById = uid => allUsers.find(u => u.id === uid) || { id: uid, name: uid, avatar: null };
+  const assigneeIds = task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []);
 
   return (
     <div style={{
@@ -188,34 +196,31 @@ const MobileTaskItem = ({ task, currentUser, dark = false, onToggle, onDelete, o
       opacity: task.completed ? .6 : 1, transition: 'opacity .2s',
       position: 'relative',
     }}>
-      {/* Checkbox — big touch target */}
-      <button
-        onClick={() => onToggle(task.id)}
-        style={{
-          width: 26, height: 26, borderRadius: 8, flexShrink: 0, marginTop: 1,
-          border: `2px solid ${task.completed ? (dark ? '#ccc' : '#111') : (dark ? '#3a3a3a' : '#d0d0d0')}`,
-          background: task.completed ? (dark ? '#ccc' : '#111') : 'transparent',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', transition: 'all .15s', padding: 0,
-        }}
-      >
+      {/* Checkbox */}
+      <button onClick={() => onToggle(task.id)} style={{
+        width: 26, height: 26, borderRadius: 8, flexShrink: 0, marginTop: 1,
+        border: `2px solid ${task.completed ? (dark ? '#ccc' : '#111') : (dark ? '#3a3a3a' : '#d0d0d0')}`,
+        background: task.completed ? (dark ? '#ccc' : '#111') : 'transparent',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer', transition: 'all .15s', padding: 0,
+      }}>
         {task.completed && <span style={{ fontSize: 12, color: dark ? '#111' : '#fff', fontWeight: 800, lineHeight: 1 }}>✓</span>}
       </button>
 
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* Title row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 5 }}>
-          {task.emoji && <span style={{ fontSize: 15 }}>{task.emoji}</span>}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, flexWrap: 'wrap', marginBottom: 5 }}>
+          {task.emoji && <span style={{ fontSize: 15, lineHeight: 1.4, flexShrink: 0 }}>{task.emoji}</span>}
           <span style={{
             fontFamily: "'DM Sans',sans-serif", fontWeight: 500, fontSize: 15,
             color: task.completed ? cardMuted : cardTxt,
             textDecoration: task.completed ? 'line-through' : 'none',
-            flex: 1, minWidth: 0,
+            flex: 1, minWidth: 0, wordBreak: 'break-word', whiteSpace: 'pre-wrap',
           }}>{task.text}</span>
         </div>
 
         {/* Meta row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
           <PBadge p={task.priority} />
           {di && (
             <span style={{
@@ -225,21 +230,42 @@ const MobileTaskItem = ({ task, currentUser, dark = false, onToggle, onDelete, o
               fontFamily: "'DM Sans',sans-serif",
             }}>{di.label}</span>
           )}
-          {task.assignee && !task.completed && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              {(task.assignees?.length > 0 ? task.assignees : [task.assignee]).slice(0, 3).map((uid, i) => (
-                <div key={uid} style={{ marginLeft: i > 0 ? -8 : 0, zIndex: 3 - i }}>
-                  <div title={uid} style={{ width: 20, height: 20, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, border: `1.5px solid ${dark ? '#1e1e1e' : '#fff'}` }}>👤</div>
-                </div>
-              ))}
-              {(task.assignees?.length || 1) > 3 && <span style={{ fontSize: 10, color: cardMuted }}>+{(task.assignees?.length || 1) - 3}</span>}
-            </div>
-          )}
         </div>
+
+        {/* Assignees with avatar + name */}
+        {!task.completed && assigneeIds.length > 0 && (
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 4 }}>
+            {assigneeIds.slice(0, 3).map(uid => {
+              const u = getUserById(uid);
+              return (
+                <div key={uid} style={{ display: 'flex', alignItems: 'center', gap: 4, background: dark ? '#2a2a2a' : '#f5f5f5', borderRadius: 99, padding: '2px 8px 2px 3px' }}>
+                  {u.avatar
+                    ? <img src={u.avatar} style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover' }} alt="" />
+                    : <div style={{ width: 16, height: 16, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8 }}>👤</div>
+                  }
+                  <span style={{ fontSize: 11, color: cardMuted, fontFamily: "'DM Sans',sans-serif" }}>{u.name}</span>
+                </div>
+              );
+            })}
+            {assigneeIds.length > 3 && <span style={{ fontSize: 11, color: cardMuted }}>+{assigneeIds.length - 3}</span>}
+          </div>
+        )}
+        {task.completed && task.completedBy && (() => {
+          const u = getUserById(task.completedBy);
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+              {u.avatar
+                ? <img src={u.avatar} style={{ width: 14, height: 14, borderRadius: '50%', objectFit: 'cover' }} alt="" />
+                : <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#c8eed3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7 }}>✓</div>
+              }
+              <span style={{ fontSize: 11, color: '#5a9e6f', fontFamily: "'DM Sans',sans-serif" }}>{u.name} · done</span>
+            </div>
+          );
+        })()}
 
         {/* Reactions + comments */}
         {(Object.values(task.reactions).some(a => a.length > 0) || task.comments.length > 0) && (
-          <div style={{ display: 'flex', gap: 5, marginTop: 6, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
             {REACTIONS_LIST.map(em => {
               const us = task.reactions[em] || [];
               return us.length > 0 ? (
@@ -263,32 +289,21 @@ const MobileTaskItem = ({ task, currentUser, dark = false, onToggle, onDelete, o
 
       {/* Action buttons */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-        <button
-          onClick={() => setShowRx(v => !v)}
-          style={{
-            background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
-            width: 34, height: 34, cursor: 'pointer', fontSize: 14,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >😊</button>
-        <button
-          onClick={() => onOpenDetail(task, 'comments')}
-          style={{
-            background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
-            width: 34, height: 34, cursor: 'pointer', fontSize: 16,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: cardMuted,
-          }}
-        >···</button>
-        <button
-          onClick={() => onDelete(task.id)}
-          style={{
-            background: dark ? '#3a1010' : '#fff0f0', border: 'none', borderRadius: 8,
-            width: 34, height: 34, cursor: 'pointer', fontSize: 16,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#d44',
-          }}
-        >×</button>
+        <button onClick={() => setShowRx(v => !v)} style={{
+          background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
+          width: 34, height: 34, cursor: 'pointer', fontSize: 14,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>😊</button>
+        <button onClick={() => onOpenDetail(task, 'comments')} style={{
+          background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
+          width: 34, height: 34, cursor: 'pointer', fontSize: 16,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: cardMuted,
+        }}>···</button>
+        <button onClick={() => onDelete(task.id)} style={{
+          background: dark ? '#3a1010' : '#fff0f0', border: 'none', borderRadius: 8,
+          width: 34, height: 34, cursor: 'pointer', fontSize: 16,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d44',
+        }}>×</button>
       </div>
 
       {/* Reaction picker */}
@@ -309,6 +324,7 @@ const MobileTaskItem = ({ task, currentUser, dark = false, onToggle, onDelete, o
     </div>
   );
 };
+
 
 // ── List selector panel (slide-in from left) ──────────────────────────────────
 const ListPanel = ({ open, onClose, lists, selId, onSelect, onNewList, dark }) => {
@@ -666,14 +682,18 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
   const memberUsers = listMembers.map(uid => allUsers.find(u => u.id === uid)).filter(Boolean);
 
   const toggleAssignee = uid => setEditAssignees(prev => prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]);
+  const [editEmoji, setEditEmoji] = useState(task?.emoji || '📌');
+  const [editAllDay, setEditAllDay] = useState(!(task?.dueDate && task?.dueDate.includes('T')));
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const save = () => {
     onSave({
       ...task, text: editText, priority: editPrio,
+      emoji: editEmoji,
       assignees: editAssignees,
       assignee: editAssignees[0] || null,
       assigneeName: editAssignees.length > 0 ? getUserById(editAssignees[0]).name : null,
-      dueDate: editDue ? (editTime ? `${editDue}T${editTime}` : editDue) : null,
+      dueDate: editDue ? ((!editAllDay && editTime) ? `${editDue}T${editTime}` : editDue) : null,
     });
   };
 
@@ -688,10 +708,36 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
 
   return (
     <Drawer open={open} onClose={onClose} maxHeight="92vh" dark={dark}>
-      {/* Task title */}
+      {/* Task title with emoji picker */}
       <div style={{ padding: '4px 20px 0' }}>
-        <input value={editText} onChange={e => setEditText(e.target.value)}
-          style={{ width: '100%', fontFamily: "'Lora',serif", fontSize: 20, color: dtxt, background: 'none', border: 'none', outline: 'none', fontWeight: 600 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
+          {/* Emoji button */}
+          <button onClick={() => setShowEmojiPicker(v => !v)} style={{
+            fontSize: 24, background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none',
+            borderRadius: 10, padding: '5px 8px', cursor: 'pointer', lineHeight: 1, flexShrink: 0,
+          }}>{editEmoji}</button>
+          {showEmojiPicker && (
+            <div style={{
+              position: 'absolute', top: 46, left: 0, zIndex: 300,
+              background: dark ? '#1c1c1c' : '#fff', border: `1px solid ${dbdr}`,
+              borderRadius: 14, padding: 12, width: 260,
+              boxShadow: '0 8px 32px rgba(0,0,0,.18)',
+            }}>
+              <input autoFocus placeholder="Type emoji…"
+                onChange={e => { const v = e.target.value; if (v) setEditEmoji(v.slice(-2) || v.slice(-1)); }}
+                style={{ width: '100%', padding: '8px 11px', borderRadius: 9, marginBottom: 10, border: `1px solid ${dbdr}`, background: dsurf, color: dtxt, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: "'DM Sans',sans-serif" }} />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {EMOJIS_LIST.map(em => (
+                  <button key={em} onClick={() => { setEditEmoji(em); setShowEmojiPicker(false); }}
+                    style={{ background: editEmoji === em ? (dark ? '#333' : '#efefef') : 'transparent', border: 'none', borderRadius: 8, padding: '5px 7px', fontSize: 18, cursor: 'pointer' }}>{em}</button>
+                ))}
+              </div>
+              <button onClick={() => setShowEmojiPicker(false)} style={{ width: '100%', marginTop: 8, padding: '8px', borderRadius: 9, border: `1px solid ${dbdr}`, background: 'transparent', color: dmuted, fontFamily: "'DM Sans',sans-serif", fontSize: 13, cursor: 'pointer' }}>Close</button>
+            </div>
+          )}
+          <input value={editText} onChange={e => setEditText(e.target.value)}
+            style={{ flex: 1, fontFamily: "'Lora',serif", fontSize: 19, color: dtxt, background: 'none', border: 'none', outline: 'none', fontWeight: 600 }} />
+        </div>
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${dbdr}`, marginTop: 10 }}>
           {['detail', 'comments'].map(t => (
@@ -754,9 +800,13 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
             {/* Due date */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 700, color: dmuted, letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>DUE DATE</div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} style={{ ...inp }} />
-                <input type="time" value={editTime} onChange={e => setEditTime(e.target.value)} style={{ ...inp, width: 120 }} />
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} style={{ ...inp, flex: 1, minWidth: 120 }} />
+                {!editAllDay && <input type="time" value={editTime} onChange={e => setEditTime(e.target.value)} style={{ ...inp, width: 110 }} />}
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13, color: dmuted, fontFamily: "'DM Sans',sans-serif", userSelect: 'none' }}>
+                  <input type="checkbox" checked={editAllDay} onChange={e => { setEditAllDay(e.target.checked); if (e.target.checked) setEditTime(''); }} style={{ width: 15, height: 15, cursor: 'pointer', accentColor: '#111' }} />
+                  All Day
+                </label>
               </div>
             </div>
             {/* Reactions */}
@@ -934,7 +984,7 @@ export default function MobileApp({ firebaseUser }) {
   });
   useEffect(() => { try { localStorage.setItem('checkmate-dark', dark); } catch {} }, [dark]);
   const [tab, setTab] = useState('lists');
-  const [showPanel, setShowPanel] = useState(false);
+  const [showPanel, setShowPanel] = useState(true);  // เปิด list panel ตอนเริ่ม
   const [showCreate, setShowCreate] = useState(false);
   const [editingList, setEditingList] = useState(null);
   const [taskDetail, setTaskDetail] = useState(null);
@@ -944,12 +994,15 @@ export default function MobileApp({ firebaseUser }) {
   const [newAssignees, setNewAssignees] = useState([]);
   const [newDue, setNewDue] = useState('');
   const [newTime, setNewTime] = useState('');
+  const [newAllDay, setNewAllDay] = useState(false);
   const [expandAdd, setExpandAdd] = useState(false);
+  const [hideCompleted, setHideCompleted] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const [showInvites, setShowInvites] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showConfirmSignOut, setShowConfirmSignOut] = useState(false);
 
   const currentUser = firebaseUser ? {
     id: firebaseUser.uid,
@@ -1018,15 +1071,15 @@ export default function MobileApp({ firebaseUser }) {
       assignees: newAssignees,
       assigneeName: null,
       priority: newPrio,
-      dueDate: newDue ? (newTime ? `${newDue}T${newTime}` : newDue) : null,
-      emoji: EMOJIS_LIST[Math.floor(Math.random() * 5)],
+      dueDate: newDue ? ((!newAllDay && newTime) ? `${newDue}T${newTime}` : newDue) : null,
+      emoji: '📌',
       reactions: {}, comments: [], createdBy: currentUser.id, createdAt: ts(),
     };
     const list = lists.find(l => l.id === selId);
     updateList(selId, l => ({ ...l, tasks: [...l.tasks, task] }));
     pushActivity(currentUser.id, 'added', task.text, list?.name || '');
-    setNewText(''); setNewPrio('MED'); setNewAssignees([]); setNewDue(''); setNewTime(''); setExpandAdd(false);
-  }, [newText, newPrio, newAssignees, newDue, newTime, selId, lists, currentUser, updateList, pushActivity]);
+    setNewText(''); setNewPrio('MED'); setNewAssignees([]); setNewDue(''); setNewTime(''); setNewAllDay(false); setExpandAdd(false);
+  }, [newText, newPrio, newAssignees, newDue, newTime, newAllDay, selId, lists, currentUser, updateList, pushActivity]);
 
   const deleteTask = useCallback((taskId) => {
     updateList(selId, l => ({ ...l, tasks: l.tasks.filter(t => t.id !== taskId) }));
@@ -1075,7 +1128,9 @@ export default function MobileApp({ firebaseUser }) {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
-    if (touchStartX.current < 60 && dx > 60 && dy < 80) {
+    const screenW = window.innerWidth;
+    // Swipe right: start from left 25% of screen, move >50px right, not mostly vertical
+    if (touchStartX.current < screenW * 0.25 && dx > 50 && dy < 100) {
       setShowPanel(true);
     }
     touchStartX.current = null;
@@ -1260,12 +1315,21 @@ export default function MobileApp({ firebaseUser }) {
 
               {sel && (
                 <>
-                  {/* Progress row */}
-                  <div style={{ marginBottom: 14 }}>
-                    <ProgressBar tasks={sel.tasks} dark={dark} />
+                  {/* Progress + hide-done row */}
+                  <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ flex: 1 }}>
+                      <ProgressBar tasks={sel.tasks} dark={dark} />
+                    </div>
+                    <button onClick={() => setHideCompleted(v => !v)} style={{
+                      background: hideCompleted ? (dark?'#2a2a2a':'#f0f0f0') : 'transparent',
+                      border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`, borderRadius: 99,
+                      padding: '4px 10px', cursor: 'pointer', fontSize: 11.5,
+                      color: dark?'#aaa':'#888', fontFamily: "'DM Sans',sans-serif",
+                      fontWeight: hideCompleted ? 600 : 400, flexShrink: 0,
+                    }}>{hideCompleted ? '👁 All' : '✓ Hide done'}</button>
                   </div>
 
-                  {/* Tasks */}
+                  {/* Tasks with drag-to-reorder */}
                   {sel.tasks.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '40px 0', color: muted }}>
                       <div style={{ fontSize: 36, marginBottom: 10 }}>🌱</div>
@@ -1273,15 +1337,49 @@ export default function MobileApp({ firebaseUser }) {
                     </div>
                   )}
 
-                  {sel.tasks.map(task => (
-                    <MobileTaskItem
-                      key={task.id} task={task} currentUser={currentUser}
-                      dark={dark}
-                      onToggle={toggleTask} onDelete={deleteTask}
-                      onReact={reactToTask}
-                      onOpenDetail={(t, tab) => setTaskDetail({ task: t, initialTab: tab || 'comments' })}
-                    />
-                  ))}
+                  <DragDropContext onDragEnd={(result) => {
+                    if (!result.destination || !sel) return;
+                    const items = [...sel.tasks];
+                    const [moved] = items.splice(result.source.index, 1);
+                    items.splice(result.destination.index, 0, moved);
+                    updateList(selId, l => ({ ...l, tasks: items }));
+                  }}>
+                    <Droppable droppableId="mobile-tasks">
+                      {(provided) => (
+                        <div {...provided.droppableProps} ref={provided.innerRef}>
+                          {sel.tasks.filter(t => !hideCompleted || !t.completed).map((task, index) => (
+                            <Draggable key={task.id} draggableId={task.id} index={index}>
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  style={{ ...provided.draggableProps.style, opacity: snapshot.isDragging ? 0.85 : 1 }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+                                    {/* Drag handle */}
+                                    <div {...provided.dragHandleProps} style={{
+                                      paddingTop: 16, color: dark?'#444':'#ccc', fontSize: 14,
+                                      cursor: 'grab', flexShrink: 0, userSelect: 'none',
+                                    }}>⠿</div>
+                                    <div style={{ flex: 1 }}>
+                                      <MobileTaskItem
+                                        task={task} currentUser={currentUser}
+                                        dark={dark} friends={friends}
+                                        onToggle={toggleTask} onDelete={deleteTask}
+                                        onReact={reactToTask}
+                                        onOpenDetail={(t, tab) => setTaskDetail({ task: t, initialTab: tab || 'comments' })}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
 
                   {/* AI Suggest button */}
                   {!showAI && (
@@ -1375,18 +1473,22 @@ export default function MobileApp({ firebaseUser }) {
                       </div>
                     );
                   })()}
-                  {/* Date + time */}
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {/* Date + time + All Day */}
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                     <input type="date" value={newDue} onChange={e => setNewDue(e.target.value)} style={{
                       flex: 1, minWidth: 100, padding: '7px 10px', borderRadius: 9, fontSize: 13,
                       border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
                       background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
                     }}/>
-                    <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} style={{
+                    {!newAllDay && <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} style={{
                       width: 95, padding: '7px 8px', borderRadius: 9, fontSize: 13,
                       border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`,
                       background: dark?'#1e1e1e':'#f5f5f5', color: dark?'#efefef':'#111', outline: 'none',
-                    }}/>
+                    }}/>}
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', fontSize: 12, color: dark?'#555':'#aaa', fontFamily: "'DM Sans',sans-serif", userSelect: 'none' }}>
+                      <input type="checkbox" checked={newAllDay} onChange={e => { setNewAllDay(e.target.checked); if (e.target.checked) setNewTime(''); }} style={{ width: 14, height: 14, cursor: 'pointer', accentColor: '#111' }}/>
+                      All Day
+                    </label>
                   </div>
                 </div>
               </div>
@@ -1443,9 +1545,19 @@ export default function MobileApp({ firebaseUser }) {
             </button>
             {/* Sign out — separated, red, requires deliberate tap */}
             <div style={{ marginTop: 8, borderTop: `1px solid ${dark ? '#2c2c2c' : '#eee'}`, paddingTop: 12 }}>
-              <button onClick={() => signOut(auth)} style={{ width: '100%', padding: '14px 16px', background: 'rgba(200,50,50,.06)', border: '1px solid rgba(200,50,50,.18)', borderRadius: 13, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#c0392b', fontWeight: 500 }}>
-                🚪 Sign Out
-              </button>
+              {showConfirmSignOut ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <p style={{ margin: 0, fontSize: 14, color: dark ? '#efefef' : '#333', fontFamily: "'DM Sans',sans-serif", textAlign: 'center' }}>ยืนยันออกจากระบบ?</p>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => signOut(auth)} style={{ flex: 1, padding: '13px', background: 'rgba(200,50,50,.12)', border: '1px solid rgba(200,50,50,.3)', borderRadius: 13, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#c0392b', fontWeight: 700 }}>ออกจากระบบ</button>
+                    <button onClick={() => setShowConfirmSignOut(false)} style={{ flex: 1, padding: '13px', background: dark ? '#2a2a2a' : '#f5f5f4', border: 'none', borderRadius: 13, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: dark ? '#efefef' : '#333' }}>ยกเลิก</button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => setShowConfirmSignOut(true)} style={{ width: '100%', padding: '14px 16px', background: 'rgba(200,50,50,.06)', border: '1px solid rgba(200,50,50,.18)', borderRadius: 13, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: '#c0392b', fontWeight: 500 }}>
+                  🚪 Sign Out
+                </button>
+              )}
             </div>
           </div>
         </Drawer>

@@ -334,12 +334,21 @@ const ProgressBar = ({tasks,dark}) => {
 };
 
 // ── Task Item ─────────────────────────────────────────────────────────────────
-const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}) => {
+const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,onOpenDetail}) => {
   const [hov,setHov]=useState(false);
   const [showRx,setShowRx]=useState(false);
   const surface=dark?'#1e1e1e':'#fff', bdr=dark?'#2c2c2c':'#f0f0f0';
   const txt=dark?'#efefef':'#111', muted=dark?'#555':'#bbb';
   const di=fmtDate(task.dueDate);
+
+  // Build a real user lookup from currentUser + friends
+  const allUsers = [
+    { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
+    ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
+  ];
+  const getUserById = (uid) => allUsers.find(u => u.id === uid) || { id: uid, name: uid, avatar: null };
+
+  const assigneeIds = task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []);
 
   return (
     <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>{setHov(false);setShowRx(false);}} style={{
@@ -364,33 +373,46 @@ const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}
 
       <div style={{flex:1,minWidth:0}}>
         {/* Top row: emoji + text + badges */}
-        <div style={{display:'flex',alignItems:'center',gap:'clamp(4px,.4vw,7px)',flexWrap:'wrap',marginBottom:task.completed||!task.assignee?0:3}}>
-          {task.emoji&&<span style={{fontSize:'clamp(12px,.9vw,15px)',lineHeight:1,flexShrink:0}}>{task.emoji}</span>}
-          <span style={{fontFamily:"'DM Sans',sans-serif",fontWeight:task.completed?400:500,fontSize:'clamp(13px,.95vw,16px)',color:task.completed?muted:txt,textDecoration:task.completed?'line-through':'none',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'clamp(160px,18vw,320px)'}}>{task.text}</span>
+        <div style={{display:'flex',alignItems:'flex-start',gap:'clamp(4px,.4vw,7px)',flexWrap:'wrap',marginBottom:3}}>
+          {task.emoji&&<span style={{fontSize:'clamp(12px,.9vw,15px)',lineHeight:1.4,flexShrink:0}}>{task.emoji}</span>}
+          <span style={{fontFamily:"'DM Sans',sans-serif",fontWeight:task.completed?400:500,fontSize:'clamp(13px,.95vw,16px)',color:task.completed?muted:txt,textDecoration:task.completed?'line-through':'none',flex:1,minWidth:0,wordBreak:'break-word',whiteSpace:'pre-wrap'}}>{task.text}</span>
           <PBadge p={task.priority}/>
           {di&&<span style={{fontSize:'clamp(9.5px,.7vw,11.5px)',padding:'1px 7px',borderRadius:20,flexShrink:0,background:di.urgent?(dark?'#3a1010':'#FFF0F0'):(dark?'#242424':'#f7f7f7'),color:di.urgent?(dark?'#ff8080':'#d44'):(dark?'#666':'#aaa'),fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>{di.label}</span>}
         </div>
-        {/* Bottom row: assignees, reactions, comments */}
-        <div style={{display:'flex',alignItems:'center',gap:'clamp(5px,.5vw,8px)',flexWrap:'wrap',marginTop:task.emoji||task.text?3:0}}>
-          {/* Multi-assignee: show first 3 avatars stacked, then names */}
-          {!task.completed && (task.assignees?.length > 0 || task.assignee) && (
-            <div style={{display:'flex',alignItems:'center',gap:3}}>
-              {(task.assignees?.length > 0 ? task.assignees : [task.assignee]).slice(0,3).map((uid,i)=>(
-                <div key={uid} style={{marginLeft:i>0?-5:0}}>
-                  <Avatar userId={uid} size={Math.round(window.innerWidth >= 1920 ? 17 : 14)}/>
-                </div>
-              ))}
-              {(task.assignees?.length || 1) > 3 && (
-                <span style={{fontSize:'clamp(9px,.65vw,11px)',color:muted}}>+{(task.assignees?.length||1)-3}</span>
+        {/* Bottom row: assignees with name, reactions, comments */}
+        <div style={{display:'flex',alignItems:'center',gap:'clamp(5px,.5vw,8px)',flexWrap:'wrap',marginTop:2}}>
+          {/* Assignees: avatar + name */}
+          {!task.completed && assigneeIds.length > 0 && (
+            <div style={{display:'flex',alignItems:'center',gap:4,flexWrap:'wrap'}}>
+              {assigneeIds.slice(0,3).map((uid,i)=>{
+                const u = getUserById(uid);
+                return (
+                  <div key={uid} style={{display:'flex',alignItems:'center',gap:3,background:dark?'#2a2a2a':'#f5f5f5',borderRadius:99,padding:'1px 7px 1px 2px'}}>
+                    {u.avatar
+                      ?<img src={u.avatar} style={{width:14,height:14,borderRadius:'50%',objectFit:'cover'}} alt=""/>
+                      :<div style={{width:14,height:14,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:7}}>👤</div>
+                    }
+                    <span style={{fontSize:'clamp(9.5px,.68vw,11px)',color:muted,fontFamily:"'DM Sans',sans-serif"}}>{u.name}</span>
+                  </div>
+                );
+              })}
+              {assigneeIds.length > 3 && (
+                <span style={{fontSize:'clamp(9px,.65vw,11px)',color:muted}}>+{assigneeIds.length-3}</span>
               )}
             </div>
           )}
-          {task.completed&&task.completedBy&&(
-            <div style={{display:'flex',alignItems:'center',gap:3}}>
-              <Avatar userId={task.completedBy} size={Math.round(window.innerWidth >= 1920 ? 17 : 14)}/>
-              <span style={{fontSize:'clamp(10px,.72vw,12px)',color:'#5a9e6f',fontFamily:"'DM Sans',sans-serif"}}>done</span>
-            </div>
-          )}
+          {task.completed&&task.completedBy&&(()=>{
+            const u = getUserById(task.completedBy);
+            return (
+              <div style={{display:'flex',alignItems:'center',gap:3}}>
+                {u.avatar
+                  ?<img src={u.avatar} style={{width:14,height:14,borderRadius:'50%',objectFit:'cover'}} alt=""/>
+                  :<div style={{width:14,height:14,borderRadius:'50%',background:'#c8eed3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:7}}>✓</div>
+                }
+                <span style={{fontSize:'clamp(10px,.72vw,12px)',color:'#5a9e6f',fontFamily:"'DM Sans',sans-serif"}}>{u.name} · done</span>
+              </div>
+            );
+          })()}
           {REACTIONS_LIST.map(em=>{
             const us=task.reactions[em]||[];
             return us.length>0?(
@@ -433,6 +455,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   );
   const [editDue, setEditDue] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');
   const [editTime, setEditTime] = useState(task.dueDate && task.dueDate.includes('T') ? task.dueDate.split('T')[1]?.slice(0,5) : '');
+  const [editAllDay, setEditAllDay] = useState(!(task.dueDate && task.dueDate.includes('T')));
   const [editEmoji, setEditEmoji] = useState(task.emoji||'📌');
   const [tab, setTab] = useState(initialTab);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -458,7 +481,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   };
 
   const save = () => {
-    const fullDueDate = editDue ? (editTime ? `${editDue}T${editTime}` : editDue) : null;
+    const fullDueDate = editDue ? ((!editAllDay && editTime) ? `${editDue}T${editTime}` : editDue) : null;
     onSave({
       ...task,
       text: editText,
@@ -558,9 +581,13 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
 
               <div>
                 <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:7,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>DUE DATE</label>
-                <div style={{display:'flex',gap:8}}>
-                  <input type="date" value={editDue} onChange={e=>setEditDue(e.target.value)} style={{flex:1,background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:8,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}/>
-                  <input type="time" value={editTime} onChange={e=>setEditTime(e.target.value)} style={{width:110,background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:8,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}/>
+                <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+                  <input type="date" value={editDue} onChange={e=>setEditDue(e.target.value)} style={{flex:1,minWidth:120,background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:8,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}/>
+                  {!editAllDay&&<input type="time" value={editTime} onChange={e=>setEditTime(e.target.value)} style={{width:110,background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:8,padding:'8px 12px',color:txt,fontSize:13,outline:'none'}}/>}
+                  <label style={{display:'flex',alignItems:'center',gap:5,cursor:'pointer',fontSize:12.5,color:muted,fontFamily:"'DM Sans',sans-serif",userSelect:'none'}}>
+                    <input type="checkbox" checked={editAllDay} onChange={e=>{setEditAllDay(e.target.checked);if(e.target.checked)setEditTime('');}} style={{width:13,height:13,cursor:'pointer',accentColor:'#111'}}/>
+                    All Day
+                  </label>
                 </div>
               </div>
 
@@ -1039,7 +1066,10 @@ export default function App() {
   const [newAssignees,setNewAssignees]=useState([]);
   const [newDue,setNewDue]=useState('');
   const [newTime, setNewTime] = useState('');
+  const [newAllDay, setNewAllDay] = useState(false);
   const [sortBy,setSortBy]=useState('default');
+  const [hideCompleted,setHideCompleted]=useState(false);
+  const [showConfirmSignOut,setShowConfirmSignOut]=useState(false);
   const [showAI,setShowAI]=useState(false);
   const [expandAdd,setExpandAdd]=useState(false);
 
@@ -1111,7 +1141,8 @@ export default function App() {
 
   const sortedTasks=useMemo(()=>{
     if(!sel) return [];
-    const t=[...sel.tasks];
+    let t=[...sel.tasks];
+    if(hideCompleted) t=t.filter(t=>!t.completed);
     if(sortBy==='priority'){const o={HIGH:0,MED:1,LOW:2};return t.sort((a,b)=>o[a.priority]-o[b.priority]);}
     if(sortBy==='deadline') return t.sort((a,b)=>{if(!a.dueDate)return 1;if(!b.dueDate)return -1;return new Date(a.dueDate)-new Date(b.dueDate);});
     if(sortBy==='completion') return t.sort((a,b)=>Number(a.completed)-Number(b.completed));
@@ -1135,13 +1166,13 @@ export default function App() {
     if(!newText.trim()||!selId) return;
     const task={id:genId(),text:newText.trim(),completed:false,completedBy:null,completedAt:null,
       assignee:newAssignees[0]||null,assignees:newAssignees,assigneeName:null,
-      priority:newPrio,dueDate:newDue?(newTime?`${newDue}T${newTime}`:newDue):null,
-      emoji:EMOJIS_LIST[Math.floor(Math.random()*5)],reactions:{},comments:[],
+      priority:newPrio,dueDate:newDue?(newAllDay||!newTime?newDue:`${newDue}T${newTime}`):null,
+      emoji:'📌',reactions:{},comments:[],
       createdBy:currentUser.id,createdAt:ts()};
     const list=lists.find(l=>l.id===selId);
     updateList(selId,l=>({...l,tasks:[...l.tasks,task]}));
     pushActivity(currentUser.id,'added',task.text,list?.name||'');
-    setNewText('');setNewDue('');setNewTime('');setNewAssignees([]);setExpandAdd(false);
+    setNewText('');setNewDue('');setNewTime('');setNewAllDay(false);setNewAssignees([]);setExpandAdd(false);
   },[newText,newPrio,newAssignees,newDue,newTime,selId,lists,currentUser,updateList,pushActivity]);
 
   const deleteTask=useCallback((taskId)=>{updateList(selId,l=>({...l,tasks:l.tasks.filter(t=>t.id!==taskId)}));},[selId,updateList]);
@@ -1406,7 +1437,15 @@ export default function App() {
             <div style={{padding:'clamp(8px,.8vw,12px) clamp(12px,1.1vw,18px)',borderTop:'1px solid rgba(255,255,255,.05)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <span style={{fontSize:'clamp(8.5px,.65vw,10.5px)',color:'#383838',fontFamily:"'DM Sans',sans-serif",letterSpacing:'.06em',fontWeight:600}}>CHECKMATE</span>
               <div style={{display:'flex',gap:4}}>
-                <button onClick={()=>signOut(auth)} style={{background:'rgba(255,255,255,.06)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#888',fontSize:'clamp(10px,.72vw,12.5px)',fontFamily:"'DM Sans',sans-serif"}}>Sign out</button>
+                {showConfirmSignOut?(
+                  <>
+                    <span style={{fontSize:'clamp(9px,.65vw,11px)',color:'#888',fontFamily:"'DM Sans',sans-serif",display:'flex',alignItems:'center',paddingRight:2}}>ยืนยัน?</span>
+                    <button onClick={()=>signOut(auth)} style={{background:'rgba(200,50,50,.18)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#f08080',fontSize:'clamp(10px,.72vw,12.5px)',fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>ออก</button>
+                    <button onClick={()=>setShowConfirmSignOut(false)} style={{background:'rgba(255,255,255,.06)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#888',fontSize:'clamp(10px,.72vw,12.5px)',fontFamily:"'DM Sans',sans-serif"}}>ยกเลิก</button>
+                  </>
+                ):(
+                  <button onClick={()=>setShowConfirmSignOut(true)} style={{background:'rgba(255,255,255,.06)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#888',fontSize:'clamp(10px,.72vw,12.5px)',fontFamily:"'DM Sans',sans-serif"}}>Sign out</button>
+                )}
                 <button onClick={()=>setSidebarCollapsed(!sidebarCollapsed)} style={{background:'rgba(255,255,255,.06)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#888',fontSize:'clamp(11px,.8vw,14px)'}}>{sidebarCollapsed ? '→' : '←'}</button>
                 <button onClick={()=>setDark(!dark)} style={{background:'rgba(255,255,255,.06)',border:'none',borderRadius:14,padding:'clamp(3px,.35vw,6px) clamp(8px,.75vw,12px)',cursor:'pointer',color:'#888',fontSize:'clamp(11px,.8vw,14px)'}}>{dark?'☀️':'🌙'}</button>
               </div>
@@ -1507,6 +1546,7 @@ export default function App() {
                     <ProgressBar tasks={sel.tasks} dark={false}/>
                   </div>
                   <div style={{display:'flex',gap:5,flexShrink:0,flexWrap:'wrap',justifyContent:'flex-end',alignItems:'flex-start'}}>
+                    <button onClick={()=>setHideCompleted(v=>!v)} style={{background:hideCompleted?'rgba(0,0,0,.12)':'rgba(0,0,0,.07)',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(9px,.85vw,13px)',cursor:'pointer',fontSize:'clamp(10.5px,.72vw,13px)',color:'#333',fontFamily:"'DM Sans',sans-serif",fontWeight:hideCompleted?600:400}}>{hideCompleted?'👁 Show all':'✓ Hide done'}</button>
                     <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{background:'rgba(0,0,0,.07)',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(7px,.75vw,11px)',fontSize:'clamp(10.5px,.72vw,13px)',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",color:'#333',outline:'none'}}>
                       <option value="default">Default</option>
                       <option value="priority">Priority</option>
@@ -1551,7 +1591,7 @@ export default function App() {
                             >
                               <div {...provided.dragHandleProps} style={{cursor:'grab',color:muted,fontSize:12,flexShrink:0,padding:'4px 2px',display:'flex',alignItems:'center',opacity:.5}}>⠿</div>
                               <div style={{flex:1}}>
-                                <TaskItem task={task} currentUser={currentUser} dark={dark} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={(t,tab)=>setTaskDetail({task:t,initialTab:tab||'comments'})}/>
+                                <TaskItem task={task} currentUser={currentUser} dark={dark} friends={friends} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={(t,tab)=>setTaskDetail({task:t,initialTab:tab||'comments'})}/>
                               </div>
                             </div>
                           )}
@@ -1612,10 +1652,14 @@ export default function App() {
                         </div>
                       );
                     })()}
-                    {/* Date + time */}
-                    <div style={{display:'flex',gap:4}}>
+                    {/* Date + time + All Day */}
+                    <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}>
                       <input type="date" value={newDue} onChange={e=>setNewDue(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none'}}/>
-                      <input type="time" value={newTime} onChange={e=>setNewTime(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none',width:'clamp(90px,7vw,120px)'}}/>
+                      {!newAllDay&&<input type="time" value={newTime} onChange={e=>setNewTime(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none',width:'clamp(90px,7vw,120px)'}}/>}
+                      <label style={{display:'flex',alignItems:'center',gap:5,cursor:'pointer',fontSize:'clamp(10.5px,.76vw,12.5px)',color:muted,fontFamily:"'DM Sans',sans-serif",userSelect:'none'}}>
+                        <input type="checkbox" checked={newAllDay} onChange={e=>{setNewAllDay(e.target.checked);if(e.target.checked)setNewTime('');}} style={{width:13,height:13,cursor:'pointer',accentColor:'#111'}}/>
+                        All Day
+                      </label>
                     </div>
                   </div>
                 )}
