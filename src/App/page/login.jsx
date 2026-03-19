@@ -1,4 +1,4 @@
-import { auth, provider } from "./firebase";
+import { auth, provider } from "../../firebase";
 import { signInWithPopup } from "firebase/auth";
 
 export default function Login() {

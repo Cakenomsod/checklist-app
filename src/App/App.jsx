@@ -1,16 +1,18 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { createPortal } from 'react-dom';
 
 import { auth } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import Login from "./page/login";
+
 import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite, pushActivityToDB, useActivity, updateListOrder } from "../useFirestore";
+import FriendPanel, { useFriends, useFriendRequests } from "./page/FriendSystem";
 
+import ProfileModal from "./page/ProfileModal";
+import CalendarView from "./page/CalendarView";
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+
+import { createPortal } from 'react-dom';
 import MobileApp from './MobileApp';
-import Login from "./login";
-import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
-import ProfileModal from "./ProfileModal";
-
 
 // ── Mobile detection ──────────────────────────────────────────────────────────
 const isMobile = () => {
@@ -103,7 +105,68 @@ const CATEGORIES = ['Travel','Shopping','Education','Work','Health','Personal','
 const genId = () => Math.random().toString(36).substr(2,9);
 const ts    = () => new Date().toISOString();
 
+const SAMPLE_LISTS = [
+  {
+    id:'list1', name:'Trip to Japan 🗾', category:'Travel', color:'#D6E8FF',
+    isPrivate:false, isGroup:true, members:['way','bell','john'],
+    createdBy:'way', createdAt:ts(),
+    tasks:[
+      { id:'t1', text:'Book flights', completed:true, completedBy:'way', completedAt:ts(),
+        assignee:'way', priority:'HIGH', dueDate:'2026-03-15', emoji:'✈️',
+        reactions:{'👍':['bell','john'],'🔥':['bell']},
+        comments:[{id:'c1',userId:'bell',text:'Found cheap ones on Skyscanner!',createdAt:ts()}],
+        createdBy:'way', createdAt:ts() },
+      { id:'t2', text:'Reserve Airbnb in Tokyo', completed:false, completedBy:null, completedAt:null,
+        assignee:'bell', priority:'HIGH', dueDate:'2026-03-20', emoji:'🏠',
+        reactions:{'❤️':['way']}, comments:[], createdBy:'way', createdAt:ts() },
+      { id:'t3', text:'Buy travel insurance', completed:false, completedBy:null, completedAt:null,
+        assignee:'john', priority:'MED', dueDate:'2026-03-25', emoji:'🛡️',
+        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
+      { id:'t4', text:'Pack luggage', completed:false, completedBy:null, completedAt:null,
+        assignee:null, priority:'LOW', dueDate:null, emoji:'🧳',
+        reactions:{}, comments:[], createdBy:'bell', createdAt:ts() },
+    ],
+  },
+  {
+    id:'list2', name:'Grocery Run 🛒', category:'Shopping', color:'#D6FFE4',
+    isPrivate:true, isGroup:false, members:['way'],
+    createdBy:'way', createdAt:ts(),
+    tasks:[
+      { id:'t5', text:'Milk', completed:true, completedBy:'way', completedAt:ts(),
+        assignee:'way', priority:'LOW', dueDate:null, emoji:'🥛',
+        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
+      { id:'t6', text:'Eggs', completed:true, completedBy:'way', completedAt:ts(),
+        assignee:'way', priority:'LOW', dueDate:null, emoji:'🥚',
+        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
+      { id:'t7', text:'Bread', completed:false, completedBy:null, completedAt:null,
+        assignee:'way', priority:'MED', dueDate:null, emoji:'🍞',
+        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
+    ],
+  },
+  {
+    id:'list3', name:'Study Goals 📚', category:'Education', color:'#E8D6FF',
+    isPrivate:false, isGroup:true, members:['way','alex'],
+    createdBy:'alex', createdAt:ts(),
+    tasks:[
+      { id:'t8', text:'Submit application SOP', completed:true, completedBy:'way', completedAt:ts(),
+        assignee:'way', priority:'HIGH', dueDate:'2026-03-10', emoji:'📝',
+        reactions:{'🎉':['alex']}, comments:[], createdBy:'way', createdAt:ts() },
+      { id:'t9', text:'Prepare portfolio PDF', completed:false, completedBy:null, completedAt:null,
+        assignee:'way', priority:'HIGH', dueDate:'2026-03-12', emoji:'🎨',
+        reactions:{}, comments:[], createdBy:'way', createdAt:ts() },
+      { id:'t10', text:'Send recommendation letter request', completed:false, completedBy:null, completedAt:null,
+        assignee:'alex', priority:'MED', dueDate:'2026-03-14', emoji:'📧',
+        reactions:{}, comments:[], createdBy:'alex', createdAt:ts() },
+    ],
+  },
+];
 
+const SAMPLE_ACTIVITY = [
+  { id:'a1', userId:'bell', action:'added',     target:'Reserve Airbnb in Tokyo', listName:'Trip to Japan 🗾', createdAt:new Date(Date.now()-15*60000).toISOString() },
+  { id:'a2', userId:'way',  action:'completed', target:'Book flights',            listName:'Trip to Japan 🗾', createdAt:new Date(Date.now()-45*60000).toISOString() },
+  { id:'a3', userId:'alex', action:'added',     target:'Recommendation letter',   listName:'Study Goals 📚',  createdAt:new Date(Date.now()-120*60000).toISOString() },
+  { id:'a4', userId:'john', action:'reacted to',target:'Book flights',            listName:'Trip to Japan 🗾', createdAt:new Date(Date.now()-180*60000).toISOString() },
+];
 
 const getUser = (id) => USERS.find(u=>u.id===id)||USERS[0];
 const timeAgo = (iso) => {
@@ -1236,7 +1299,7 @@ export default function App() {
 
           {/* Nav */}
           <div style={{padding:'clamp(6px,.6vw,10px) clamp(6px,.6vw,10px)',overflowY:'auto',overflowX:'hidden',flex:1}}>
-            {[{id:'activity',label:'Activity',icon:'⚡'},{id:'leaderboard',label:'Leaderboard',icon:'🏆'}].map(v=>(
+            {[{id:'activity',label:'Activity',icon:'⚡'},{id:'leaderboard',label:'Leaderboard',icon:'🏆'},{id:'calendar',label:'Calendar',icon:'📅'}].map(v=>(
               <button key={v.id} onClick={()=>setView(v.id)} style={{width:'100%',textAlign:'left',background:view===v.id?'rgba(255,255,255,.08)':'none',border:'none',borderRadius:7,padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',cursor:'pointer',color:view===v.id?'#f0f0f0':'#484848',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
                 <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>{v.icon}</span>{v.label}
               </button>
@@ -1405,6 +1468,12 @@ export default function App() {
         <div style={{flex:1,overflow:'auto',display:'flex',flexDirection:'column'}}>
           {view==='leaderboard'&&<LeaderboardView lists={lists} dark={dark} friends={friends} currentUser={currentUser}/>}
           {view==='activity'&&<ActivityView activity={activity} dark={dark} currentUser={currentUser} friends={friends}/>}
+          {view==='calendar'&&<CalendarView lists={lists} dark={dark} currentUser={currentUser} onToggleTask={(listId, taskId)=>{
+            const list=lists.find(l=>l.id===listId); if(!list) return;
+            const task=list.tasks.find(t=>t.id===taskId); if(!task) return;
+            updateList(listId,l=>({...l,tasks:l.tasks.map(t=>t.id!==taskId?t:{...t,completed:!t.completed,completedBy:!t.completed?currentUser.id:null,completedAt:!t.completed?ts():null})}));
+            pushActivity(currentUser.id,task.completed?'uncompleted':'completed',task.text,list.name);
+          }}/>}
 
           {view==='list'&&!sel&&(
             <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,color:muted}}>

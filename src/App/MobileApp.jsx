@@ -6,11 +6,12 @@ import {
   useLists,
   updateListInDB, deleteListInDB, sendListInvite,
   useListInvites, acceptListInvite, declineListInvite,
-  pushActivityToDB, useActivity, createListInDB
+  pushActivityToDB, useActivity, createListInDB,
 } from "../useFirestore";
 
-import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
-import ProfileModal from "./ProfileModal";
+import FriendPanel, { useFriends, useFriendRequests } from "./page/FriendSystem";
+import ProfileModal from "./page/ProfileModal";
+import MobileCalendar from "./page/MobileCalendar";
 
 // ── Shared constants (copied from App.jsx) ────────────────────────────────────
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
@@ -1232,6 +1233,16 @@ export default function MobileApp({ firebaseUser }) {
           {/* Activity / Leaderboard tabs */}
           {tab === 'activity' && <MobileActivityView activity={activity} currentUser={currentUser} friends={friends} dark={dark} />}
           {tab === 'leaderboard' && <MobileLeaderboard lists={lists} currentUser={currentUser} friends={friends} dark={dark} />}
+          {tab === 'calendar' && <MobileCalendar lists={lists} dark={dark} currentUser={currentUser} onToggleTask={(listId, taskId) => {
+            const list = lists.find(l => l.id === listId); if (!list) return;
+            const task = list.tasks.find(t => t.id === taskId); if (!task) return;
+            updateList(listId, l => ({ ...l, tasks: l.tasks.map(t => t.id !== taskId ? t : {
+              ...t, completed: !t.completed,
+              completedBy: !t.completed ? currentUser.id : null,
+              completedAt: !t.completed ? ts() : null,
+            })}));
+            pushActivity(currentUser.id, task.completed ? 'uncompleted' : 'completed', task.text, list.name);
+          }} />}
 
           {/* Lists tab */}
           {tab === 'lists' && (
@@ -1449,6 +1460,7 @@ export default function MobileApp({ firebaseUser }) {
         }}>
           {[
             { id: 'lists',       icon: '📋', label: 'Lists'    },
+            { id: 'calendar',    icon: '📅', label: 'Calendar' },
             { id: 'activity',    icon: '⚡', label: 'Activity' },
             { id: 'leaderboard', icon: '🏆', label: 'Rank'     },
           ].map(item => (
