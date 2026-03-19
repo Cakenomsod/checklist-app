@@ -1,14 +1,12 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import {
   useLists,
   updateListInDB, deleteListInDB, sendListInvite,
   useListInvites, acceptListInvite, declineListInvite,
-  pushActivityToDB, useActivity, createListInDB,
+  pushActivityToDB, useActivity, createListInDB, updateListOrder,
 } from "../useFirestore";
-
 import FriendPanel, { useFriends, useFriendRequests } from "./page/FriendSystem";
 import ProfileModal from "./page/ProfileModal";
 import MobileCalendar from "./page/MobileCalendar";
@@ -254,7 +252,7 @@ const MobileTaskItem = ({ task, currentUser, dark = false, onToggle, onDelete, o
               ) : null;
             })}
             {task.comments.length > 0 && (
-              <button onClick={() => onOpenDetail(task)} style={{
+              <button onClick={() => onOpenDetail(task, 'comments')} style={{
                 background: 'none', border: 'none', color: cardMuted,
                 fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
               }}>💬 {task.comments.length}</button>
@@ -274,7 +272,7 @@ const MobileTaskItem = ({ task, currentUser, dark = false, onToggle, onDelete, o
           }}
         >😊</button>
         <button
-          onClick={() => onOpenDetail(task)}
+          onClick={() => onOpenDetail(task, 'comments')}
           style={{
             background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
             width: 34, height: 34, cursor: 'pointer', fontSize: 16,
@@ -633,8 +631,8 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
 };
 
 // ── Task Detail Drawer ────────────────────────────────────────────────────────
-const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers, dark = false }) => {
-  const [tab, setTab] = useState('detail');
+const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers, dark = false, initialTab = 'comments' }) => {
+  const [tab, setTab] = useState(initialTab);
   const [editText, setEditText] = useState('');
   const [editPrio, setEditPrio] = useState('MED');
   const [editAssignees, setEditAssignees] = useState([]);
@@ -649,9 +647,9 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
       setEditAssignees(task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []));
       setEditDue(task.dueDate ? task.dueDate.split('T')[0] : '');
       setEditTime(task.dueDate?.includes('T') ? task.dueDate.split('T')[1]?.slice(0, 5) : '');
-      setTab('detail');
+      setTab(initialTab);
     }
-  }, [task]);
+  }, [task?.id, initialTab]);
 
   if (!task) return null;
 
@@ -1046,7 +1044,7 @@ export default function MobileApp({ firebaseUser }) {
 
   const updateTask = useCallback((ut) => {
     updateList(selId, l => ({ ...l, tasks: l.tasks.map(t => t.id === ut.id ? ut : t) }));
-    setTaskDetail(ut);
+    setTaskDetail(prev => prev ? { ...prev, task: ut } : null);
   }, [selId, updateList]);
 
   const createList = useCallback(async (data) => {
@@ -1136,7 +1134,7 @@ export default function MobileApp({ firebaseUser }) {
 
       {/* Task detail drawer */}
       <TaskDetailDrawer
-        task={taskDetail} open={!!taskDetail}
+        task={taskDetail?.task ?? taskDetail} open={!!taskDetail}
         onClose={() => setTaskDetail(null)}
         currentUser={currentUser}
         onUpdate={updateTask}
@@ -1145,6 +1143,7 @@ export default function MobileApp({ firebaseUser }) {
         friends={friends}
         listMembers={sel?.memberIds || []}
         dark={dark}
+        initialTab={taskDetail?.initialTab || 'comments'}
       />
 
       {/* List Panel (slide-in drawer) */}
@@ -1279,7 +1278,8 @@ export default function MobileApp({ firebaseUser }) {
                       key={task.id} task={task} currentUser={currentUser}
                       dark={dark}
                       onToggle={toggleTask} onDelete={deleteTask}
-                      onReact={reactToTask} onOpenDetail={setTaskDetail}
+                      onReact={reactToTask}
+                      onOpenDetail={(t, tab) => setTaskDetail({ task: t, initialTab: tab || 'comments' })}
                     />
                   ))}
 

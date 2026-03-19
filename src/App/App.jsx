@@ -398,7 +398,7 @@ const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}
             ):null;
           })}
           {task.comments.length>0&&(
-            <button onClick={()=>onOpenDetail(task)} style={{background:'none',border:'none',color:muted,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',padding:'1px 4px',display:'flex',alignItems:'center',gap:2,fontFamily:"'DM Sans',sans-serif"}}>💬 {task.comments.length}</button>
+            <button onClick={()=>onOpenDetail(task,'comments')} style={{background:'none',border:'none',color:muted,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',padding:'1px 4px',display:'flex',alignItems:'center',gap:2,fontFamily:"'DM Sans',sans-serif"}}>💬 {task.comments.length}</button>
           )}
         </div>
       </div>
@@ -415,7 +415,7 @@ const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}
             </div>
           )}
         </div>
-        <button onClick={()=>onOpenDetail(task)} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
+        <button onClick={()=>onOpenDetail(task,'comments')} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
         <button onClick={()=>onDelete(task.id)} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:'#d44',lineHeight:1}}>×</button>
       </div>
     </div>
@@ -423,7 +423,7 @@ const TaskItem = ({task,currentUser,dark,onToggle,onDelete,onReact,onOpenDetail}
 };
 
 // ── Task Detail Modal ─────────────────────────────────────────────────────────
-const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, onReact, friends=[], listMembers=[]}) => {
+const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, onReact, friends=[], listMembers=[], initialTab='comments'}) => {
   const [comment, setComment] = useState('');
   const [editText, setEditText] = useState(task.text);
   const [editPrio, setEditPrio] = useState(task.priority);
@@ -434,7 +434,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   const [editDue, setEditDue] = useState(task.dueDate ? task.dueDate.split('T')[0] : '');
   const [editTime, setEditTime] = useState(task.dueDate && task.dueDate.includes('T') ? task.dueDate.split('T')[1]?.slice(0,5) : '');
   const [editEmoji, setEditEmoji] = useState(task.emoji||'📌');
-  const [tab, setTab] = useState('detail');
+  const [tab, setTab] = useState(initialTab);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const surface = dark?'#1c1c1c':'#fff', txt = dark?'#efefef':'#111';
   const muted = dark?'#555':'#bbb', bdr = dark?'#2c2c2c':'#f0f0f0';
@@ -1155,7 +1155,7 @@ export default function App() {
 
   const updateTask=useCallback((ut)=>{
     updateList(selId,l=>({...l,tasks:l.tasks.map(t=>t.id===ut.id?ut:t)}));
-    setTaskDetail(ut);
+    setTaskDetail(prev=>prev?{...prev,task:ut}:null);
   },[selId,updateList]);
 
   const createList = useCallback(async (data) => {
@@ -1259,7 +1259,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {taskDetail&&<TaskDetailModal task={taskDetail} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onSave={(updatedTask)=>{updateTask(updatedTask);setTaskDetail(null);}} onReact={reactToTask} friends={friends} listMembers={sel?.memberIds||[]}/>}
+      {taskDetail&&<TaskDetailModal task={taskDetail.task} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onSave={(updatedTask)=>{updateTask(updatedTask);setTaskDetail(null);}} onReact={reactToTask} friends={friends} listMembers={sel?.memberIds||[]} initialTab={taskDetail.initialTab||'comments'}/>}
 
       <div style={{display:'flex',height:'100vh',background:bg,fontFamily:"'DM Sans',sans-serif",overflow:'hidden',position:'relative'}}>
 
@@ -1551,7 +1551,7 @@ export default function App() {
                             >
                               <div {...provided.dragHandleProps} style={{cursor:'grab',color:muted,fontSize:12,flexShrink:0,padding:'4px 2px',display:'flex',alignItems:'center',opacity:.5}}>⠿</div>
                               <div style={{flex:1}}>
-                                <TaskItem task={task} currentUser={currentUser} dark={dark} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={setTaskDetail}/>
+                                <TaskItem task={task} currentUser={currentUser} dark={dark} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={(t,tab)=>setTaskDetail({task:t,initialTab:tab||'comments'})}/>
                               </div>
                             </div>
                           )}
