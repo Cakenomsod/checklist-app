@@ -13,7 +13,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import { createPortal } from 'react-dom';
 import MobileApp from './MobileApp';
-  
+
 // ── Mobile detection ──────────────────────────────────────────────────────────
 const isMobile = () => {
   if (typeof window === 'undefined') return false;
@@ -351,19 +351,24 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
   const assigneeIds = task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []);
 
   return (
-    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>{setHov(false);setShowRx(false);}} style={{
-      background:surface,
-      border:`1px solid ${hov?(dark?'#3a3a3a':'#e0e0e0'):bdr}`,
-      borderRadius:10,
-      padding:'clamp(9px,.85vw,13px) clamp(11px,1vw,16px)',
-      marginBottom:'clamp(4px,.35vw,7px)',
-      boxShadow:hov?`0 1px 12px rgba(0,0,0,${dark?.18:.05})`:'0 1px 3px rgba(0,0,0,.03)',
-      display:'flex',gap:'clamp(8px,.75vw,12px)',alignItems:'flex-start',
-      opacity:task.completed?.65:1,
-      transition:'border-color .12s,box-shadow .12s,opacity .2s',
-    }}>
+    <div
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>{setHov(false);setShowRx(false);}}
+      onClick={()=>onOpenDetail(task,'comments')}
+      style={{
+        background:surface,
+        border:`1px solid ${hov?(dark?'#3a3a3a':'#e0e0e0'):bdr}`,
+        borderRadius:10,
+        padding:'clamp(9px,.85vw,13px) clamp(11px,1vw,16px)',
+        marginBottom:'clamp(4px,.35vw,7px)',
+        boxShadow:hov?`0 1px 12px rgba(0,0,0,${dark?.18:.05})`:'0 1px 3px rgba(0,0,0,.03)',
+        display:'flex',gap:'clamp(8px,.75vw,12px)',alignItems:'flex-start',
+        opacity:task.completed?.65:1,
+        transition:'border-color .12s,box-shadow .12s,opacity .2s',
+        cursor:'pointer',
+      }}>
       {/* Checkbox */}
-      <button onClick={()=>onToggle(task.id)} style={{
+      <button onClick={e=>{e.stopPropagation();onToggle(task.id);}} style={{
         width:'clamp(16px,1.25vw,21px)',height:'clamp(16px,1.25vw,21px)',
         borderRadius:5,flexShrink:0,marginTop:2,cursor:'pointer',
         border:`1.5px solid ${task.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,
@@ -426,19 +431,19 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
       </div>
 
       {/* Hover actions */}
-      <div style={{display:'flex',gap:3,opacity:hov?1:0,transition:'opacity .12s',flexShrink:0,alignItems:'center'}}>
+      <div onClick={e=>e.stopPropagation()} style={{display:'flex',gap:3,opacity:hov?1:0,transition:'opacity .12s',flexShrink:0,alignItems:'center'}}>
         <div style={{position:'relative'}}>
-          <button onClick={()=>setShowRx(!showRx)} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,13px)',color:muted,lineHeight:1}}>+😊</button>
+          <button onClick={e=>{e.stopPropagation();setShowRx(!showRx);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,13px)',color:muted,lineHeight:1}}>+😊</button>
           {showRx&&(
             <div style={{position:'absolute',right:0,top:'calc(100% + 4px)',background:dark?'#1e1e1e':'#fff',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:10,padding:'6px 8px',display:'flex',gap:4,zIndex:200,boxShadow:`0 8px 24px rgba(0,0,0,${dark?.28:.1})`}}>
               {REACTIONS_LIST.map(em=>(
-                <button key={em} onClick={()=>{onReact(task.id,em);setShowRx(false);}} style={{background:'none',border:'none',cursor:'pointer',fontSize:'clamp(15px,1.2vw,19px)',borderRadius:6,padding:'2px 3px'}}>{em}</button>
+                <button key={em} onClick={e=>{e.stopPropagation();onReact(task.id,em);setShowRx(false);}} style={{background:'none',border:'none',cursor:'pointer',fontSize:'clamp(15px,1.2vw,19px)',borderRadius:6,padding:'2px 3px'}}>{em}</button>
               ))}
             </div>
           )}
         </div>
-        <button onClick={()=>onOpenDetail(task,'comments')} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
-        <button onClick={()=>onDelete(task.id)} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:'#d44',lineHeight:1}}>×</button>
+        <button onClick={e=>{e.stopPropagation();onOpenDetail(task,'comments');}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
+        <button onClick={e=>{e.stopPropagation();onDelete(task.id);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:'#d44',lineHeight:1}}>×</button>
       </div>
     </div>
   );
@@ -448,6 +453,7 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
 const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, onReact, friends=[], listMembers=[], initialTab='comments'}) => {
   const [comment, setComment] = useState('');
   const [editText, setEditText] = useState(task.text);
+  const [editNotes, setEditNotes] = useState(task.notes||'');
   const [editPrio, setEditPrio] = useState(task.priority);
   // multi-assignee: store array
   const [editAssignees, setEditAssignees] = useState(
@@ -485,9 +491,10 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
     onSave({
       ...task,
       text: editText,
+      notes: editNotes,
       priority: editPrio,
       assignees: editAssignees,
-      assignee: editAssignees[0] || null,          // backward compat
+      assignee: editAssignees[0] || null,
       assigneeName: editAssignees.length > 0 ? getUserById(editAssignees[0]).name : null,
       dueDate: fullDueDate,
       emoji: editEmoji
@@ -527,12 +534,12 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
                   </div>
                 )}
               </div>
-              <input value={editText} onChange={e=>setEditText(e.target.value)} style={{fontFamily:"'Lora',serif",fontSize:17,color:txt,background:'none',border:'none',outline:'none',flex:1,minWidth:0}}/>
+              <textarea value={editText} onChange={e=>setEditText(e.target.value)} rows={1} onInput={e=>{e.target.style.height='auto';e.target.style.height=e.target.scrollHeight+'px';}} style={{fontFamily:"'Lora',serif",fontSize:17,color:txt,background:'none',border:'none',outline:'none',flex:1,minWidth:0,resize:'none',overflow:'hidden',lineHeight:1.35,padding:0}}/>
             </div>
             <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:muted,fontSize:20,lineHeight:1,padding:'2px 6px',borderRadius:6,flexShrink:0}}>×</button>
           </div>
           <div style={{display:'flex',gap:0}}>
-            {['detail','comments'].map(t=>(
+            {['comments','detail'].map(t=>(
               <button key={t} onClick={()=>setTab(t)} style={{background:'none',border:'none',cursor:'pointer',padding:'8px 16px',fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:tab===t?600:400,color:tab===t?txt:muted,borderBottom:tab===t?`2px solid ${txt}`:'2px solid transparent',letterSpacing:'.01em'}}>
                 {t.charAt(0).toUpperCase()+t.slice(1)}{t==='comments'&&task.comments.length>0?` (${task.comments.length})`:''}
               </button>
@@ -599,6 +606,11 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
                     return <button key={em} onClick={()=>onReact(task.id,em)} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f0f0f0'):'transparent',border:`1px solid ${dark?'#2c2c2c':'#e8e8e8'}`,borderRadius:99,padding:'5px 12px',cursor:'pointer',fontSize:13,color:txt,display:'flex',gap:4,alignItems:'center'}}>{em}{us.length>0&&<span style={{fontSize:11,fontFamily:"'DM Sans',sans-serif"}}>{us.length}</span>}</button>;
                   })}
                 </div>
+              </div>
+
+              <div>
+                <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:8,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>NOTES</label>
+                <textarea value={editNotes} onChange={e=>setEditNotes(e.target.value)} placeholder="Add notes…" rows={3} style={{width:'100%',background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'10px 12px',color:txt,fontSize:13,outline:'none',fontFamily:"'DM Sans',sans-serif",resize:'vertical',lineHeight:1.5,boxSizing:'border-box'}}/>
               </div>
 
               {task.completed&&task.completedBy&&completedByUser&&(
@@ -1392,9 +1404,12 @@ export default function App() {
                                 <div style={{width:7,height:7,borderRadius:'50%',background:l.color,flexShrink:0}}/>
                                 <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
                                 <div style={{display:'flex'}}>
-                                  {l.members.slice(0,3).map((m,i)=>(
-                                    <div key={m} style={{marginLeft:i>0?-4:0,width:14,height:14,borderRadius:'50%',background:getUser(m).color,fontSize:7,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid #111'}}>{getUser(m).avatar}</div>
-                                  ))}
+                                  {(l.memberIds||l.members||[]).slice(0,3).map((uid,i)=>{
+                                    const photo = uid===currentUser.id ? currentUser.avatar : friends.find(f=>f.uid===uid)?.avatar || null;
+                                    return photo
+                                      ? <img key={uid} src={photo} style={{marginLeft:i>0?-4:0,width:14,height:14,borderRadius:'50%',objectFit:'cover',border:'1px solid #111',flexShrink:0}} alt=""/>
+                                      : <div key={uid} style={{marginLeft:i>0?-4:0,width:14,height:14,borderRadius:'50%',background:getUser(uid)?.color||'#dde8f7',fontSize:7,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid #111'}}>{getUser(uid)?.avatar||'👤'}</div>;
+                                  })}
                                 </div>
                               </button>
                             </DraggableItem>
@@ -1504,7 +1519,7 @@ export default function App() {
 
 
         {/* ── MAIN ─────────────────────── */}
-        <div style={{flex:1,overflow:'auto',display:'flex',flexDirection:'column'}}>
+        <div style={{flex:1,overflow:'hidden',display:'flex',flexDirection:'column'}}>
           {view==='leaderboard'&&<LeaderboardView lists={lists} dark={dark} friends={friends} currentUser={currentUser}/>}
           {view==='activity'&&<ActivityView activity={activity} dark={dark} currentUser={currentUser} friends={friends}/>}
           {view==='calendar'&&<CalendarView lists={lists} dark={dark} currentUser={currentUser} onToggleTask={(listId, taskId)=>{
@@ -1523,7 +1538,9 @@ export default function App() {
           )}
 
           {view==='list'&&sel&&(
-            <div className="main-content" style={{animation:'fadeUp .15s ease-out'}}>
+            <div style={{display:'flex',flexDirection:'column',flex:1,overflow:'hidden',animation:'fadeUp .15s ease-out'}}>
+              {/* Scrollable content */}
+              <div className="main-content" style={{overflow:'auto',flex:1,paddingBottom:8}}>
 
               {/* Header card */}
               <div style={{background:sel.color,borderRadius:14,padding:'clamp(18px,2vw,28px) clamp(20px,2.5vw,32px)',marginBottom:'clamp(14px,1.5vw,22px)',position:'relative',overflow:'hidden'}}>
@@ -1568,12 +1585,16 @@ export default function App() {
                   <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,1vw,15px)'}}>Empty list — add your first task or try AI suggestions!</p>
                 </div>
               )}
-              <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
+              <DragDropContext onDragEnd={(result)=>{
                 if(!result.destination||!sel) return;
-                const items=[...sel.tasks];
-                const [moved]=items.splice(result.source.index,1);
-                items.splice(result.destination.index,0,moved);
-                updateList(selId,l=>({...l,tasks:items}));
+                // Use sortedTasks as display order; reorder underlying sel.tasks accordingly
+                const displayed=[...sortedTasks];
+                const [moved]=displayed.splice(result.source.index,1);
+                displayed.splice(result.destination.index,0,moved);
+                // Rebuild full task list: displayed order first, then any tasks not in display (filtered out)
+                const displayedIds=new Set(displayed.map(t=>t.id));
+                const hidden=sel.tasks.filter(t=>!displayedIds.has(t.id));
+                updateList(selId,l=>({...l,tasks:[...displayed,...hidden]}));
               }}>
                 <Droppable droppableId="tasks">
                   {(provided)=>(
@@ -1677,8 +1698,68 @@ export default function App() {
                 updateList(selId,l=>({...l,tasks:[...l.tasks,task]}));
                 pushActivity(currentUser.id,'added',text,sel.name);
               }}/>}
+              <div style={{height:16}}/>
+              </div>{/* end scroll area */}
 
-              <div style={{height:48}}/>
+              {/* ── Fixed Add Task bar at bottom ── */}
+              <div style={{background:surface,borderTop:`1px solid ${bdr}`,padding:'clamp(8px,.8vw,12px) clamp(12px,1.2vw,17px)',flexShrink:0}}>
+                {expandAdd&&(
+                  <div style={{paddingLeft:'clamp(24px,1.8vw,30px)',marginBottom:9,animation:'fadeUp .12s ease-out'}}>
+                    {/* Priority */}
+                    <div style={{display:'flex',gap:4,marginBottom:8}}>
+                      {PRIORITIES.map(p=>(
+                        <button key={p} onClick={()=>setNewPrio(p)} style={{padding:'clamp(3px,.3vw,5px) clamp(9px,.8vw,13px)',borderRadius:99,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',fontWeight:600,border:`1px solid ${newPrio===p?P_COLOR[p]:(dark?'#2c2c2c':'#e0e0e0')}`,background:newPrio===p?P_BG[p]:'transparent',color:newPrio===p?P_COLOR[p]:muted,fontFamily:"'DM Sans',sans-serif"}}>{p}</button>
+                      ))}
+                    </div>
+                    {/* Assignee chips */}
+                    {(()=>{
+                      const memberUsers=[
+                        {id:currentUser.id,name:currentUser.name,avatar:currentUser.avatar},
+                        ...friends.filter(f=>sel?.memberIds?.includes(f.uid)).map(f=>({id:f.uid,name:f.name,avatar:f.avatar}))
+                      ];
+                      if(memberUsers.length===0) return null;
+                      return (
+                        <div style={{display:'flex',gap:5,flexWrap:'wrap',marginBottom:8}}>
+                          {memberUsers.map(u=>{
+                            const selected=newAssignees.includes(u.id);
+                            return (
+                              <button key={u.id} onClick={()=>setNewAssignees(prev=>prev.includes(u.id)?prev.filter(id=>id!==u.id):[...prev,u.id])} style={{
+                                display:'flex',alignItems:'center',gap:5,
+                                padding:'clamp(3px,.3vw,5px) clamp(8px,.75vw,11px) clamp(3px,.3vw,5px) clamp(5px,.5vw,7px)',
+                                borderRadius:99,cursor:'pointer',
+                                border:`1.5px solid ${selected?(dark?'#ccc':'#333'):(dark?'#2c2c2c':'#ddd')}`,
+                                background:selected?(dark?'#ccc':'#111'):'transparent',
+                                color:selected?(dark?'#111':'#fff'):(dark?'#555':'#666'),
+                                fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(10.5px,.76vw,12.5px)',fontWeight:selected?600:400,
+                              }}>
+                                {u.avatar
+                                  ?<img src={u.avatar} style={{width:'clamp(14px,1.1vw,18px)',height:'clamp(14px,1.1vw,18px)',borderRadius:'50%',objectFit:'cover'}} alt=""/>
+                                  :<div style={{width:'clamp(14px,1.1vw,18px)',height:'clamp(14px,1.1vw,18px)',borderRadius:'50%',background:dark?'#2a3a4a':'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8}}>👤</div>
+                                }
+                                {u.name}{selected&&<span style={{fontSize:9}}>✓</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                    {/* Date + time + All Day */}
+                    <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}>
+                      <input type="date" value={newDue} onChange={e=>setNewDue(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none'}}/>
+                      {!newAllDay&&<input type="time" value={newTime} onChange={e=>setNewTime(e.target.value)} style={{background:dark?'#242424':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:7,padding:'clamp(3px,.3vw,5px) clamp(7px,.7vw,10px)',fontSize:'clamp(11px,.78vw,13px)',color:txt,cursor:'pointer',outline:'none',width:'clamp(90px,7vw,120px)'}}/>}
+                      <label style={{display:'flex',alignItems:'center',gap:5,cursor:'pointer',fontSize:'clamp(10.5px,.76vw,12.5px)',color:muted,fontFamily:"'DM Sans',sans-serif",userSelect:'none'}}>
+                        <input type="checkbox" checked={newAllDay} onChange={e=>{setNewAllDay(e.target.checked);if(e.target.checked)setNewTime('');}} style={{width:13,height:13,cursor:'pointer',accentColor:'#111'}}/>
+                        All Day
+                      </label>
+                    </div>
+                  </div>
+                )}
+                <div style={{display:'flex',gap:9,alignItems:'center'}}>
+                  <div style={{width:'clamp(16px,1.2vw,20px)',height:'clamp(16px,1.2vw,20px)',borderRadius:5,border:`1.5px solid ${dark?'#2c2c2c':'#d5d5d5'}`,flexShrink:0}}/>
+                  <input value={newText} onChange={e=>setNewText(e.target.value)} onFocus={()=>setExpandAdd(true)} onKeyDown={e=>{if(e.key==='Enter')addTask();if(e.key==='Escape'){setExpandAdd(false);setNewText('');}}} placeholder="Add a task…" style={{flex:1,background:'none',border:'none',outline:'none',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,1vw,16px)',color:txt}}/>
+                  {newText&&<button onClick={addTask} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(11px,1vw,16px)',cursor:'pointer',fontSize:'clamp(12px,.85vw,14px)',fontFamily:"'DM Sans',sans-serif",fontWeight:600,flexShrink:0}}>Add</button>}
+                </div>
+              </div>
             </div>
           )}
         </div>

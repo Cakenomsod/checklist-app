@@ -192,15 +192,17 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
   const assigneeIds = task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []);
 
   return (
-    <div style={{
-      background: cardBg, borderRadius: 12, padding: '13px 15px',
-      marginBottom: 8, boxShadow: dark ? '0 1px 4px rgba(0,0,0,.3)' : '0 1px 4px rgba(0,0,0,.06)',
-      display: 'flex', gap: 12, alignItems: 'flex-start',
-      opacity: task.completed ? .6 : 1, transition: 'opacity .2s',
-      position: 'relative',
-    }}>
+    <div
+      onClick={() => onOpenDetail(task, 'comments')}
+      style={{
+        background: cardBg, borderRadius: 12, padding: '13px 15px',
+        marginBottom: 8, boxShadow: dark ? '0 1px 4px rgba(0,0,0,.3)' : '0 1px 4px rgba(0,0,0,.06)',
+        display: 'flex', gap: 12, alignItems: 'flex-start',
+        opacity: task.completed ? .6 : 1, transition: 'opacity .2s',
+        position: 'relative', cursor: 'pointer',
+      }}>
       {/* Checkbox */}
-      <button onClick={() => onToggle(task.id)} style={{
+      <button onClick={e => { e.stopPropagation(); onToggle(task.id); }} style={{
         width: 26, height: 26, borderRadius: 8, flexShrink: 0, marginTop: 1,
         border: `2px solid ${task.completed ? (dark ? '#ccc' : '#111') : (dark ? '#3a3a3a' : '#d0d0d0')}`,
         background: task.completed ? (dark ? '#ccc' : '#111') : 'transparent',
@@ -272,7 +274,7 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
             {REACTIONS_LIST.map(em => {
               const us = task.reactions[em] || [];
               return us.length > 0 ? (
-                <button key={em} onClick={() => onReact(task.id, em)} style={{
+                <button key={em} onClick={e => { e.stopPropagation(); onReact(task.id, em); }} style={{
                   background: us.includes(currentUser.id) ? (dark ? '#2a2a2a' : '#f0f0f0') : 'transparent',
                   border: `1px solid ${cardBdr}`, borderRadius: 99,
                   padding: '2px 8px', fontSize: 12, cursor: 'pointer',
@@ -281,7 +283,7 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
               ) : null;
             })}
             {task.comments.length > 0 && (
-              <button onClick={() => onOpenDetail(task, 'comments')} style={{
+              <button onClick={e => { e.stopPropagation(); onOpenDetail(task, 'comments'); }} style={{
                 background: 'none', border: 'none', color: cardMuted,
                 fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
               }}>💬 {task.comments.length}</button>
@@ -291,18 +293,18 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
       </div>
 
       {/* Action buttons */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-        <button onClick={() => setShowRx(v => !v)} style={{
+      <div onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+        <button onClick={e => { e.stopPropagation(); setShowRx(v => !v); }} style={{
           background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
           width: 34, height: 34, cursor: 'pointer', fontSize: 14,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>😊</button>
-        <button onClick={() => onOpenDetail(task, 'comments')} style={{
+        <button onClick={e => { e.stopPropagation(); onOpenDetail(task, 'detail'); }} style={{
           background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
           width: 34, height: 34, cursor: 'pointer', fontSize: 16,
           display: 'flex', alignItems: 'center', justifyContent: 'center', color: cardMuted,
         }}>···</button>
-        <button onClick={() => onDelete(task.id)} style={{
+        <button onClick={e => { e.stopPropagation(); onDelete(task.id); }} style={{
           background: dark ? '#3a1010' : '#fff0f0', border: 'none', borderRadius: 8,
           width: 34, height: 34, cursor: 'pointer', fontSize: 16,
           display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d44',
@@ -311,14 +313,14 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
 
       {/* Reaction picker */}
       {showRx && (
-        <div style={{
+        <div onClick={e => e.stopPropagation()} style={{
           position: 'absolute', right: 8, top: 54, zIndex: 200,
           background: dark ? '#1e1e1e' : '#fff', border: `1px solid ${cardBdr}`, borderRadius: 12,
           padding: '8px 10px', display: 'flex', gap: 6,
           boxShadow: dark ? '0 8px 24px rgba(0,0,0,.5)' : '0 8px 24px rgba(0,0,0,.12)',
         }}>
           {REACTIONS_LIST.map(em => (
-            <button key={em} onClick={() => { onReact(task.id, em); setShowRx(false); }}
+            <button key={em} onClick={e => { e.stopPropagation(); onReact(task.id, em); setShowRx(false); }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, padding: '2px 3px', borderRadius: 8 }}
             >{em}</button>
           ))}
@@ -330,9 +332,14 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
 
 
 // ── List selector panel (slide-in from left) ──────────────────────────────────
-const ListPanel = ({ open, onClose, lists, selId, onSelect, onNewList, dark }) => {
+const ListPanel = ({ open, onClose, lists, selId, onSelect, onNewList, dark, currentUser, friends = [] }) => {
   const personal = lists.filter(l => !l.isGroup);
   const group = lists.filter(l => l.isGroup);
+
+  const getPhotoForUid = (uid) => {
+    if (uid === currentUser?.id) return currentUser?.avatar || null;
+    return friends.find(f => f.uid === uid)?.avatar || null;
+  };
 
   return (
     <>
@@ -404,14 +411,16 @@ const ListPanel = ({ open, onClose, lists, selId, onSelect, onNewList, dark }) =
                   <div style={{ width: 9, height: 9, borderRadius: '50%', background: l.color, flexShrink: 0 }} />
                   <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.name}</span>
                   <div style={{ display: 'flex' }}>
-                    {(l.members || []).slice(0, 3).map((m, i) => (
-                      <div key={m} style={{
-                        marginLeft: i > 0 ? -5 : 0, width: 18, height: 18, borderRadius: '50%',
-                        background: getUser(m).color, fontSize: 9,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        border: '1.5px solid #111',
-                      }}>{getUser(m).avatar}</div>
-                    ))}
+                    {(l.memberIds || l.members || []).slice(0, 3).map((uid, i) => {
+                      const photo = getPhotoForUid(uid);
+                      return photo ? (
+                        <img key={uid} src={photo} style={{ marginLeft: i > 0 ? -5 : 0, width: 18, height: 18, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #111', flexShrink: 0 }} alt="" />
+                      ) : (
+                        <div key={uid} style={{ marginLeft: i > 0 ? -5 : 0, width: 18, height: 18, borderRadius: '50%', background: getUser(uid)?.color || '#dde8f7', fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #111' }}>
+                          {getUser(uid)?.avatar || '👤'}
+                        </div>
+                      );
+                    })}
                   </div>
                 </button>
               ))}
@@ -653,6 +662,7 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
 const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers, dark = false, initialTab = 'comments' }) => {
   const [tab, setTab] = useState(initialTab);
   const [editText, setEditText] = useState('');
+  const [editNotes, setEditNotes] = useState('');
   const [editPrio, setEditPrio] = useState('MED');
   const [editAssignees, setEditAssignees] = useState([]);
   const [editDue, setEditDue] = useState('');
@@ -665,6 +675,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
   useEffect(() => {
     if (task) {
       setEditText(task.text);
+      setEditNotes(task.notes || '');
       setEditPrio(task.priority);
       setEditAssignees(task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []));
       setEditDue(task.dueDate ? task.dueDate.split('T')[0] : '');
@@ -702,6 +713,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
   const save = () => {
     onSave({
       ...task, text: editText, priority: editPrio,
+      notes: editNotes,
       emoji: editEmoji,
       assignees: editAssignees,
       assignee: editAssignees[0] || null,
@@ -745,12 +757,13 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
               <button onClick={() => setShowEmojiPicker(false)} style={{ width: '100%', marginTop: 8, padding: '8px', borderRadius: 9, border: `1px solid ${dbdr}`, background: 'transparent', color: dmuted, fontFamily: "'DM Sans',sans-serif", fontSize: 13, cursor: 'pointer' }}>Close</button>
             </div>
           )}
-          <input value={editText} onChange={e => setEditText(e.target.value)}
-            style={{ flex: 1, fontFamily: "'Lora',serif", fontSize: 19, color: dtxt, background: 'none', border: 'none', outline: 'none', fontWeight: 600 }} />
+          <textarea value={editText} onChange={e => setEditText(e.target.value)} rows={1}
+            onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+            style={{ flex: 1, fontFamily: "'Lora',serif", fontSize: 19, color: dtxt, background: 'none', border: 'none', outline: 'none', fontWeight: 600, resize: 'none', overflow: 'hidden', lineHeight: 1.35, padding: 0 }} />
         </div>
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${dbdr}`, marginTop: 10 }}>
-          {['detail', 'comments'].map(t => (
+          {['comments', 'detail'].map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               padding: '10px 18px', fontFamily: "'DM Sans',sans-serif", fontSize: 14,
@@ -834,6 +847,12 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
                   );
                 })}
               </div>
+            </div>
+            {/* Notes */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: dmuted, letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>NOTES</div>
+              <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} placeholder="Add notes…" rows={3}
+                style={{ ...inp, resize: 'vertical', lineHeight: 1.5 }} />
             </div>
             {/* Completed by — real photo */}
             {task.completed && completedByUser && (
@@ -1218,6 +1237,8 @@ export default function MobileApp({ firebaseUser }) {
         lists={lists} selId={selId}
         onSelect={(id) => { setSelId(id); setTab('lists'); }}
         onNewList={() => setShowCreate(true)}
+        currentUser={currentUser}
+        friends={friends}
       />
 
       {/* ── MAIN SCROLL AREA ── */}
@@ -1350,10 +1371,13 @@ export default function MobileApp({ firebaseUser }) {
 
                   <DragDropContext onDragEnd={(result) => {
                     if (!result.destination || !sel) return;
-                    const items = [...sel.tasks];
-                    const [moved] = items.splice(result.source.index, 1);
-                    items.splice(result.destination.index, 0, moved);
-                    updateList(selId, l => ({ ...l, tasks: items }));
+                    const displayed = [...sel.tasks.filter(t=>!t.completed), ...sel.tasks.filter(t=>t.completed)]
+                      .filter(t => !hideCompleted || !t.completed);
+                    const [moved] = displayed.splice(result.source.index, 1);
+                    displayed.splice(result.destination.index, 0, moved);
+                    const displayedIds = new Set(displayed.map(t => t.id));
+                    const hidden = sel.tasks.filter(t => !displayedIds.has(t.id));
+                    updateList(selId, l => ({ ...l, tasks: [...displayed, ...hidden] }));
                   }}>
                     <Droppable droppableId="mobile-tasks">
                       {(provided) => (
