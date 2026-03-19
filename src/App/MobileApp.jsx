@@ -5,7 +5,7 @@ import {
   useLists,
   updateListInDB, deleteListInDB, sendListInvite,
   useListInvites, acceptListInvite, declineListInvite,
-  pushActivityToDB, useActivity, createListInDB
+  pushActivityToDB, useActivity, createListInDB, updateListOrder,
 } from "../useFirestore";
 import FriendPanel, { useFriends, useFriendRequests } from "./page/FriendSystem";
 import ProfileModal from "./page/ProfileModal";
@@ -74,15 +74,18 @@ const MCSS = `
 `;
 
 // ── Mini components ───────────────────────────────────────────────────────────
-const Avatar = ({ userId, size = 36 }) => {
+const Avatar = ({ userId, size = 36, photoURL = null }) => {
   const u = getUser(userId);
+  if (photoURL) {
+    return <img src={photoURL} alt={u?.name || userId} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1.5px solid rgba(0,0,0,.07)' }} />;
+  }
   return (
     <div style={{
-      width: size, height: size, borderRadius: '50%', background: u.color,
+      width: size, height: size, borderRadius: '50%', background: u?.color || '#dde8f7',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontSize: size * 0.44, border: '1.5px solid rgba(0,0,0,.07)', flexShrink: 0,
       userSelect: 'none',
-    }}>{u.avatar}</div>
+    }}>{u?.avatar || '👤'}</div>
   );
 };
 
@@ -654,6 +657,9 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
   const [editAssignees, setEditAssignees] = useState([]);
   const [editDue, setEditDue] = useState('');
   const [editTime, setEditTime] = useState('');
+  const [editEmoji, setEditEmoji] = useState('📌');
+  const [editAllDay, setEditAllDay] = useState(true);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [comment, setComment] = useState('');
 
   useEffect(() => {
@@ -663,28 +669,35 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
       setEditAssignees(task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []));
       setEditDue(task.dueDate ? task.dueDate.split('T')[0] : '');
       setEditTime(task.dueDate?.includes('T') ? task.dueDate.split('T')[1]?.slice(0, 5) : '');
+      setEditEmoji(task.emoji || '📌');
+      setEditAllDay(!(task.dueDate && task.dueDate.includes('T')));
       setTab(initialTab);
     }
   }, [task?.id, initialTab]);
 
   if (!task) return null;
 
-  const dtxt = dark ? '#efefef' : '#111';
-  const dmuted = dark ? '#666' : '#bbb';
-  const dbdr = dark ? '#2c2c2c' : '#eee';
+  // ── Derived vars (safe to compute now that task exists) ──
+  const dtxt  = dark ? '#efefef' : '#111';
+  const dmuted = dark ? '#666'   : '#bbb';
+  const dbdr  = dark ? '#2c2c2c' : '#eee';
   const dsurf = dark ? '#242424' : '#f8f8f8';
 
   const allUsers = [
     { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
-    ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
+    ...(friends || []).map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
   ];
   const getUserById = uid => allUsers.find(u => u.id === uid) || { id: uid, name: uid, avatar: null };
-  const memberUsers = listMembers.map(uid => allUsers.find(u => u.id === uid)).filter(Boolean);
-
-  const toggleAssignee = uid => setEditAssignees(prev => prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]);
-  const [editEmoji, setEditEmoji] = useState(task?.emoji || '📌');
-  const [editAllDay, setEditAllDay] = useState(!(task?.dueDate && task?.dueDate.includes('T')));
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const memberUsers = (listMembers || []).map(uid => allUsers.find(u => u.id === uid)).filter(Boolean);
+  const toggleAssignee = uid => setEditAssignees(prev =>
+    prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]
+  );
+  const completedByUser = task.completedBy ? getUserById(task.completedBy) : null;
+  const inp = {
+    width: '100%', padding: '12px 14px', borderRadius: 11,
+    border: `1px solid ${dbdr}`, background: dsurf, color: dtxt,
+    fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none',
+  };
 
   const save = () => {
     onSave({
@@ -702,9 +715,6 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
     onUpdate({ ...task, comments: [...task.comments, { id: genId(), userId: currentUser.id, text: comment.trim(), createdAt: ts() }] });
     setComment('');
   };
-
-  const completedByUser = task.completedBy ? getUserById(task.completedBy) : null;
-  const inp = { width: '100%', padding: '12px 14px', borderRadius: 11, border: `1px solid ${dbdr}`, background: dsurf, color: dtxt, fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none' };
 
   return (
     <Drawer open={open} onClose={onClose} maxHeight="92vh" dark={dark}>
@@ -1126,11 +1136,12 @@ export default function MobileApp({ firebaseUser }) {
   }, []);
   const handleTouchEnd = useCallback((e) => {
     if (touchStartX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const endX = e.changedTouches[0].clientX;
+    const dx = endX - touchStartX.current;
     const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
     const screenW = window.innerWidth;
-    // Swipe right: start from left 25% of screen, move >50px right, not mostly vertical
-    if (touchStartX.current < screenW * 0.25 && dx > 50 && dy < 100) {
+    // Start anywhere in left 25%, swipe to at least 50% of screen width, not too vertical
+    if (touchStartX.current < screenW * 0.25 && endX > screenW * 0.5 && dx > 40 && dy < 120) {
       setShowPanel(true);
     }
     touchStartX.current = null;
@@ -1347,30 +1358,24 @@ export default function MobileApp({ firebaseUser }) {
                     <Droppable droppableId="mobile-tasks">
                       {(provided) => (
                         <div {...provided.droppableProps} ref={provided.innerRef}>
-                          {sel.tasks.filter(t => !hideCompleted || !t.completed).map((task, index) => (
+                          {[...sel.tasks.filter(t=>!t.completed),...sel.tasks.filter(t=>t.completed)]
+                            .filter(t => !hideCompleted || !t.completed)
+                            .map((task, index) => (
                             <Draggable key={task.id} draggableId={task.id} index={index}>
                               {(provided, snapshot) => (
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
                                   style={{ ...provided.draggableProps.style, opacity: snapshot.isDragging ? 0.85 : 1 }}
                                 >
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
-                                    {/* Drag handle */}
-                                    <div {...provided.dragHandleProps} style={{
-                                      paddingTop: 16, color: dark?'#444':'#ccc', fontSize: 14,
-                                      cursor: 'grab', flexShrink: 0, userSelect: 'none',
-                                    }}>⠿</div>
-                                    <div style={{ flex: 1 }}>
-                                      <MobileTaskItem
-                                        task={task} currentUser={currentUser}
-                                        dark={dark} friends={friends}
-                                        onToggle={toggleTask} onDelete={deleteTask}
-                                        onReact={reactToTask}
-                                        onOpenDetail={(t, tab) => setTaskDetail({ task: t, initialTab: tab || 'comments' })}
-                                      />
-                                    </div>
-                                  </div>
+                                  <MobileTaskItem
+                                    task={task} currentUser={currentUser}
+                                    dark={dark} friends={friends}
+                                    onToggle={toggleTask} onDelete={deleteTask}
+                                    onReact={reactToTask}
+                                    onOpenDetail={(t, tab) => setTaskDetail({ task: t, initialTab: tab || 'comments' })}
+                                  />
                                 </div>
                               )}
                             </Draggable>

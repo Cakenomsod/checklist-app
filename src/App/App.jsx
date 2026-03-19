@@ -13,7 +13,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 import { createPortal } from 'react-dom';
 import MobileApp from './MobileApp';
-
+  
 // ── Mobile detection ──────────────────────────────────────────────────────────
 const isMobile = () => {
   if (typeof window === 'undefined') return false;
@@ -1142,12 +1142,12 @@ export default function App() {
   const sortedTasks=useMemo(()=>{
     if(!sel) return [];
     let t=[...sel.tasks];
-    if(hideCompleted) t=t.filter(t=>!t.completed);
-    if(sortBy==='priority'){const o={HIGH:0,MED:1,LOW:2};return t.sort((a,b)=>o[a.priority]-o[b.priority]);}
-    if(sortBy==='deadline') return t.sort((a,b)=>{if(!a.dueDate)return 1;if(!b.dueDate)return -1;return new Date(a.dueDate)-new Date(b.dueDate);});
+    if(hideCompleted) t=t.filter(x=>!x.completed);
+    if(sortBy==='priority'){const o={HIGH:0,MED:1,LOW:2};return [...t.filter(x=>!x.completed),...t.filter(x=>x.completed)].sort((a,b)=>a.completed!==b.completed?0:o[a.priority]-o[b.priority]);}
+    if(sortBy==='deadline') return [...t.filter(x=>!x.completed),...t.filter(x=>x.completed)].sort((a,b)=>a.completed&&!b.completed?1:!a.completed&&b.completed?-1:(!a.dueDate?1:!b.dueDate?-1:new Date(a.dueDate)-new Date(b.dueDate)));
     if(sortBy==='completion') return t.sort((a,b)=>Number(a.completed)-Number(b.completed));
-    return t;
-  },[sel,sortBy]);
+    return [...t.filter(x=>!x.completed),...t.filter(x=>x.completed)];
+  },[sel,sortBy,hideCompleted]);
 
   const toggleTask=useCallback((taskId)=>{
     const list=lists.find(l=>l.id===selId); if(!list) return;
@@ -1321,7 +1321,7 @@ export default function App() {
             onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,.05)'}
             onMouseLeave={e => e.currentTarget.style.background='transparent'}
           >
-            <Avatar userId={currentUser.id} size={Math.round(window.innerWidth >= 1920 ? 34 : 30)}/>
+            <Avatar userId={currentUser.id} photoURL={currentUser.avatar} size={Math.round(window.innerWidth >= 1920 ? 34 : 30)}/>
             <div style={{minWidth:0}}>
               <div style={{fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:'clamp(12px,.88vw,15px)',color:'#e8e8e8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{currentUser.name}</div>
               <div style={{fontSize:'clamp(9px,.65vw,11px)',color:'#3a3a3a',marginTop:1}}>logged in</div>
@@ -1540,7 +1540,10 @@ export default function App() {
                       <span style={{fontSize:'clamp(11px,.8vw,13.5px)',color:'rgba(0,0,0,.38)',fontFamily:"'DM Sans',sans-serif"}}>{sel.category}</span>
                       <span style={{color:'rgba(0,0,0,.18)',fontSize:10}}>·</span>
                       <div style={{display:'flex'}}>
-                        {sel.members.map((m,i)=><div key={m} style={{marginLeft:i>0?-5:0}}><Avatar userId={m} size={22}/></div>)}
+                        {(sel.memberIds||sel.members||[]).map((uid,i)=>{
+                          const photo = uid===currentUser.id ? currentUser.avatar : friends.find(f=>f.uid===uid)?.avatar || null;
+                          return <div key={uid} style={{marginLeft:i>0?-5:0}}><Avatar userId={uid} photoURL={photo} size={22}/></div>;
+                        })}
                       </div>
                     </div>
                     <ProgressBar tasks={sel.tasks} dark={false}/>
