@@ -1,17 +1,16 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-
-import { auth } from "./firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import Login from "./login";
-
-import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite, pushActivityToDB, useActivity, updateListOrder } from "./useFirestore";
-import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
-
-import ProfileModal from "./ProfileModal";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-
 import { createPortal } from 'react-dom';
+
+import { auth } from "../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { saveUserProfile, useLists, createListInDB, updateListInDB, deleteListInDB, sendListInvite, useListInvites, acceptListInvite, declineListInvite, pushActivityToDB, useActivity, updateListOrder } from "../useFirestore";
+
 import MobileApp from './MobileApp';
+import Login from "./login";
+import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
+import ProfileModal from "./ProfileModal";
+
 
 // ── Mobile detection ──────────────────────────────────────────────────────────
 const isMobile = () => {

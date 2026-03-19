@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { db } from "./firebase";
 import {
   collection, doc, setDoc, onSnapshot,
-  deleteDoc, getDocs, query, where, serverTimestamp
+  deleteDoc, getDocs, serverTimestamp
 } from "firebase/firestore";
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────

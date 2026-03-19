@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { auth } from "./firebase";
+import { auth } from "../firebase";
 import { updateProfile } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "./firebase";
+import { db } from "../firebase";
 
 export default function ProfileModal({ currentUser, dark, onClose, onUpdate }) {
   const [name, setName] = useState(currentUser.name || '');

@@ -1,12 +1,14 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+
 import { signOut } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth } from "../firebase";
 import {
   useLists,
   updateListInDB, deleteListInDB, sendListInvite,
   useListInvites, acceptListInvite, declineListInvite,
-  pushActivityToDB, useActivity, createListInDB, updateListOrder,
-} from "./useFirestore";
+  pushActivityToDB, useActivity, createListInDB
+} from "../useFirestore";
+
 import FriendPanel, { useFriends, useFriendRequests } from "./FriendSystem";
 import ProfileModal from "./ProfileModal";
 
