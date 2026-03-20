@@ -11,6 +11,9 @@ import FriendPanel, { useFriends, useFriendRequests } from "./page/FriendSystem"
 import ProfileModal from "./page/ProfileModal";
 import MobileCalendar from "./page/MobileCalendar";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { useNotifications } from './function/useNotifications';
+import NotificationManager, { InAppAlertBanner } from './page/NotificationManager';
+
 
 // ── Shared constants (copied from App.jsx) ────────────────────────────────────
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
@@ -659,7 +662,8 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
 };
 
 // ── Task Detail Drawer ────────────────────────────────────────────────────────
-const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers, dark = false, initialTab = 'comments' }) => {
+const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers, dark = false, initialTab = 'comments',
+  onListId, onListName, onGetTaskReminders, onIsPushEnabled, onPermission, onEnablePush, onAddReminder, onRemoveReminder }) => {
   const [tab, setTab] = useState(initialTab);
   const [editText, setEditText] = useState('');
   const [editNotes, setEditNotes] = useState('');
@@ -854,6 +858,25 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
               <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} placeholder="Add notes…" rows={3}
                 style={{ ...inp, resize: 'vertical', lineHeight: 1.5 }} />
             </div>
+            {/* Reminders */}
+            {onGetTaskReminders && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: dmuted, letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>REMINDERS</div>
+                <NotificationManager
+                  task={task}
+                  listId={onListId}
+                  listName={onListName}
+                  dueDate={task.dueDate}
+                  taskReminders={onGetTaskReminders(task.id)}
+                  isPushEnabled={onIsPushEnabled}
+                  permission={onPermission}
+                  onEnablePush={onEnablePush}
+                  onAdd={onAddReminder}
+                  onRemove={onRemoveReminder}
+                  dark={dark}
+                />
+              </div>
+            )}
             {/* Completed by — real photo */}
             {task.completed && completedByUser && (
               <div style={{ background: dark ? '#162218' : '#eef8f1', borderRadius: 11, padding: '11px 14px', display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -1047,6 +1070,13 @@ export default function MobileApp({ firebaseUser }) {
   const friendIds = friends.map(f => f.uid);
   const firestoreActivity = useActivity(firebaseUser?.uid, friendIds);
 
+  // ── Notifications ──────────────────────────────────────────────────────────
+  const {
+    permission, isPushEnabled, inAppAlerts,
+    enablePush, addReminder, removeReminder,
+    removeTaskReminders, dismissAlert, getTaskReminders,
+  } = useNotifications(currentUser.id);
+
   useEffect(() => {
     const sorted = [...firestoreLists].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
     setLists(sorted);
@@ -1111,8 +1141,9 @@ export default function MobileApp({ firebaseUser }) {
   }, [newText, newPrio, newAssignees, newDue, newTime, newAllDay, selId, lists, currentUser, updateList, pushActivity]);
 
   const deleteTask = useCallback((taskId) => {
+    removeTaskReminders(taskId);
     updateList(selId, l => ({ ...l, tasks: l.tasks.filter(t => t.id !== taskId) }));
-  }, [selId, updateList]);
+  }, [selId, updateList, removeTaskReminders]);
 
   const reactToTask = useCallback((taskId, emoji) => {
     updateList(selId, l => ({
@@ -1229,6 +1260,9 @@ export default function MobileApp({ firebaseUser }) {
         listMembers={sel?.memberIds || []}
         dark={dark}
         initialTab={taskDetail?.initialTab || 'comments'}
+        onListId={selId} onListName={sel?.name} onGetTaskReminders={getTaskReminders}
+        onIsPushEnabled={isPushEnabled} onPermission={permission}
+        onEnablePush={enablePush} onAddReminder={addReminder} onRemoveReminder={removeReminder}
       />
 
       {/* List Panel (slide-in drawer) */}
@@ -1641,6 +1675,7 @@ export default function MobileApp({ firebaseUser }) {
         </div>
 
       </div>
+      <InAppAlertBanner alerts={inAppAlerts} onDismiss={dismissAlert} dark={dark}/>
     </>
   );
 }

@@ -14,6 +14,11 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { createPortal } from 'react-dom';
 import MobileApp from './MobileApp';
 
+import { useNotifications } from './function/useNotifications';
+import NotificationManager, { InAppAlertBanner } from './page/NotificationManager';
+
+
+
 // ── Mobile detection ──────────────────────────────────────────────────────────
 const isMobile = () => {
   if (typeof window === 'undefined') return false;
@@ -450,7 +455,8 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
 };
 
 // ── Task Detail Modal ─────────────────────────────────────────────────────────
-const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, onReact, friends=[], listMembers=[], initialTab='comments'}) => {
+const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, onReact, friends=[], listMembers=[], initialTab='comments',
+  onListId, onListName, onGetTaskReminders, onIsPushEnabled, onPermission, onEnablePush, onAddReminder, onRemoveReminder}) => {
   const [comment, setComment] = useState('');
   const [editText, setEditText] = useState(task.text);
   const [editNotes, setEditNotes] = useState(task.notes||'');
@@ -612,6 +618,25 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
                 <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:8,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>NOTES</label>
                 <textarea value={editNotes} onChange={e=>setEditNotes(e.target.value)} placeholder="Add notes…" rows={3} style={{width:'100%',background:dark?'#242424':'#f8f8f8',border:`1px solid ${bdr}`,borderRadius:9,padding:'10px 12px',color:txt,fontSize:13,outline:'none',fontFamily:"'DM Sans',sans-serif",resize:'vertical',lineHeight:1.5,boxSizing:'border-box'}}/>
               </div>
+
+              {onGetTaskReminders && (
+                <div>
+                  <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:8,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>REMINDERS</label>
+                  <NotificationManager
+                    task={task}
+                    listId={onListId}
+                    listName={onListName}
+                    dueDate={task.dueDate}
+                    taskReminders={onGetTaskReminders(task.id)}
+                    isPushEnabled={onIsPushEnabled}
+                    permission={onPermission}
+                    onEnablePush={onEnablePush}
+                    onAdd={onAddReminder}
+                    onRemove={onRemoveReminder}
+                    dark={dark}
+                  />
+                </div>
+              )}
 
               {task.completed&&task.completedBy&&completedByUser&&(
                 <div style={{background:dark?'#162218':'#eef8f1',borderRadius:9,padding:'10px 14px',display:'flex',gap:8,alignItems:'center'}}>
@@ -1107,6 +1132,13 @@ export default function App() {
   const friendIds = friends.map(f => f.uid);
   const firestoreActivity = useActivity(firebaseUser?.uid, friendIds);
 
+  // ── Notifications ──────────────────────────────────────────────────────────
+  const {
+    permission, isPushEnabled, inAppAlerts,
+    enablePush, addReminder, removeReminder,
+    removeTaskReminders, dismissAlert, getTaskReminders,
+  } = useNotifications(currentUser.id);
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
@@ -1187,7 +1219,10 @@ export default function App() {
     setNewText('');setNewDue('');setNewTime('');setNewAllDay(false);setNewAssignees([]);setExpandAdd(false);
   },[newText,newPrio,newAssignees,newDue,newTime,selId,lists,currentUser,updateList,pushActivity]);
 
-  const deleteTask=useCallback((taskId)=>{updateList(selId,l=>({...l,tasks:l.tasks.filter(t=>t.id!==taskId)}));},[selId,updateList]);
+  const deleteTask=useCallback((taskId)=>{
+    removeTaskReminders(taskId);
+    updateList(selId,l=>({...l,tasks:l.tasks.filter(t=>t.id!==taskId)}));
+  },[selId,updateList,removeTaskReminders]);
   const reactToTask=useCallback((taskId,emoji)=>{
     updateList(selId,l=>({...l,tasks:l.tasks.map(t=>{
       if(t.id!==taskId) return t;
@@ -1302,7 +1337,11 @@ export default function App() {
           </div>
         </div>
       )}
-      {taskDetail&&<TaskDetailModal task={taskDetail.task} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onSave={(updatedTask)=>{updateTask(updatedTask);setTaskDetail(null);}} onReact={reactToTask} friends={friends} listMembers={sel?.memberIds||[]} initialTab={taskDetail.initialTab||'comments'}/>}
+      {taskDetail&&<TaskDetailModal task={taskDetail.task} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onSave={(updatedTask)=>{updateTask(updatedTask);setTaskDetail(null);}} onReact={reactToTask} friends={friends} listMembers={sel?.memberIds||[]} initialTab={taskDetail.initialTab||'comments'}
+        onListId={selId} onListName={sel?.name} onGetTaskReminders={getTaskReminders}
+        onIsPushEnabled={isPushEnabled} onPermission={permission}
+        onEnablePush={enablePush} onAddReminder={addReminder} onRemoveReminder={removeReminder}
+      />}
 
       <div style={{display:'flex',height:'100vh',background:bg,fontFamily:"'DM Sans',sans-serif",overflow:'hidden',position:'relative'}}>
 
@@ -1764,6 +1803,7 @@ export default function App() {
           )}
         </div>
       </div>
+      <InAppAlertBanner alerts={inAppAlerts} onDismiss={dismissAlert} dark={dark}/>
     </>
   );
 }

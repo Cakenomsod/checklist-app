@@ -30,3 +30,4 @@ dist-ssr
 # Environment
 .env
 .env.local
+functions/.env
