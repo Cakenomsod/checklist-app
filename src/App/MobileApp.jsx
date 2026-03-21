@@ -39,18 +39,22 @@ const timeAgo = (iso) => {
 const fmtDate = (ds) => {
   if (!ds) return null;
   const date = new Date(ds);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const target = new Date(ds);
-  target.setHours(0, 0, 0, 0);
-
-  const diff = Math.floor((target - today) / 86400000);
-  const timeStr = ds.includes('T') ? ` ${date.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}` : '';
-  if (diff < 0)  return { label: `Overdue${timeStr}`, urgent: true };
-  if (diff === 0) return { label: `Today${timeStr}`, urgent: true };
-  if (diff === 1) return { label: `Tomorrow${timeStr}`, urgent: false };
+  const hasTime = ds.includes('T');
+  const timeStr = hasTime ? ` ${date.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}` : '';
+  const todayStr = new Date().toISOString().split('T')[0];
+  const dateStr  = ds.split('T')[0];
+  if (!hasTime) {
+    if (dateStr < todayStr) return { label: 'Overdue', urgent: true };
+    if (dateStr === todayStr) return { label: 'Today', urgent: true };
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+    if (dateStr === tomorrow.toISOString().split('T')[0]) return { label: 'Tomorrow', urgent: false };
+    return { label: date.toLocaleDateString('en',{month:'short',day:'numeric'}), urgent: false };
+  }
+  const now = new Date();
+  if (date < now)  return { label: `Overdue${timeStr}`, urgent: true };
+  if (dateStr === todayStr) return { label: `Today${timeStr}`, urgent: true };
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  if (dateStr === tomorrow.toISOString().split('T')[0]) return { label: `Tomorrow${timeStr}`, urgent: false };
   return { label: `${date.toLocaleDateString('en',{month:'short',day:'numeric'})}${timeStr}`, urgent: false };
 };
 
@@ -186,160 +190,141 @@ const Drawer = ({ open, onClose, children, title, maxHeight = '85vh', dark = fal
 };
 
 // ── Task row (mobile-optimised) ───────────────────────────────────────────────
-const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggle, onDelete, onReact, onOpenDetail }) => {
+const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggle, onDelete, onReact, onOpenDetail, onUpdateTask }) => {
   const di = fmtDate(task.dueDate);
   const [showRx, setShowRx] = useState(false);
-  const cardBg = dark ? '#1e1e1e' : '#fff';
-  const cardTxt = dark ? '#efefef' : '#111';
-  const cardMuted = dark ? '#666' : '#bbb';
-  const cardBdr = dark ? '#2c2c2c' : '#ebebeb';
+  const [expanded, setExpanded] = useState(false);
+
+  const bg    = dark ? '#1e1e1e' : '#fff';
+  const txt   = dark ? '#efefef' : '#111';
+  const muted = dark ? '#555'   : '#bbb';
+  const bdr   = dark ? '#2c2c2c' : '#ececec';
 
   const allUsers = [
     { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
-    ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
+    ...(friends || []).map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
   ];
-  const getUserById = uid => allUsers.find(u => u.id === uid) || { id: uid, name: uid, avatar: null };
-  const assigneeIds = task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []);
+  const getUserById = (uid) => allUsers.find(u => u.id === uid) || { id: uid, name: uid, avatar: null };
+  const assignees = task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []);
 
   return (
-    <div
-      onClick={() => onOpenDetail(task, 'comments')}
-      style={{
-        background: cardBg, borderRadius: 12, padding: '13px 15px',
-        marginBottom: 8, boxShadow: dark ? '0 1px 4px rgba(0,0,0,.3)' : '0 1px 4px rgba(0,0,0,.06)',
-        display: 'flex', gap: 12, alignItems: 'flex-start',
-        opacity: task.completed ? .6 : 1, transition: 'opacity .2s',
-        position: 'relative', cursor: 'pointer',
-      }}>
-      {/* Checkbox */}
-      <button onClick={e => { e.stopPropagation(); onToggle(task.id); }} style={{
-        width: 26, height: 26, borderRadius: 8, flexShrink: 0, marginTop: 1,
-        border: `2px solid ${task.completed ? (dark ? '#ccc' : '#111') : (dark ? '#3a3a3a' : '#d0d0d0')}`,
-        background: task.completed ? (dark ? '#ccc' : '#111') : 'transparent',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        cursor: 'pointer', transition: 'all .15s', padding: 0,
-      }}>
-        {task.completed && <span style={{ fontSize: 12, color: dark ? '#111' : '#fff', fontWeight: 800, lineHeight: 1 }}>✓</span>}
-      </button>
+    <div style={{
+      background: bg, borderRadius: 14, marginBottom: 8,
+      border: `1px solid ${bdr}`,
+      borderLeft: `3px solid ${P_COLOR[task.priority] || P_COLOR.MED}`,
+      overflow: 'hidden',
+      opacity: task.completed ? 0.72 : 1,
+      transition: 'opacity .2s',
+    }}>
+      {/* Main row */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px' }}>
+        {/* Checkbox */}
+        <button
+          onClick={() => onToggle(task.id)}
+          style={{
+            width: 24, height: 24, borderRadius: 7, flexShrink: 0,
+            border: `2px solid ${task.completed ? (dark ? '#ccc' : '#333') : '#d0d0d0'}`,
+            background: task.completed ? (dark ? '#ccc' : '#111') : 'transparent',
+            cursor: 'pointer', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', padding: 0, marginTop: 1,
+          }}
+        >
+          {task.completed && <span style={{ fontSize: 12, color: dark ? '#111' : '#fff', fontWeight: 800 }}>&#10003;</span>}
+        </button>
 
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Title row */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, flexWrap: 'wrap', marginBottom: 5 }}>
-          {task.emoji && <span style={{ fontSize: 15, lineHeight: 1.4, flexShrink: 0 }}>{task.emoji}</span>}
-          <span style={{
-            fontFamily: "'DM Sans',sans-serif", fontWeight: 500, fontSize: 15,
-            color: task.completed ? cardMuted : cardTxt,
-            textDecoration: task.completed ? 'line-through' : 'none',
-            flex: 1, minWidth: 0, wordBreak: 'break-word', whiteSpace: 'pre-wrap',
-          }}>{task.text}</span>
-        </div>
-
-        {/* Meta row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
-          <PBadge p={task.priority} />
-          {di && (
+        {/* Content */}
+        <div style={{ flex: 1, minWidth: 0 }} onClick={() => onOpenDetail(task, 'subtasks')}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+            {task.emoji && <span style={{ fontSize: 15, lineHeight: 1 }}>{task.emoji}</span>}
             <span style={{
-              fontSize: 11, padding: '2px 8px', borderRadius: 20,
-              background: di.urgent ? (dark ? '#3a1010' : '#FFF0F0') : (dark ? '#242424' : '#f5f5f5'),
-              color: di.urgent ? (dark ? '#ff8080' : '#d44') : cardMuted,
-              fontFamily: "'DM Sans',sans-serif",
-            }}>{di.label}</span>
-          )}
-        </div>
-
-        {/* Assignees with avatar + name */}
-        {!task.completed && assigneeIds.length > 0 && (
-          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 4 }}>
-            {assigneeIds.slice(0, 3).map(uid => {
-              const u = getUserById(uid);
-              return (
-                <div key={uid} style={{ display: 'flex', alignItems: 'center', gap: 4, background: dark ? '#2a2a2a' : '#f5f5f5', borderRadius: 99, padding: '2px 8px 2px 3px' }}>
-                  {u.avatar
-                    ? <img src={u.avatar} style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover' }} alt="" />
-                    : <div style={{ width: 16, height: 16, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8 }}>👤</div>
-                  }
-                  <span style={{ fontSize: 11, color: cardMuted, fontFamily: "'DM Sans',sans-serif" }}>{u.name}</span>
-                </div>
-              );
-            })}
-            {assigneeIds.length > 3 && <span style={{ fontSize: 11, color: cardMuted }}>+{assigneeIds.length - 3}</span>}
+              fontFamily: "'DM Sans',sans-serif", fontSize: 15.5, fontWeight: 500,
+              color: task.completed ? muted : txt,
+              textDecoration: task.completed ? 'line-through' : 'none',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>{task.text}</span>
           </div>
-        )}
-        {task.completed && task.completedBy && (() => {
-          const u = getUserById(task.completedBy);
-          return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
-              {u.avatar
-                ? <img src={u.avatar} style={{ width: 14, height: 14, borderRadius: '50%', objectFit: 'cover' }} alt="" />
-                : <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#c8eed3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7 }}>✓</div>
-              }
-              <span style={{ fontSize: 11, color: '#5a9e6f', fontFamily: "'DM Sans',sans-serif" }}>{u.name} · done</span>
-            </div>
-          );
-        })()}
 
-        {/* Reactions + comments */}
-        {(Object.values(task.reactions).some(a => a.length > 0) || task.comments.length > 0) && (
-          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-            {REACTIONS_LIST.map(em => {
-              const us = task.reactions[em] || [];
-              return us.length > 0 ? (
-                <button key={em} onClick={e => { e.stopPropagation(); onReact(task.id, em); }} style={{
-                  background: us.includes(currentUser.id) ? (dark ? '#2a2a2a' : '#f0f0f0') : 'transparent',
-                  border: `1px solid ${cardBdr}`, borderRadius: 99,
-                  padding: '2px 8px', fontSize: 12, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 2, color: cardTxt,
-                }}>{em}<span style={{ fontSize: 11 }}>{us.length}</span></button>
-              ) : null;
-            })}
-            {task.comments.length > 0 && (
-              <button onClick={e => { e.stopPropagation(); onOpenDetail(task, 'comments'); }} style={{
-                background: 'none', border: 'none', color: cardMuted,
-                fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
-              }}>💬 {task.comments.length}</button>
+          {/* Badges row */}
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
+            <PBadge p={task.priority} />
+            {di && (
+              <span style={{
+                fontSize: 11, fontWeight: 600, padding: '2px 7px', borderRadius: 99,
+                color: di.urgent ? '#d44' : muted,
+                background: di.urgent ? (dark ? '#2a1a1a' : '#fff0f0') : 'transparent',
+                fontFamily: "'DM Sans',sans-serif",
+              }}>{di.label}</span>
+            )}
+            {assignees.length > 0 && (
+              <div style={{ display: 'flex' }}>
+                {assignees.slice(0, 3).map((uid, i) => {
+                  const u = getUserById(uid);
+                  return u.avatar
+                    ? <img key={uid} src={u.avatar} style={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${bg}`, marginLeft: i > 0 ? -4 : 0 }} alt="" />
+                    : <div key={uid} style={{ width: 18, height: 18, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1.5px solid ${bg}`, marginLeft: i > 0 ? -4 : 0 }}>&#128100;</div>;
+                })}
+              </div>
+            )}
+            {/* Reactions summary */}
+            {Object.entries(task.reactions || {}).some(([, us]) => us.length > 0) && (
+              <div style={{ display: 'flex', gap: 3 }}>
+                {Object.entries(task.reactions).filter(([, us]) => us.length > 0).slice(0, 3).map(([em, us]) => (
+                  <span key={em} style={{ fontSize: 12, color: muted }}>{em}{us.length > 1 ? us.length : ''}</span>
+                ))}
+              </div>
             )}
           </div>
-        )}
+        </div>
+
+        {/* Expand toggle */}
+        <button onClick={() => setExpanded(v => !v)} style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: muted, fontSize: 18, lineHeight: 1, padding: '2px 4px', flexShrink: 0,
+        }}>{expanded ? '▴' : '•••'}</button>
       </div>
 
-      {/* Action buttons */}
-      <div onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-        <button onClick={e => { e.stopPropagation(); setShowRx(v => !v); }} style={{
-          background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
-          width: 34, height: 34, cursor: 'pointer', fontSize: 14,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>😊</button>
-        <button onClick={e => { e.stopPropagation(); onOpenDetail(task, 'detail'); }} style={{
-          background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 8,
-          width: 34, height: 34, cursor: 'pointer', fontSize: 16,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: cardMuted,
-        }}>···</button>
-        <button onClick={e => { e.stopPropagation(); onDelete(task.id); }} style={{
-          background: dark ? '#3a1010' : '#fff0f0', border: 'none', borderRadius: 8,
-          width: 34, height: 34, cursor: 'pointer', fontSize: 16,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d44',
-        }}>×</button>
-      </div>
-
-      {/* Reaction picker */}
-      {showRx && (
-        <div onClick={e => e.stopPropagation()} style={{
-          position: 'absolute', right: 8, top: 54, zIndex: 200,
-          background: dark ? '#1e1e1e' : '#fff', border: `1px solid ${cardBdr}`, borderRadius: 12,
-          padding: '8px 10px', display: 'flex', gap: 6,
-          boxShadow: dark ? '0 8px 24px rgba(0,0,0,.5)' : '0 8px 24px rgba(0,0,0,.12)',
+      {/* Expanded actions */}
+      {expanded && (
+        <div style={{
+          padding: '8px 14px 12px',
+          borderTop: `1px solid ${bdr}`,
+          display: 'flex', gap: 7, flexWrap: 'wrap',
+          animation: 'fadeUp .15s ease-out',
         }}>
-          {REACTIONS_LIST.map(em => (
-            <button key={em} onClick={e => { e.stopPropagation(); onReact(task.id, em); setShowRx(false); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, padding: '2px 3px', borderRadius: 8 }}
-            >{em}</button>
-          ))}
+          {/* Reactions */}
+          <div style={{ display: 'flex', gap: 5, flex: 1, flexWrap: 'wrap' }}>
+            {REACTIONS_LIST.map(em => {
+              const us = task.reactions?.[em] || [];
+              const active = us.includes(currentUser.id);
+              return (
+                <button key={em} onClick={() => onReact(task.id, em)} style={{
+                  background: active ? (dark ? '#2a2a2a' : '#f0f0f0') : 'transparent',
+                  border: `1.5px solid ${active ? (dark ? '#444' : '#ddd') : bdr}`,
+                  borderRadius: 99, padding: '5px 10px',
+                  cursor: 'pointer', fontSize: 14,
+                  display: 'flex', gap: 4, alignItems: 'center',
+                }}>{em}{us.length > 0 && <span style={{ fontSize: 11, color: muted }}>{us.length}</span>}</button>
+              );
+            })}
+          </div>
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
+            <button onClick={() => onOpenDetail(task, 'detail')} style={{
+              background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 9,
+              padding: '7px 13px', cursor: 'pointer', fontSize: 13,
+              color: txt, fontFamily: "'DM Sans',sans-serif",
+            }}>Edit</button>
+            <button onClick={() => onDelete(task.id)} style={{
+              background: 'rgba(200,50,50,.1)', color: '#c0392b', border: 'none',
+              borderRadius: 9, padding: '7px 13px', cursor: 'pointer', fontSize: 13,
+              fontFamily: "'DM Sans',sans-serif",
+            }}>Delete</button>
+          </div>
         </div>
       )}
     </div>
   );
 };
-
 
 // ── List selector panel (slide-in from left) ──────────────────────────────────
 const ListPanel = ({ open, onClose, lists, selId, onSelect, onNewList, dark, currentUser, friends = [] }) => {
@@ -516,7 +501,7 @@ const AISuggestions = ({ listName, onAddTask, onClose }) => {
 };
 
 // ── Create / Edit List drawer (mobile) ───────────────────────────────────────
-const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreate, onSave, onDelete }) => {
+const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreate, onSave, onDelete, dark = false }) => {
   const isEdit = !!existing;
   const [name, setName] = useState(existing?.name || '');
   const [cat, setCat] = useState(existing?.category || 'Personal');
@@ -558,11 +543,16 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
     onClose();
   };
 
-  const inp = { width: '100%', padding: '13px 15px', borderRadius: 11, border: '1px solid #eee', background: '#f8f8f8', color: '#111', fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none', boxSizing: 'border-box' };
-  const lbl = { fontSize: 11, fontWeight: 700, color: '#bbb', letterSpacing: '.08em', marginBottom: 7, fontFamily: "'DM Sans',sans-serif" };
+  const drawerTxt   = dark ? '#efefef' : '#111';
+  const drawerMuted = dark ? '#666'   : '#bbb';
+  const drawerBdr   = dark ? '#2c2c2c' : '#eee';
+  const drawerSurf  = dark ? '#2a2a2a' : '#f8f8f8';
+
+  const inp = { width: '100%', padding: '13px 15px', borderRadius: 11, border: `1px solid ${drawerBdr}`, background: drawerSurf, color: drawerTxt, fontFamily: "'DM Sans',sans-serif", fontSize: 15, outline: 'none', boxSizing: 'border-box' };
+  const lbl = { fontSize: 11, fontWeight: 700, color: drawerMuted, letterSpacing: '.08em', marginBottom: 7, fontFamily: "'DM Sans',sans-serif" };
 
   return (
-    <Drawer open={open} onClose={onClose} title={isEdit ? 'Edit List' : 'New List'} maxHeight="94vh">
+    <Drawer open={open} onClose={onClose} title={isEdit ? 'Edit List' : 'New List'} maxHeight="94vh" dark={dark}>
       <div style={{ padding: '4px 20px 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Name */}
@@ -578,9 +568,9 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
             {allCats.map(c => (
               <button key={c} onClick={() => setCat(c)} style={{
                 padding: '7px 14px', borderRadius: 99, fontSize: 13, cursor: 'pointer', fontWeight: 600,
-                border: `1.5px solid ${cat === c ? '#111' : '#ddd'}`,
-                background: cat === c ? '#111' : 'transparent',
-                color: cat === c ? '#fff' : '#888',
+                border: `1.5px solid ${cat === c ? drawerTxt : drawerBdr}`,
+                background: cat === c ? drawerTxt : 'transparent',
+                color: cat === c ? (dark ? '#111' : '#fff') : drawerMuted,
               }}>{c}</button>
             ))}
           </div>
@@ -589,10 +579,10 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
                 <input value={customCat} onChange={e => setCustomCat(e.target.value)} placeholder="Custom…" style={{ ...inp, flex: 1, padding: '10px 13px', fontSize: 14 }}
                   onKeyDown={e => { if (e.key === 'Enter' && customCat.trim()) { setCat(customCat.trim()); setShowCustomCat(false); } }} autoFocus />
                 <button onClick={() => { if (customCat.trim()) setCat(customCat.trim()); setShowCustomCat(false); }}
-                  style={{ padding: '10px 16px', borderRadius: 11, background: '#111', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 14 }}>Add</button>
+                  style={{ padding: '10px 16px', borderRadius: 11, background: drawerTxt, color: dark ? '#111' : '#fff', border: 'none', cursor: 'pointer', fontSize: 14 }}>Add</button>
               </div>
             : <button onClick={() => setShowCustomCat(true)}
-                style={{ fontSize: 13, color: '#bbb', background: 'none', border: '1px dashed #ddd', borderRadius: 9, padding: '7px 14px', cursor: 'pointer' }}>+ Custom</button>
+                style={{ fontSize: 13, color: drawerMuted, background: 'none', border: `1px dashed ${drawerBdr}`, borderRadius: 9, padding: '7px 14px', cursor: 'pointer' }}>+ Custom</button>
           }
         </div>
 
@@ -603,7 +593,7 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
             {allColors.map(c => (
               <button key={c} onClick={() => setColor(c)} style={{
                 width: 34, height: 34, borderRadius: '50%', background: c, border: 'none',
-                outline: color === c ? '3px solid #111' : '2px solid transparent',
+                outline: color === c ? `3px solid ${drawerTxt}` : '2px solid transparent',
                 outlineOffset: 2, cursor: 'pointer',
               }} />
             ))}
@@ -611,11 +601,11 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
             <div style={{ position: 'relative', width: 34, height: 34 }}>
               <input type="color" value={customColor} onChange={e => setCustomColor(e.target.value)}
                 style={{ width: 34, height: 34, padding: 0, opacity: 0, position: 'absolute', inset: 0, cursor: 'pointer', borderRadius: '50%' }} />
-              <div style={{ width: 34, height: 34, borderRadius: '50%', border: '2px dashed #ccc', background: 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>+</div>
+              <div style={{ width: 34, height: 34, borderRadius: '50%', border: `2px dashed ${drawerBdr}`, background: 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)', pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>+</div>
             </div>
             {customColor !== '#ffffff' && !allColors.includes(customColor) && (
               <button onClick={() => { setExtraColors(p => [...p, customColor]); setColor(customColor); }}
-                style={{ width: 34, height: 34, borderRadius: '50%', background: customColor, border: '3px solid #111', cursor: 'pointer', outline: 'none' }} />
+                style={{ width: 34, height: 34, borderRadius: '50%', background: customColor, border: `3px solid ${drawerTxt}`, cursor: 'pointer', outline: 'none' }} />
             )}
           </div>
         </div>
@@ -623,21 +613,21 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
         {/* Friends / members */}
         {friends.length > 0 && (
           <div>
-            <div style={lbl}>{isEdit ? 'MEMBERS' : 'INVITE FRIENDS'} <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: '#bbb' }}>— adds to Group</span></div>
+            <div style={lbl}>{isEdit ? 'MEMBERS' : 'INVITE FRIENDS'} <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: drawerMuted }}>— adds to Group</span></div>
             {friends.map(f => (
               <div key={f.uid} onClick={() => toggleFriend(f.uid)} style={{
                 display: 'flex', alignItems: 'center', gap: 12, padding: '11px 13px',
                 borderRadius: 11, cursor: 'pointer', marginBottom: 4,
-                background: selFriends.includes(f.uid) ? '#f2f2f2' : 'transparent',
+                background: selFriends.includes(f.uid) ? (dark ? '#2a2a2a' : '#f2f2f2') : 'transparent',
               }}>
                 {f.avatar
                   ? <img src={f.avatar} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} alt="" />
-                  : <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>👤</div>
+                  : <div style={{ width: 36, height: 36, borderRadius: '50%', background: dark ? '#2a3a4a' : '#dde8f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>👤</div>
                 }
-                <span style={{ flex: 1, fontSize: 15, color: '#111', fontFamily: "'DM Sans',sans-serif" }}>{f.name}</span>
+                <span style={{ flex: 1, fontSize: 15, color: drawerTxt, fontFamily: "'DM Sans',sans-serif" }}>{f.name}</span>
                 {selFriends.includes(f.uid)
                   ? <span style={{ color: '#3a8f56', fontWeight: 700, fontSize: 18 }}>✓</span>
-                  : <span style={{ color: '#bbb', fontSize: 14 }}>+ Add</span>
+                  : <span style={{ color: drawerMuted, fontSize: 14 }}>+ Add</span>
                 }
               </div>
             ))}
@@ -645,18 +635,18 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
         )}
 
         <button onClick={handleSubmit} style={{
-          width: '100%', padding: '15px', borderRadius: 13, background: '#111',
-          color: '#fff', border: 'none', cursor: 'pointer',
+          width: '100%', padding: '15px', borderRadius: 13, background: drawerTxt,
+          color: dark ? '#111' : '#fff', border: 'none', cursor: 'pointer',
           fontFamily: "'DM Sans',sans-serif", fontSize: 16, fontWeight: 600,
         }}>{isEdit ? 'Save Changes' : 'Create List'}</button>
 
         {/* Delete — only in edit mode, behind confirm */}
         {isEdit && onDelete && (
-          <div style={{ borderTop: '1px solid #eee', paddingTop: 12 }}>
+          <div style={{ borderTop: `1px solid ${drawerBdr}`, paddingTop: 12 }}>
             {!confirmDelete
               ? <button onClick={() => setConfirmDelete(true)} style={{ width: '100%', padding: '14px', borderRadius: 13, background: 'rgba(200,50,50,.06)', border: '1px solid rgba(200,50,50,.15)', color: '#c0392b', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15 }}>Delete this list</button>
               : <div style={{ display: 'flex', gap: 9 }}>
-                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: '14px', borderRadius: 13, background: '#f2f2f2', color: '#333', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15 }}>Cancel</button>
+                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: '14px', borderRadius: 13, background: dark ? '#2a2a2a' : '#f2f2f2', color: drawerTxt, border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15 }}>Cancel</button>
                   <button onClick={() => { onDelete(existing.id); onClose(); }} style={{ flex: 1, padding: '14px', borderRadius: 13, background: '#c0392b', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 600 }}>Confirm Delete</button>
                 </div>
             }
@@ -669,7 +659,7 @@ const ListFormDrawer = ({ open, onClose, existing, currentUser, friends, onCreat
 };
 
 // ── Task Detail Drawer ────────────────────────────────────────────────────────
-const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers, dark = false, initialTab = 'comments',
+const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, onReact, friends, listMembers, dark = false, initialTab = 'subtasks',
   onListId, onListName, onGetTaskReminders, onIsPushEnabled, onPermission, onEnablePush, onAddReminder, onRemoveReminder }) => {
   const [tab, setTab] = useState(initialTab);
   const [editText, setEditText] = useState('');
@@ -682,6 +672,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
   const [editAllDay, setEditAllDay] = useState(true);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [comment, setComment] = useState('');
+  const [newSubtask, setNewSubtask] = useState('');
 
   useEffect(() => {
     if (task) {
@@ -739,6 +730,18 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
     setComment('');
   };
 
+  const addSubtask = () => {
+    if (!newSubtask.trim()) return;
+    onUpdate({ ...task, subtasks: [...(task.subtasks || []), { id: genId(), text: newSubtask.trim(), completed: false, createdAt: ts() }] });
+    setNewSubtask('');
+  };
+  const toggleSubtask = (stId) => {
+    onUpdate({ ...task, subtasks: (task.subtasks || []).map(s => s.id === stId ? { ...s, completed: !s.completed } : s) });
+  };
+  const deleteSubtask = (stId) => {
+    onUpdate({ ...task, subtasks: (task.subtasks || []).filter(s => s.id !== stId) });
+  };
+
   return (
     <Drawer open={open} onClose={onClose} maxHeight="92vh" dark={dark}>
       {/* Task title with emoji picker */}
@@ -774,20 +777,70 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
         </div>
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${dbdr}`, marginTop: 10 }}>
-          {['comments', 'detail'].map(t => (
+          {['subtasks', 'comments', 'detail'].map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              padding: '10px 18px', fontFamily: "'DM Sans',sans-serif", fontSize: 14,
+              padding: '10px 14px', fontFamily: "'DM Sans',sans-serif", fontSize: 13.5,
               fontWeight: tab === t ? 600 : 400, color: tab === t ? dtxt : dmuted,
               borderBottom: tab === t ? `2px solid ${dtxt}` : '2px solid transparent',
             }}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}{t === 'comments' && task.comments.length > 0 ? ` (${task.comments.length})` : ''}
+              {t === 'subtasks' ? `Subtasks${task.subtasks?.length > 0 ? ` ${task.subtasks.filter(s=>s.completed).length}/${task.subtasks.length}` : ''}`
+               : t === 'comments' ? `Comments${task.comments.length > 0 ? ` (${task.comments.length})` : ''}`
+               : 'Detail'}
             </button>
           ))}
         </div>
       </div>
 
       <div style={{ padding: '16px 20px 32px' }}>
+        {tab === 'subtasks' && (
+          <div style={{ padding: '16px 20px 32px' }}>
+            {(task.subtasks || []).length === 0 && (
+              <p style={{ color: dmuted, fontSize: 14, fontFamily: "'DM Sans',sans-serif", padding: '8px 0' }}>No steps yet — add one below.</p>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+              {(task.subtasks || []).map(st => (
+                <div key={st.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '11px 14px', background: dark ? '#1e1e1e' : '#f8f8f8',
+                  borderRadius: 11, border: `1px solid ${dbdr}`,
+                }}>
+                  <button onClick={() => toggleSubtask(st.id)} style={{
+                    width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                    border: `2px solid ${st.completed ? (dark ? '#ccc' : '#333') : (dark ? '#3a3a3a' : '#d0d0d0')}`,
+                    background: st.completed ? (dark ? '#ccc' : '#111') : 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0,
+                  }}>
+                    {st.completed && <span style={{ fontSize: 11, color: dark ? '#111' : '#fff', fontWeight: 800 }}>✓</span>}
+                  </button>
+                  <span style={{
+                    flex: 1, fontSize: 15, color: st.completed ? dmuted : dtxt,
+                    textDecoration: st.completed ? 'line-through' : 'none',
+                    fontFamily: "'DM Sans',sans-serif",
+                  }}>{st.text}</span>
+                  <button onClick={() => deleteSubtask(st.id)} style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: dark ? '#444' : '#ccc', fontSize: 20, lineHeight: 1, padding: '0 3px',
+                  }}>×</button>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 9 }}>
+              <input value={newSubtask} onChange={e => setNewSubtask(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') addSubtask(); }}
+                placeholder="Add a step…" autoFocus
+                style={{ ...inp, flex: 1, fontSize: 15 }} />
+              {newSubtask && (
+                <button onClick={addSubtask} style={{
+                  background: '#111', color: '#fff', border: 'none', borderRadius: 11,
+                  padding: '12px 18px', cursor: 'pointer', fontSize: 15,
+                  fontFamily: "'DM Sans',sans-serif", fontWeight: 600, flexShrink: 0,
+                }}>Add</button>
+              )}
+            </div>
+          </div>
+        )}
+
         {tab === 'detail' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* Priority */}
@@ -1043,7 +1096,7 @@ export default function MobileApp({ firebaseUser }) {
   });
   useEffect(() => { try { localStorage.setItem('checkmate-dark', dark); } catch {} }, [dark]);
   const [tab, setTab] = useState('lists');
-  const [showPanel, setShowPanel] = useState(true);  // เปิด list panel ตอนเริ่ม
+  const [showPanel, setShowPanel] = useState(false);  // เปิด list panel เมื่อกด hamburger
   const [showCreate, setShowCreate] = useState(false);
   const [editingList, setEditingList] = useState(null);
   const [taskDetail, setTaskDetail] = useState(null);
@@ -1053,7 +1106,7 @@ export default function MobileApp({ firebaseUser }) {
   const [newAssignees, setNewAssignees] = useState([]);
   const [newDue, setNewDue] = useState('');
   const [newTime, setNewTime] = useState('');
-  const [newAllDay, setNewAllDay] = useState(false);
+  const [newAllDay, setNewAllDay] = useState(true);
   const [expandAdd, setExpandAdd] = useState(false);
   const [hideCompleted, setHideCompleted] = useState(false);
   const [showAI, setShowAI] = useState(false);
@@ -1221,12 +1274,12 @@ export default function MobileApp({ firebaseUser }) {
       <ListFormDrawer
         open={showCreate} onClose={() => setShowCreate(false)}
         existing={null} currentUser={currentUser} friends={friends}
-        onCreate={createList}
+        onCreate={createList} dark={dark}
       />
       <ListFormDrawer
         open={!!editingList} onClose={() => setEditingList(null)}
         existing={editingList} currentUser={currentUser} friends={friends}
-        onDelete={deleteList}
+        onDelete={deleteList} dark={dark}
         onSave={(updated) => { updateList(updated.id, () => updated); setEditingList(null); }}
       />
       {showProfile && (
@@ -1266,7 +1319,7 @@ export default function MobileApp({ firebaseUser }) {
         friends={friends}
         listMembers={sel?.memberIds || []}
         dark={dark}
-        initialTab={taskDetail?.initialTab || 'comments'}
+        initialTab={taskDetail?.initialTab || 'subtasks'}
         onListId={selId} onListName={sel?.name} onGetTaskReminders={getTaskReminders}
         onIsPushEnabled={isPushEnabled} onPermission={permission}
         onEnablePush={enablePush} onAddReminder={addReminder} onRemoveReminder={removeReminder}
@@ -1439,7 +1492,8 @@ export default function MobileApp({ firebaseUser }) {
                                     dark={dark} friends={friends}
                                     onToggle={toggleTask} onDelete={deleteTask}
                                     onReact={reactToTask}
-                                    onOpenDetail={(t, tab) => setTaskDetail({ task: t, initialTab: tab || 'comments' })}
+                                    onOpenDetail={(t, tab) => setTaskDetail({ task: t, initialTab: tab || 'subtasks' })}
+                                    onUpdateTask={updateTask}
                                   />
                                 </div>
                               )}

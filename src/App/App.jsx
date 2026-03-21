@@ -182,21 +182,25 @@ const timeAgo = (iso) => {
 };
 
 const fmtDate = (ds) => {
-  if (!ds) return null;
+  if(!ds) return null;
   const date = new Date(ds);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const target = new Date(ds);
-  target.setHours(0, 0, 0, 0);
-
-  const diff = Math.floor((target - today) / 86400000);
-  const timeStr = ds.includes('T') ? ` ${date.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}` : '';
-  if(diff<0)  return {label:`Overdue${timeStr}`, urgent:true};
-  if(diff===0) return {label:`Today${timeStr}`, urgent:true};
-  if(diff===1) return {label:`Tomorrow${timeStr}`, urgent:false};
-  return {label:`${new Date(ds).toLocaleDateString('en',{month:'short',day:'numeric'})}${timeStr}`, urgent:false};
+  const hasTime = ds.includes('T');
+  const timeStr = hasTime ? ` ${date.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}` : '';
+  const todayStr = new Date().toISOString().split('T')[0];
+  const dateStr  = ds.split('T')[0];
+  if (!hasTime) {
+    if (dateStr < todayStr) return {label:'Overdue', urgent:true};
+    if (dateStr === todayStr) return {label:'Today', urgent:true};
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+    if (dateStr === tomorrow.toISOString().split('T')[0]) return {label:'Tomorrow', urgent:false};
+    return {label:date.toLocaleDateString('en',{month:'short',day:'numeric'}), urgent:false};
+  }
+  const now = new Date();
+  if (date < now)  return {label:`Overdue${timeStr}`, urgent:true};
+  if (dateStr === todayStr) return {label:`Today${timeStr}`, urgent:true};
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  if (dateStr === tomorrow.toISOString().split('T')[0]) return {label:`Tomorrow${timeStr}`, urgent:false};
+  return {label:`${date.toLocaleDateString('en',{month:'short',day:'numeric'})}${timeStr}`, urgent:false};
 };
 const GCSS = `
   @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
@@ -346,27 +350,40 @@ const ProgressBar = ({tasks,dark}) => {
 };
 
 // ── Task Item ─────────────────────────────────────────────────────────────────
-const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,onOpenDetail}) => {
+const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,onOpenDetail,onUpdateTask}) => {
   const [hov,setHov]=useState(false);
   const [showRx,setShowRx]=useState(false);
+  const [expanded,setExpanded]=useState(false);
   const surface=dark?'#1e1e1e':'#fff', bdr=dark?'#2c2c2c':'#f0f0f0';
   const txt=dark?'#efefef':'#111', muted=dark?'#555':'#bbb';
   const di=fmtDate(task.dueDate);
+  const subtasks=task.subtasks||[];
 
-  // Build a real user lookup from currentUser + friends
   const allUsers = [
     { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
     ...friends.map(f => ({ id: f.uid, name: f.name, avatar: f.avatar })),
   ];
   const getUserById = (uid) => allUsers.find(u => u.id === uid) || { id: uid, name: uid, avatar: null };
-
   const assigneeIds = task.assignees?.length > 0 ? task.assignees : (task.assignee ? [task.assignee] : []);
+
+  const toggleSubtask = (stId) => {
+    if(!onUpdateTask) return;
+    onUpdateTask({...task, subtasks: subtasks.map(s=>s.id===stId?{...s,completed:!s.completed}:s)});
+  };
+  const deleteSubtask = (stId) => {
+    if(!onUpdateTask) return;
+    onUpdateTask({...task, subtasks: subtasks.filter(s=>s.id!==stId)});
+  };
+
+  const doneSubs = subtasks.filter(s=>s.completed).length;
+  const totalSubs = subtasks.length;
+  const pct = totalSubs===0 ? 0 : Math.round((doneSubs/totalSubs)*100);
 
   return (
     <div
       onMouseEnter={()=>setHov(true)}
       onMouseLeave={()=>{setHov(false);setShowRx(false);}}
-      onClick={()=>onOpenDetail(task,'comments')}
+      onClick={()=>onOpenDetail(task,'subtasks')}
       style={{
         background:surface,
         border:`1px solid ${hov?(dark?'#3a3a3a':'#e0e0e0'):bdr}`,
@@ -374,95 +391,95 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
         padding:'clamp(9px,.85vw,13px) clamp(11px,1vw,16px)',
         marginBottom:'clamp(4px,.35vw,7px)',
         boxShadow:hov?`0 1px 12px rgba(0,0,0,${dark?.18:.05})`:'0 1px 3px rgba(0,0,0,.03)',
-        display:'flex',gap:'clamp(8px,.75vw,12px)',alignItems:'flex-start',
         opacity:task.completed?.65:1,
         transition:'border-color .12s,box-shadow .12s,opacity .2s',
         cursor:'pointer',
       }}>
-      {/* Checkbox */}
-      <button onClick={e=>{e.stopPropagation();onToggle(task.id);}} style={{
-        width:'clamp(16px,1.25vw,21px)',height:'clamp(16px,1.25vw,21px)',
-        borderRadius:5,flexShrink:0,marginTop:2,cursor:'pointer',
-        border:`1.5px solid ${task.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,
-        background:task.completed?(dark?'#ccc':'#111'):'transparent',
-        display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s',padding:0,
-      }}>{task.completed&&<span style={{fontSize:'clamp(8px,.6vw,10px)',color:dark?'#111':'#fff',fontWeight:800,lineHeight:1}}>✓</span>}</button>
+      {/* Main row */}
+      <div style={{display:'flex',gap:'clamp(8px,.75vw,12px)',alignItems:'flex-start'}}>
+        {/* Checkbox */}
+        <button onClick={e=>{e.stopPropagation();onToggle(task.id);}} style={{
+          width:'clamp(16px,1.25vw,21px)',height:'clamp(16px,1.25vw,21px)',
+          borderRadius:5,flexShrink:0,marginTop:2,cursor:'pointer',
+          border:`1.5px solid ${task.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,
+          background:task.completed?(dark?'#ccc':'#111'):'transparent',
+          display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s',padding:0,
+        }}>{task.completed&&<span style={{fontSize:'clamp(8px,.6vw,10px)',color:dark?'#111':'#fff',fontWeight:800,lineHeight:1}}>✓</span>}</button>
 
-      <div style={{flex:1,minWidth:0}}>
-        {/* Top row: emoji + text + badges */}
-        <div style={{display:'flex',alignItems:'flex-start',gap:'clamp(4px,.4vw,7px)',flexWrap:'wrap',marginBottom:3}}>
-          {task.emoji&&<span style={{fontSize:'clamp(12px,.9vw,15px)',lineHeight:1.4,flexShrink:0}}>{task.emoji}</span>}
-          <span style={{fontFamily:"'DM Sans',sans-serif",fontWeight:task.completed?400:500,fontSize:'clamp(13px,.95vw,16px)',color:task.completed?muted:txt,textDecoration:task.completed?'line-through':'none',flex:1,minWidth:0,wordBreak:'break-word',whiteSpace:'pre-wrap'}}>{task.text}</span>
-          <PBadge p={task.priority}/>
-          {di&&<span style={{fontSize:'clamp(9.5px,.7vw,11.5px)',padding:'1px 7px',borderRadius:20,flexShrink:0,background:di.urgent?(dark?'#3a1010':'#FFF0F0'):(dark?'#242424':'#f7f7f7'),color:di.urgent?(dark?'#ff8080':'#d44'):(dark?'#666':'#aaa'),fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>{di.label}</span>}
-        </div>
-        {/* Bottom row: assignees with name, reactions, comments */}
-        <div style={{display:'flex',alignItems:'center',gap:'clamp(5px,.5vw,8px)',flexWrap:'wrap',marginTop:2}}>
-          {/* Assignees: avatar + name */}
-          {!task.completed && assigneeIds.length > 0 && (
-            <div style={{display:'flex',alignItems:'center',gap:4,flexWrap:'wrap'}}>
-              {assigneeIds.slice(0,3).map((uid,i)=>{
-                const u = getUserById(uid);
-                return (
-                  <div key={uid} style={{display:'flex',alignItems:'center',gap:3,background:dark?'#2a2a2a':'#f5f5f5',borderRadius:99,padding:'1px 7px 1px 2px'}}>
-                    {u.avatar
-                      ?<img src={u.avatar} style={{width:14,height:14,borderRadius:'50%',objectFit:'cover'}} alt=""/>
-                      :<div style={{width:14,height:14,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:7}}>👤</div>
-                    }
-                    <span style={{fontSize:'clamp(9.5px,.68vw,11px)',color:muted,fontFamily:"'DM Sans',sans-serif"}}>{u.name}</span>
-                  </div>
-                );
-              })}
-              {assigneeIds.length > 3 && (
-                <span style={{fontSize:'clamp(9px,.65vw,11px)',color:muted}}>+{assigneeIds.length-3}</span>
-              )}
-            </div>
-          )}
-          {task.completed&&task.completedBy&&(()=>{
-            const u = getUserById(task.completedBy);
-            return (
-              <div style={{display:'flex',alignItems:'center',gap:3}}>
-                {u.avatar
-                  ?<img src={u.avatar} style={{width:14,height:14,borderRadius:'50%',objectFit:'cover'}} alt=""/>
-                  :<div style={{width:14,height:14,borderRadius:'50%',background:'#c8eed3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:7}}>✓</div>
-                }
-                <span style={{fontSize:'clamp(10px,.72vw,12px)',color:'#5a9e6f',fontFamily:"'DM Sans',sans-serif"}}>{u.name} · done</span>
+        <div style={{flex:1,minWidth:0}}>
+          {/* Top row */}
+          <div style={{display:'flex',alignItems:'flex-start',gap:'clamp(4px,.4vw,7px)',flexWrap:'wrap',marginBottom:3}}>
+            {task.emoji&&<span style={{fontSize:'clamp(12px,.9vw,15px)',lineHeight:1.4,flexShrink:0}}>{task.emoji}</span>}
+            <span style={{fontFamily:"'DM Sans',sans-serif",fontWeight:task.completed?400:500,fontSize:'clamp(13px,.95vw,16px)',color:task.completed?muted:txt,textDecoration:task.completed?'line-through':'none',flex:1,minWidth:0,wordBreak:'break-word',whiteSpace:'pre-wrap'}}>{task.text}</span>
+            <PBadge p={task.priority}/>
+            {di&&<span style={{fontSize:'clamp(9.5px,.7vw,11.5px)',padding:'1px 7px',borderRadius:20,flexShrink:0,background:di.urgent?(dark?'#3a1010':'#FFF0F0'):(dark?'#242424':'#f7f7f7'),color:di.urgent?(dark?'#ff8080':'#d44'):(dark?'#666':'#aaa'),fontFamily:"'DM Sans',sans-serif",fontWeight:500}}>{di.label}</span>}
+          </div>
+          {/* Bottom row */}
+          <div style={{display:'flex',alignItems:'center',gap:'clamp(5px,.5vw,8px)',flexWrap:'wrap',marginTop:2}}>
+            {!task.completed && assigneeIds.length > 0 && (
+              <div style={{display:'flex',alignItems:'center',gap:4,flexWrap:'wrap'}}>
+                {assigneeIds.slice(0,3).map((uid)=>{
+                  const u = getUserById(uid);
+                  return (
+                    <div key={uid} style={{display:'flex',alignItems:'center',gap:3,background:dark?'#2a2a2a':'#f5f5f5',borderRadius:99,padding:'1px 7px 1px 2px'}}>
+                      {u.avatar?<img src={u.avatar} style={{width:14,height:14,borderRadius:'50%',objectFit:'cover'}} alt=""/>:<div style={{width:14,height:14,borderRadius:'50%',background:'#dde8f7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:7}}>👤</div>}
+                      <span style={{fontSize:'clamp(9.5px,.68vw,11px)',color:muted,fontFamily:"'DM Sans',sans-serif"}}>{u.name}</span>
+                    </div>
+                  );
+                })}
+                {assigneeIds.length>3&&<span style={{fontSize:'clamp(9px,.65vw,11px)',color:muted}}>+{assigneeIds.length-3}</span>}
               </div>
-            );
-          })()}
-          {REACTIONS_LIST.map(em=>{
-            const us=task.reactions[em]||[];
-            return us.length>0?(
-              <button key={em} onClick={()=>onReact(task.id,em)} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f3f3f3'):'transparent',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:99,padding:'1px 7px',fontSize:'clamp(10.5px,.75vw,12.5px)',cursor:'pointer',color:txt,display:'flex',alignItems:'center',gap:2}}>{em}<span style={{fontSize:'clamp(9.5px,.68vw,11.5px)'}}>{us.length}</span></button>
-            ):null;
-          })}
-          {task.comments.length>0&&(
-            <button onClick={()=>onOpenDetail(task,'comments')} style={{background:'none',border:'none',color:muted,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',padding:'1px 4px',display:'flex',alignItems:'center',gap:2,fontFamily:"'DM Sans',sans-serif"}}>💬 {task.comments.length}</button>
-          )}
+            )}
+            {task.completed&&task.completedBy&&(()=>{
+              const u=getUserById(task.completedBy);
+              return <div style={{display:'flex',alignItems:'center',gap:3}}>{u.avatar?<img src={u.avatar} style={{width:14,height:14,borderRadius:'50%',objectFit:'cover'}} alt=""/>:<div style={{width:14,height:14,borderRadius:'50%',background:'#c8eed3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:7}}>✓</div>}<span style={{fontSize:'clamp(10px,.72vw,12px)',color:'#5a9e6f',fontFamily:"'DM Sans',sans-serif"}}>{u.name} · done</span></div>;
+            })()}
+            {REACTIONS_LIST.map(em=>{const us=task.reactions[em]||[];return us.length>0?(<button key={em} onClick={e=>{e.stopPropagation();onReact(task.id,em);}} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f3f3f3'):'transparent',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:99,padding:'1px 7px',fontSize:'clamp(10.5px,.75vw,12.5px)',cursor:'pointer',color:txt,display:'flex',alignItems:'center',gap:2}}>{em}<span style={{fontSize:'clamp(9.5px,.68vw,11.5px)'}}>{us.length}</span></button>):null;})}
+            {task.comments.length>0&&<button onClick={e=>{e.stopPropagation();onOpenDetail(task,'comments');}} style={{background:'none',border:'none',color:muted,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',padding:'1px 4px',display:'flex',alignItems:'center',gap:2,fontFamily:"'DM Sans',sans-serif"}}>💬 {task.comments.length}</button>}
+            {/* Subtask progress + expand toggle */}
+            {totalSubs>0&&(
+              <button onClick={e=>{e.stopPropagation();setExpanded(v=>!v);}} style={{display:'flex',alignItems:'center',gap:5,background:'none',border:'none',cursor:'pointer',padding:'1px 4px',marginLeft:'auto'}}>
+                <div style={{width:48,height:3,borderRadius:99,background:dark?'#2a2a2a':'#e8e8e8',overflow:'hidden'}}>
+                  <div style={{height:'100%',width:`${pct}%`,borderRadius:99,background:doneSubs===totalSubs?'#2f8a55':'#c47a0a',transition:'width .3s'}}/>
+                </div>
+                <span style={{fontSize:'clamp(9px,.65vw,11px)',color:muted,fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap'}}>{doneSubs}/{totalSubs}</span>
+                <span style={{fontSize:10,color:muted,lineHeight:1}}>{expanded?'▲':'▼'}</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Hover actions */}
+        <div onClick={e=>e.stopPropagation()} style={{display:'flex',gap:3,opacity:hov?1:0,transition:'opacity .12s',flexShrink:0,alignItems:'center'}}>
+          <div style={{position:'relative'}}>
+            <button onClick={e=>{e.stopPropagation();setShowRx(!showRx);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,13px)',color:muted,lineHeight:1}}>+😊</button>
+            {showRx&&(<div style={{position:'absolute',right:0,top:'calc(100% + 4px)',background:dark?'#1e1e1e':'#fff',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:10,padding:'6px 8px',display:'flex',gap:4,zIndex:200,boxShadow:`0 8px 24px rgba(0,0,0,${dark?.28:.1})`}}>{REACTIONS_LIST.map(em=>(<button key={em} onClick={e=>{e.stopPropagation();onReact(task.id,em);setShowRx(false);}} style={{background:'none',border:'none',cursor:'pointer',fontSize:'clamp(15px,1.2vw,19px)',borderRadius:6,padding:'2px 3px'}}>{em}</button>))}</div>)}
+          </div>
+          <button onClick={e=>{e.stopPropagation();onOpenDetail(task,'detail');}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
+          <button onClick={e=>{e.stopPropagation();onDelete(task.id);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:'#d44',lineHeight:1}}>×</button>
         </div>
       </div>
 
-      {/* Hover actions */}
-      <div onClick={e=>e.stopPropagation()} style={{display:'flex',gap:3,opacity:hov?1:0,transition:'opacity .12s',flexShrink:0,alignItems:'center'}}>
-        <div style={{position:'relative'}}>
-          <button onClick={e=>{e.stopPropagation();setShowRx(!showRx);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,13px)',color:muted,lineHeight:1}}>+😊</button>
-          {showRx&&(
-            <div style={{position:'absolute',right:0,top:'calc(100% + 4px)',background:dark?'#1e1e1e':'#fff',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:10,padding:'6px 8px',display:'flex',gap:4,zIndex:200,boxShadow:`0 8px 24px rgba(0,0,0,${dark?.28:.1})`}}>
-              {REACTIONS_LIST.map(em=>(
-                <button key={em} onClick={e=>{e.stopPropagation();onReact(task.id,em);setShowRx(false);}} style={{background:'none',border:'none',cursor:'pointer',fontSize:'clamp(15px,1.2vw,19px)',borderRadius:6,padding:'2px 3px'}}>{em}</button>
-              ))}
+      {/* Inline subtasks (expanded) */}
+      {expanded&&totalSubs>0&&(
+        <div onClick={e=>e.stopPropagation()} style={{marginTop:8,marginLeft:'clamp(28px,2.2vw,38px)',display:'flex',flexDirection:'column',gap:3,animation:'fadeUp .12s ease-out'}}>
+          {subtasks.map(st=>(
+            <div key={st.id} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 8px',background:dark?'#252525':'#f5f5f5',borderRadius:7,border:`1px solid ${bdr}`}}>
+              <button onClick={()=>toggleSubtask(st.id)} style={{width:14,height:14,borderRadius:3,flexShrink:0,border:`1.5px solid ${st.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,background:st.completed?(dark?'#ccc':'#111'):'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',padding:0}}>
+                {st.completed&&<span style={{fontSize:7,color:dark?'#111':'#fff',fontWeight:800}}>✓</span>}
+              </button>
+              <span style={{flex:1,fontSize:'clamp(11.5px,.83vw,13px)',color:st.completed?muted:txt,textDecoration:st.completed?'line-through':'none',fontFamily:"'DM Sans',sans-serif"}}>{st.text}</span>
+              <button onClick={()=>deleteSubtask(st.id)} style={{background:'none',border:'none',cursor:'pointer',color:dark?'#3a3a3a':'#ccc',fontSize:14,lineHeight:1,padding:'0 2px',flexShrink:0,opacity:.6}}>×</button>
             </div>
-          )}
+          ))}
         </div>
-        <button onClick={e=>{e.stopPropagation();onOpenDetail(task,'comments');}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
-        <button onClick={e=>{e.stopPropagation();onDelete(task.id);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:'#d44',lineHeight:1}}>×</button>
-      </div>
+      )}
     </div>
   );
 };
 
 // ── Task Detail Modal ─────────────────────────────────────────────────────────
-const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, onReact, friends=[], listMembers=[], initialTab='comments',
+const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, onReact, friends=[], listMembers=[], initialTab='subtasks',
   onListId, onListName, onGetTaskReminders, onIsPushEnabled, onPermission, onEnablePush, onAddReminder, onRemoveReminder}) => {
   const [comment, setComment] = useState('');
   const [editText, setEditText] = useState(task.text);
@@ -478,6 +495,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   const [editEmoji, setEditEmoji] = useState(task.emoji||'📌');
   const [tab, setTab] = useState(initialTab);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [newSubtask, setNewSubtask] = useState('');
   const surface = dark?'#1c1c1c':'#fff', txt = dark?'#efefef':'#111';
   const muted = dark?'#555':'#bbb', bdr = dark?'#2c2c2c':'#f0f0f0';
 
@@ -512,6 +530,21 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
       dueDate: fullDueDate,
       emoji: editEmoji
     });
+  };
+
+  const addSubtask = () => {
+    if (!newSubtask.trim()) return;
+    const updated = { ...task, subtasks: [...(task.subtasks||[]), { id: genId(), text: newSubtask.trim(), completed: false, createdAt: ts() }] };
+    onUpdate(updated);
+    setNewSubtask('');
+  };
+  const toggleSubtask = (stId) => {
+    const updated = { ...task, subtasks: (task.subtasks||[]).map(s => s.id===stId ? {...s, completed:!s.completed} : s) };
+    onUpdate(updated);
+  };
+  const deleteSubtask = (stId) => {
+    const updated = { ...task, subtasks: (task.subtasks||[]).filter(s => s.id!==stId) };
+    onUpdate(updated);
   };
 
   const addComment = () => {
@@ -552,9 +585,11 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
             <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',color:muted,fontSize:20,lineHeight:1,padding:'2px 6px',borderRadius:6,flexShrink:0}}>×</button>
           </div>
           <div style={{display:'flex',gap:0}}>
-            {['comments','detail'].map(t=>(
-              <button key={t} onClick={()=>setTab(t)} style={{background:'none',border:'none',cursor:'pointer',padding:'8px 16px',fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:tab===t?600:400,color:tab===t?txt:muted,borderBottom:tab===t?`2px solid ${txt}`:'2px solid transparent',letterSpacing:'.01em'}}>
-                {t.charAt(0).toUpperCase()+t.slice(1)}{t==='comments'&&task.comments.length>0?` (${task.comments.length})`:''}
+            {['subtasks','comments','detail'].map(t=>(
+              <button key={t} onClick={()=>setTab(t)} style={{background:'none',border:'none',cursor:'pointer',padding:'8px 14px',fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:tab===t?600:400,color:tab===t?txt:muted,borderBottom:tab===t?`2px solid ${txt}`:'2px solid transparent',letterSpacing:'.01em'}}>
+                {t==='subtasks'?`Subtasks${task.subtasks?.length>0?` ${task.subtasks.filter(s=>s.completed).length}/${task.subtasks.length}`:''}` 
+                 :t==='comments'?`Comments${task.comments.length>0?` (${task.comments.length})`:''}`
+                 :'Detail'}
               </button>
             ))}
           </div>
@@ -655,6 +690,30 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
                 </div>
               )}
               <button onClick={save} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:9,padding:'11px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:14,letterSpacing:'.01em'}}>Save Changes</button>
+            </div>
+          )}
+
+          {/* Subtasks Tab */}
+          {tab==='subtasks'&&(
+            <div>
+              {(task.subtasks||[]).length===0&&(
+                <p style={{color:muted,fontSize:13,fontFamily:"'DM Sans',sans-serif",padding:'8px 0'}}>No steps yet — add one below.</p>
+              )}
+              <div style={{display:'flex',flexDirection:'column',gap:5,marginBottom:12}}>
+                {(task.subtasks||[]).map(st=>(
+                  <div key={st.id} style={{display:'flex',alignItems:'center',gap:9,padding:'8px 12px',background:dark?'#1e1e1e':'#f8f8f8',borderRadius:9,border:`1px solid ${bdr}`}}>
+                    <button onClick={()=>toggleSubtask(st.id)} style={{width:18,height:18,borderRadius:5,flexShrink:0,border:`1.5px solid ${st.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,background:st.completed?(dark?'#ccc':'#111'):'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',padding:0}}>
+                      {st.completed&&<span style={{fontSize:9,color:dark?'#111':'#fff',fontWeight:800}}>✓</span>}
+                    </button>
+                    <span style={{flex:1,fontSize:13.5,color:st.completed?muted:txt,textDecoration:st.completed?'line-through':'none',fontFamily:"'DM Sans',sans-serif"}}>{st.text}</span>
+                    <button onClick={()=>deleteSubtask(st.id)} style={{background:'none',border:'none',cursor:'pointer',color:dark?'#444':'#ccc',fontSize:16,lineHeight:1,padding:'0 3px',flexShrink:0}}>×</button>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:'flex',gap:7}}>
+                <input value={newSubtask} onChange={e=>setNewSubtask(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')addSubtask();}} placeholder="Add a step…" autoFocus style={{flex:1,background:dark?'#1e1e1e':'#f5f5f5',border:`1px solid ${bdr}`,borderRadius:9,padding:'9px 12px',color:txt,fontSize:13,outline:'none',fontFamily:"'DM Sans',sans-serif"}}/>
+                {newSubtask&&<button onClick={addSubtask} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:9,padding:'9px 15px',cursor:'pointer',fontSize:13,fontFamily:"'DM Sans',sans-serif",fontWeight:600}}>Add</button>}
+              </div>
             </div>
           )}
 
@@ -1344,7 +1403,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {taskDetail&&<TaskDetailModal task={taskDetail.task} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onSave={(updatedTask)=>{updateTask(updatedTask);setTaskDetail(null);}} onReact={reactToTask} friends={friends} listMembers={sel?.memberIds||[]} initialTab={taskDetail.initialTab||'comments'}
+      {taskDetail&&<TaskDetailModal task={taskDetail.task} currentUser={currentUser} dark={dark} onClose={()=>setTaskDetail(null)} onUpdate={updateTask} onSave={(updatedTask)=>{updateTask(updatedTask);setTaskDetail(null);}} onReact={reactToTask} friends={friends} listMembers={sel?.memberIds||[]} initialTab={taskDetail.initialTab||'subtasks'}
         onListId={selId} onListName={sel?.name} onGetTaskReminders={getTaskReminders}
         onIsPushEnabled={isPushEnabled} onPermission={permission}
         onEnablePush={enablePush} onAddReminder={addReminder} onRemoveReminder={removeReminder}
@@ -1661,7 +1720,7 @@ export default function App() {
                             >
                               <div {...provided.dragHandleProps} style={{cursor:'grab',color:muted,fontSize:12,flexShrink:0,padding:'4px 2px',display:'flex',alignItems:'center',opacity:.5}}>⠿</div>
                               <div style={{flex:1}}>
-                                <TaskItem task={task} currentUser={currentUser} dark={dark} friends={friends} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={(t,tab)=>setTaskDetail({task:t,initialTab:tab||'comments'})}/>
+                                <TaskItem task={task} currentUser={currentUser} dark={dark} friends={friends} onToggle={toggleTask} onDelete={deleteTask} onReact={reactToTask} onOpenDetail={(t,tab)=>setTaskDetail({task:t,initialTab:tab||'subtasks'})} onUpdateTask={updateTask}/>
                               </div>
                             </div>
                           )}
