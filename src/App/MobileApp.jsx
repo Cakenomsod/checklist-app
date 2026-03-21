@@ -39,7 +39,14 @@ const timeAgo = (iso) => {
 const fmtDate = (ds) => {
   if (!ds) return null;
   const date = new Date(ds);
-  const diff = Math.floor((date - new Date()) / 86400000);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const target = new Date(ds);
+  target.setHours(0, 0, 0, 0);
+
+  const diff = Math.floor((target - today) / 86400000);
   const timeStr = ds.includes('T') ? ` ${date.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}` : '';
   if (diff < 0)  return { label: `Overdue${timeStr}`, urgent: true };
   if (diff === 0) return { label: `Today${timeStr}`, urgent: true };

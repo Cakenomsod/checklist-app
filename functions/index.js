@@ -30,11 +30,12 @@ function initVapid() {
 
 // ── Scheduled function: runs every minute ─────────────────────────────────────
 exports.sendScheduledReminders = onSchedule(
-  { schedule: 'every 1 minutes', timeZone: 'Asia/Bangkok' },
+  { schedule: 'every 1 minutes', 
+    timeZone: 'Asia/Bangkok' },
   async (event) => {
     initVapid();
     const now = Date.now();
-    const windowMs = 60_000; // 1 minute window to catch reminders
+    const windowMs = 90_000;
 
     // Query reminders due in the last 0-60 seconds
     const snap = await db.collection('reminders')
