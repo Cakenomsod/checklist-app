@@ -149,7 +149,7 @@ export default function FriendPanel({ currentUser, dark, onClose }) {
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-          <h2 style={{ fontFamily: 'Fraunces,serif', fontSize: 22, color: txt, margin: 0 }}>Friends</h2>
+          <h2 style={{ fontFamily: "'Lora', serif", fontSize: 22, color: txt, margin: 0, fontStyle: 'italic' }}>Friends</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: muted }}>✕</button>
         </div>
 
@@ -160,7 +160,7 @@ export default function FriendPanel({ currentUser, dark, onClose }) {
               flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
               background: tab === t.id ? (dark ? '#333' : '#fff') : 'transparent',
               color: tab === t.id ? txt : muted,
-              fontFamily: 'Epilogue,sans-serif', fontSize: 12, fontWeight: tab === t.id ? 600 : 400,
+              fontFamily: "'DM Sans',sans-serif", fontSize: 12, fontWeight: tab === t.id ? 600 : 400,
               boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,.08)' : 'none'
             }}>{t.label}</button>
           ))}
@@ -190,7 +190,7 @@ export default function FriendPanel({ currentUser, dark, onClose }) {
                 <button onClick={() => removeFriend(currentUser.id, f.uid)} style={{
                   background: 'rgba(200,50,50,.1)', color: '#c0392b', border: 'none',
                   borderRadius: 8, padding: '5px 11px', cursor: 'pointer',
-                  fontFamily: 'Epilogue,sans-serif', fontSize: 12
+                  fontFamily: "'DM Sans',sans-serif", fontSize: 12
                 }}>Remove</button>
               </div>
             ))}
@@ -223,12 +223,12 @@ export default function FriendPanel({ currentUser, dark, onClose }) {
                   <button onClick={() => acceptFriendRequest(currentUser, r)} style={{
                     background: '#0a0a0a', color: '#fafafa', border: 'none',
                     borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
-                    fontFamily: 'Epilogue,sans-serif', fontSize: 12, fontWeight: 600
+                    fontFamily: "'DM Sans',sans-serif", fontSize: 12, fontWeight: 600
                   }}>✓ Accept</button>
                   <button onClick={() => declineFriendRequest(currentUser.id, r.uid)} style={{
                     background: 'rgba(200,50,50,.1)', color: '#c0392b', border: 'none',
                     borderRadius: 8, padding: '6px 12px', cursor: 'pointer',
-                    fontFamily: 'Epilogue,sans-serif', fontSize: 12
+                    fontFamily: "'DM Sans',sans-serif", fontSize: 12
                   }}>✕ Decline</button>
                 </div>
               </div>
@@ -248,13 +248,13 @@ export default function FriendPanel({ currentUser, dark, onClose }) {
                 style={{
                   flex: 1, padding: '10px 14px', borderRadius: 10,
                   border: `1.5px solid ${bdr}`, background: surface,
-                  color: txt, fontFamily: 'Epilogue,sans-serif', fontSize: 14, outline: 'none'
+                  color: txt, fontFamily: "'DM Sans',sans-serif", fontSize: 14, outline: 'none'
                 }}
               />
               <button onClick={handleSearch} style={{
                 background: '#0a0a0a', color: '#fafafa', border: 'none',
                 borderRadius: 10, padding: '10px 16px', cursor: 'pointer',
-                fontFamily: 'Epilogue,sans-serif', fontSize: 13, fontWeight: 600
+                fontFamily: "'DM Sans',sans-serif", fontSize: 13, fontWeight: 600
               }}>{loading ? '...' : 'Search'}</button>
             </div>
 
@@ -279,7 +279,7 @@ export default function FriendPanel({ currentUser, dark, onClose }) {
                   <button onClick={() => handleSendRequest(u)} style={{
                     background: '#0a0a0a', color: '#fafafa', border: 'none',
                     borderRadius: 8, padding: '6px 14px', cursor: 'pointer',
-                    fontFamily: 'Epilogue,sans-serif', fontSize: 12, fontWeight: 600
+                    fontFamily: "'DM Sans',sans-serif", fontSize: 12, fontWeight: 600
                   }}>Add</button>
                 )}
               </div>

@@ -13,6 +13,7 @@ import MobileCalendar from "./page/MobileCalendar";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useNotifications } from './function/useNotifications';
 import NotificationManager, { InAppAlertBanner } from './page/NotificationManager';
+import { getSuggestionsForList } from './function/aiSuggestions';
 
 
 // ── Shared constants (copied from App.jsx) ────────────────────────────────────
@@ -442,29 +443,19 @@ const ListPanel = ({ open, onClose, lists, selId, onSelect, onNewList, dark, cur
 };
 
 // ── AI Suggestions (mobile) ───────────────────────────────────────────────────
-const AISuggestions = ({ listName, onAddTask, onClose }) => {
+const AISuggestions = ({ listName, category = 'Other', onAddTask, onClose }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState([]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514', max_tokens: 300,
-            messages: [{ role: 'user', content: `Give exactly 6 short checklist items for a list called "${listName}". Return ONLY a valid JSON array of 6 strings. No markdown, no extra text.` }],
-          }),
-        });
-        const d = await res.json();
-        const raw = d.content.map(c => c.text || '').join('').replace(/```json|```/g, '').trim();
-        setItems(JSON.parse(raw));
-      } catch {
-        setItems(['Research options', 'Set a deadline', 'Create a budget', 'Assign responsibilities', 'Review progress', 'Finalize and submit']);
-      } finally { setLoading(false); }
-    })();
-  }, [listName]);
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setItems(getSuggestionsForList(listName, category));
+      setLoading(false);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [listName, category]);
 
   return (
     <div style={{ padding: '8px 16px 20px' }}>
@@ -726,7 +717,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
 
   const addComment = () => {
     if (!comment.trim()) return;
-    onUpdate({ ...task, comments: [...task.comments, { id: genId(), userId: currentUser.id, text: comment.trim(), createdAt: ts() }] });
+    onUpdate({ ...task, comments: [...(task.comments || []), { id: genId(), userId: currentUser.id, text: comment.trim(), createdAt: ts() }] });
     setComment('');
   };
 
@@ -785,7 +776,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
               borderBottom: tab === t ? `2px solid ${dtxt}` : '2px solid transparent',
             }}>
               {t === 'subtasks' ? `Subtasks${task.subtasks?.length > 0 ? ` ${task.subtasks.filter(s=>s.completed).length}/${task.subtasks.length}` : ''}`
-               : t === 'comments' ? `Comments${task.comments.length > 0 ? ` (${task.comments.length})` : ''}`
+               : t === 'comments' ? `Comments${(task.comments || []).length > 0 ? ` (${task.comments.length})` : ''}`
                : 'Detail'}
             </button>
           ))}
@@ -794,7 +785,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
 
       <div style={{ padding: '16px 20px 32px' }}>
         {tab === 'subtasks' && (
-          <div style={{ padding: '16px 20px 32px' }}>
+          <div>
             {(task.subtasks || []).length === 0 && (
               <p style={{ color: dmuted, fontSize: 14, fontFamily: "'DM Sans',sans-serif", padding: '8px 0' }}>No steps yet — add one below.</p>
             )}
@@ -901,7 +892,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
               <div style={{ fontSize: 11, fontWeight: 700, color: dmuted, letterSpacing: '.08em', marginBottom: 9, fontFamily: "'DM Sans',sans-serif" }}>REACTIONS</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {REACTIONS_LIST.map(em => {
-                  const us = task.reactions[em] || [];
+                  const us = (task.reactions || {})[em] || [];
                   return (
                     <button key={em} onClick={() => onReact(task.id, em)} style={{
                       background: us.includes(currentUser.id) ? (dark ? '#2a2a2a' : '#f0f0f0') : 'transparent',
@@ -957,10 +948,10 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
 
         {tab === 'comments' && (
           <div>
-            {task.comments.length === 0 && (
+            {(task.comments || []).length === 0 && (
               <p style={{ color: dmuted, fontSize: 14, fontFamily: "'DM Sans',sans-serif", padding: '8px 0' }}>No comments yet. Be the first!</p>
             )}
-            {task.comments.map(c => {
+            {(task.comments || []).map(c => {
               const u = getUserById(c.userId);
               return (
                 <div key={c.id} style={{ display: 'flex', gap: 11, marginBottom: 16 }}>
@@ -1086,7 +1077,7 @@ const MobileLeaderboard = ({ lists, currentUser, friends, dark = false }) => {
 };
 
 // ── MAIN MOBILE APP ───────────────────────────────────────────────────────────
-export default function MobileApp({ firebaseUser }) {
+export default function MobileApp({ firebaseUser, onProfileUpdate }) {
   const firestoreLists = useLists(firebaseUser?.uid ?? null);
   const [lists, setLists] = useState([]);
   const [activity, setActivity] = useState([]);
@@ -1140,11 +1131,14 @@ export default function MobileApp({ firebaseUser }) {
   useEffect(() => {
     const sorted = [...firestoreLists].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
     setLists(sorted);
-    if (!selId && sorted.length > 0) setSelId(sorted[0].id);
+    setSelId(prev => {
+      if (prev && sorted.some(l => l.id === prev)) return prev;
+      return sorted[0]?.id ?? null;
+    });
   }, [firestoreLists]);
 
   useEffect(() => {
-    if (firestoreActivity.length > 0) setActivity(firestoreActivity);
+    setActivity(firestoreActivity);
   }, [firestoreActivity]);
 
   const updateList = useCallback((id, fn) => {
@@ -1161,6 +1155,29 @@ export default function MobileApp({ firebaseUser }) {
     setActivity(prev => [item, ...prev].slice(0, 50));
     if (firebaseUser?.uid) pushActivityToDB(firebaseUser.uid, { userId, action, target, listName });
   }, [firebaseUser]);
+
+  const openTaskById = useCallback((taskId) => {
+    if (!taskId) return;
+    for (const list of lists) {
+      const task = list.tasks?.find(t => t.id === taskId);
+      if (task) {
+        setSelId(list.id);
+        setTab('lists');
+        setTaskDetail({ task, initialTab: 'detail' });
+        return;
+      }
+    }
+  }, [lists]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const taskId = params.get('task');
+    if (taskId) openTaskById(taskId);
+
+    const handler = (event) => openTaskById(event.detail?.taskId);
+    window.addEventListener('checkmate:open-task', handler);
+    return () => window.removeEventListener('checkmate:open-task', handler);
+  }, [openTaskById]);
 
   const sel = lists.find(l => l.id === selId);
 
@@ -1192,7 +1209,8 @@ export default function MobileApp({ firebaseUser }) {
       priority: newPrio,
       dueDate: newDue ? ((!newAllDay && newTime) ? `${newDue}T${newTime}` : newDue) : null,
       emoji: '📌',
-      reactions: {}, comments: [], createdBy: currentUser.id, createdAt: ts(),
+      reactions: {}, comments: [], subtasks: [],
+      createdBy: currentUser.id, createdAt: ts(),
     };
     const list = lists.find(l => l.id === selId);
     updateList(selId, l => ({ ...l, tasks: [...l.tasks, task] }));
@@ -1209,8 +1227,9 @@ export default function MobileApp({ firebaseUser }) {
     updateList(selId, l => ({
       ...l, tasks: l.tasks.map(t => {
         if (t.id !== taskId) return t;
-        const us = t.reactions[emoji] || [];
-        return { ...t, reactions: { ...t.reactions, [emoji]: us.includes(currentUser.id) ? us.filter(u => u !== currentUser.id) : [...us, currentUser.id] } };
+        const reactions = t.reactions || {};
+        const us = reactions[emoji] || [];
+        return { ...t, reactions: { ...reactions, [emoji]: us.includes(currentUser.id) ? us.filter(u => u !== currentUser.id) : [...us, currentUser.id] } };
       }),
     }));
   }, [selId, currentUser, updateList]);
@@ -1283,9 +1302,9 @@ export default function MobileApp({ firebaseUser }) {
         onSave={(updated) => { updateList(updated.id, () => updated); setEditingList(null); }}
       />
       {showProfile && (
-        <ProfileModal currentUser={currentUser} dark={false} onClose={() => setShowProfile(false)} onUpdate={() => setShowProfile(false)} />
+        <ProfileModal currentUser={currentUser} dark={dark} onClose={() => setShowProfile(false)} onUpdate={() => { onProfileUpdate?.(); setShowProfile(false); }} />
       )}
-      {showFriends && <FriendPanel currentUser={currentUser} dark={false} onClose={() => setShowFriends(false)} />}
+      {showFriends && <FriendPanel currentUser={currentUser} dark={dark} onClose={() => setShowFriends(false)} />}
 
       {/* Invites drawer */}
       <Drawer open={showInvites} onClose={() => setShowInvites(false)} title="📬 List Invites" dark={dark}>
@@ -1519,9 +1538,10 @@ export default function MobileApp({ firebaseUser }) {
                     <Drawer open={showAI} onClose={() => setShowAI(false)} title="✨ AI Suggestions" dark={dark}>
                       <AISuggestions
                         listName={sel.name}
+                        category={sel.category}
                         onClose={() => setShowAI(false)}
                         onAddTask={(text) => {
-                          const task = { id: genId(), text, completed: false, completedBy: null, completedAt: null, assignee: null, priority: 'MED', dueDate: null, emoji: '📌', reactions: {}, comments: [], createdBy: currentUser.id, createdAt: ts() };
+                          const task = { id: genId(), text, completed: false, completedBy: null, completedAt: null, assignee: null, priority: 'MED', dueDate: null, emoji: '📌', reactions: {}, comments: [], subtasks: [], createdBy: currentUser.id, createdAt: ts() };
                           updateList(selId, l => ({ ...l, tasks: [...l.tasks, task] }));
                           pushActivity(currentUser.id, 'added', text, sel.name);
                         }}

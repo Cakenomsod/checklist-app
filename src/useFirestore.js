@@ -31,9 +31,16 @@ export function useLists(uid) {
 }
 
 export async function createListInDB(data) {
-  // ลบ id ออกก่อน เพราะ Firestore จะสร้าง id เองครับ
-  const { id: _id, ...rest } = data;
-  const ref = await addDoc(collection(db, "lists"), rest);
+  // ลบ id / selectedFriends ออกก่อน — Firestore สร้าง id เอง และ selectedFriends ใช้แค่ส่ง invite
+  const { id: _id, selectedFriends: _sf, ...rest } = data;
+  const payload = {
+    ...rest,
+    memberIds: rest.memberIds?.length ? rest.memberIds : [rest.createdBy].filter(Boolean),
+    members: rest.members?.length ? rest.members : [rest.createdBy].filter(Boolean),
+    tasks: rest.tasks || [],
+    order: rest.order ?? Date.now(),
+  };
+  const ref = await addDoc(collection(db, "lists"), payload);
   return ref.id;
 }
 
@@ -84,8 +91,11 @@ export async function acceptListInvite(uid, invite) {
     const memberIds = [...new Set([...(data.memberIds || []), uid])];
     const members = [...new Set([...(data.members || []), uid])];
 
-    // ใช้ setDoc แทน updateDoc ครับ
-    await setDoc(listRef, { ...data, memberIds, members });
+    await updateDoc(listRef, {
+      memberIds,
+      members,
+      isGroup: memberIds.length > 1 || !!data.isGroup,
+    });
     await deleteDoc(doc(db, "users", uid, "listInvites", invite.listId));
   } catch (err) {
     console.error("acceptListInvite error:", err);

@@ -14,7 +14,7 @@ export default function Login() {
     <div style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      background: '#fafafa', fontFamily: 'Epilogue, sans-serif'
+      background: '#fafafa', fontFamily: "'DM Sans', sans-serif"
     }}>
       <div style={{
         background: '#fff', borderRadius: 20, padding: '48px 40px',
@@ -24,8 +24,8 @@ export default function Login() {
         {/* Logo */}
         <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
         <h1 style={{
-          fontFamily: 'Fraunces, serif', fontSize: 32,
-          color: '#0a0a0a', marginBottom: 8
+          fontFamily: "'Lora', serif", fontSize: 32,
+          color: '#0a0a0a', marginBottom: 8, fontStyle: 'italic'
         }}>Checkmate</h1>
         <p style={{
           color: '#888', fontSize: 14, marginBottom: 32
@@ -51,7 +51,7 @@ export default function Login() {
           width: '100%', padding: '14px 0', borderRadius: 12,
           background: '#0a0a0a', color: '#fafafa', border: 'none',
           fontSize: 15, fontWeight: 600, cursor: 'pointer',
-          fontFamily: 'Epilogue, sans-serif', display: 'flex',
+          fontFamily: "'DM Sans', sans-serif", display: 'flex',
           alignItems: 'center', justifyContent: 'center', gap: 10
         }}>
           <img

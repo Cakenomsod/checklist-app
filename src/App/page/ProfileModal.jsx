@@ -53,7 +53,7 @@ export default function ProfileModal({ currentUser, dark, onClose, onUpdate }) {
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h2 style={{ fontFamily: 'Fraunces,serif', fontSize: 22, color: txt, margin: 0 }}>Profile</h2>
+          <h2 style={{ fontFamily: "'Lora', serif", fontSize: 22, color: txt, margin: 0, fontStyle: 'italic' }}>Profile</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: muted }}>✕</button>
         </div>
 
@@ -78,14 +78,14 @@ export default function ProfileModal({ currentUser, dark, onClose, onUpdate }) {
               📷
             </button>
           </div>
-          <div style={{ fontSize: 12, color: muted, fontFamily: 'Epilogue,sans-serif' }}>
+          <div style={{ fontSize: 12, color: muted, fontFamily: "'DM Sans',sans-serif" }}>
             {currentUser.email}
           </div>
         </div>
 
         {/* Name */}
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: muted, letterSpacing: '.08em', marginBottom: 6, fontFamily: 'Epilogue,sans-serif' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: muted, letterSpacing: '.08em', marginBottom: 6, fontFamily: "'DM Sans',sans-serif" }}>
             DISPLAY NAME
           </div>
           <input
@@ -95,7 +95,7 @@ export default function ProfileModal({ currentUser, dark, onClose, onUpdate }) {
             style={{
               width: '100%', padding: '10px 14px', borderRadius: 10,
               border: `1.5px solid ${bdr}`, background: surface,
-              color: txt, fontFamily: 'Epilogue,sans-serif',
+              color: txt, fontFamily: "'DM Sans',sans-serif",
               fontSize: 14, outline: 'none', boxSizing: 'border-box'
             }}
           />
@@ -116,7 +116,7 @@ export default function ProfileModal({ currentUser, dark, onClose, onUpdate }) {
             width: '100%', padding: '12px', borderRadius: 12,
             background: saved ? '#2f8a55' : '#0a0a0a',
             color: '#fafafa', border: 'none', cursor: 'pointer',
-            fontFamily: 'Epilogue,sans-serif', fontSize: 15,
+            fontFamily: "'DM Sans',sans-serif", fontSize: 15,
             fontWeight: 600, transition: 'background .3s'
           }}>
           {loading ? 'Saving...' : saved ? '✓ Saved!' : 'Save Changes'}

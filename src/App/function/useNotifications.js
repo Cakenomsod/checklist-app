@@ -2,6 +2,8 @@
 // ── React hook for notifications ──────────────────────────────────────────────
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
 import {
   subscribeToPush,
   unsubscribeFromPush,
@@ -51,20 +53,34 @@ export function useNotifications(userId) {
     });
   }, []);
 
-  // ── Listen for SW messages (task open requests) ───────────────────────────
+  // ── Listen for SW messages (task open requests + subscription refresh) ───
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
-    const handler = (event) => {
+    const handler = async (event) => {
       if (event.data?.type === 'OPEN_TASK') {
-        // App can listen to this via a separate context/event if needed
         window.dispatchEvent(new CustomEvent('checkmate:open-task', {
           detail: { taskId: event.data.taskId },
         }));
       }
+      if (event.data?.type === 'PUSH_SUBSCRIPTION_CHANGED' && userId && event.data.subscription) {
+        try {
+          const subscription = JSON.parse(event.data.subscription);
+          await setDoc(doc(db, 'pushSubscriptions', userId), {
+            userId,
+            subscription: event.data.subscription,
+            endpoint: subscription.endpoint,
+            updatedAt: serverTimestamp(),
+            userAgent: navigator.userAgent,
+          }, { merge: true });
+          setIsPushEnabled(true);
+        } catch (err) {
+          console.error('Failed to refresh push subscription:', err);
+        }
+      }
     };
     navigator.serviceWorker.addEventListener('message', handler);
     return () => navigator.serviceWorker.removeEventListener('message', handler);
-  }, []);
+  }, [userId]);
 
   // ── Enable push notifications ──────────────────────────────────────────────
   const enablePush = useCallback(async () => {

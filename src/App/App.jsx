@@ -10,12 +10,11 @@ import FriendPanel, { useFriends, useFriendRequests } from "./page/FriendSystem"
 import ProfileModal from "./page/ProfileModal";
 import CalendarView from "./page/CalendarView";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-
-import { createPortal } from 'react-dom';
 import MobileApp from './MobileApp';
 
 import { useNotifications } from './function/useNotifications';
 import NotificationManager, { InAppAlertBanner } from './page/NotificationManager';
+import { getSuggestionsForList } from './function/aiSuggestions';
 
 
 
@@ -25,73 +24,21 @@ const isMobile = () => {
   return window.innerWidth < 768 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 };
 
-const useLongPressSensor = (api) => {
-  useEffect(() => {
-    const delay = 300; // ms กดค้างกี่ ms ถึงเริ่มลาก
-    let timeoutId = null;
-    let isDragging = false;
-
-    const onMouseDown = (e) => {
-      const draggable = e.target.closest('[data-rfd-drag-handle-draggable-id]');
-      if (!draggable) return;
-      const id = draggable.getAttribute('data-rfd-drag-handle-draggable-id');
-
-      timeoutId = setTimeout(() => {
-        const preDrag = api.tryGetLock(id);
-        if (!preDrag) return;
-        isDragging = true;
-        const drag = preDrag.snapLift();
-
-        const onMouseMove = (ev) => {
-          drag.move({ x: ev.clientX, y: ev.clientY });
-        };
-
-        const onMouseUp = () => {
-          isDragging = false;
-          drag.drop();
-          window.removeEventListener('mousemove', onMouseMove);
-          window.removeEventListener('mouseup', onMouseUp);
-        };
-
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
-      }, delay);
-    };
-
-    const onMouseUp = () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-    };
-
-    window.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
-
-    return () => {
-      window.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mouseup', onMouseUp);
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [api]);
-};
-
-const portal = document.getElementById('drag-portal');
-const DraggableItem = ({ provided, snapshot, children }) => {
-  const child = (
-    <div
-      ref={provided.innerRef}
-      {...provided.draggableProps}
-      style={{...provided.draggableProps.style, display:'flex', alignItems:'center', gap:2}}
-    >
-      {children}
-    </div>
-  );
-  if (snapshot.isDragging && portal) {
-    return createPortal(child, portal);
-  }
-  return child;
-};
+const DraggableItem = ({ provided, snapshot, children }) => (
+  <div
+    ref={provided.innerRef}
+    {...provided.draggableProps}
+    style={{
+      ...provided.draggableProps.style,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 2,
+      opacity: snapshot.isDragging ? 0.85 : 1,
+    }}
+  >
+    {children}
+  </div>
+);
 
 const PASTEL_COLORS = ['#FFD6E0','#D6E8FF','#D6FFE4','#FFF3D6','#E8D6FF','#FFE4D6'];
 const USERS = [
@@ -434,8 +381,8 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
               const u=getUserById(task.completedBy);
               return <div style={{display:'flex',alignItems:'center',gap:3}}>{u.avatar?<img src={u.avatar} style={{width:14,height:14,borderRadius:'50%',objectFit:'cover'}} alt=""/>:<div style={{width:14,height:14,borderRadius:'50%',background:'#c8eed3',display:'flex',alignItems:'center',justifyContent:'center',fontSize:7}}>✓</div>}<span style={{fontSize:'clamp(10px,.72vw,12px)',color:'#5a9e6f',fontFamily:"'DM Sans',sans-serif"}}>{u.name} · done</span></div>;
             })()}
-            {REACTIONS_LIST.map(em=>{const us=task.reactions[em]||[];return us.length>0?(<button key={em} onClick={e=>{e.stopPropagation();onReact(task.id,em);}} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f3f3f3'):'transparent',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:99,padding:'1px 7px',fontSize:'clamp(10.5px,.75vw,12.5px)',cursor:'pointer',color:txt,display:'flex',alignItems:'center',gap:2}}>{em}<span style={{fontSize:'clamp(9.5px,.68vw,11.5px)'}}>{us.length}</span></button>):null;})}
-            {task.comments.length>0&&<button onClick={e=>{e.stopPropagation();onOpenDetail(task,'comments');}} style={{background:'none',border:'none',color:muted,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',padding:'1px 4px',display:'flex',alignItems:'center',gap:2,fontFamily:"'DM Sans',sans-serif"}}>💬 {task.comments.length}</button>}
+            {REACTIONS_LIST.map(em=>{const us=(task.reactions||{})[em]||[];return us.length>0?(<button key={em} onClick={e=>{e.stopPropagation();onReact(task.id,em);}} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f3f3f3'):'transparent',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:99,padding:'1px 7px',fontSize:'clamp(10.5px,.75vw,12.5px)',cursor:'pointer',color:txt,display:'flex',alignItems:'center',gap:2}}>{em}<span style={{fontSize:'clamp(9.5px,.68vw,11.5px)'}}>{us.length}</span></button>):null;})}
+            {task.comments?.length > 0 && <button onClick={e=>{e.stopPropagation();onOpenDetail(task,'comments');}} style={{background:'none',border:'none',color:muted,fontSize:'clamp(10px,.72vw,12px)',cursor:'pointer',padding:'1px 4px',display:'flex',alignItems:'center',gap:2,fontFamily:"'DM Sans',sans-serif"}}>💬 {task.comments.length}</button>}
             {/* Subtask progress + expand toggle */}
             {totalSubs>0&&(
               <button onClick={e=>{e.stopPropagation();setExpanded(v=>!v);}} style={{display:'flex',alignItems:'center',gap:5,background:'none',border:'none',cursor:'pointer',padding:'1px 4px',marginLeft:'auto'}}>
@@ -549,7 +496,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
 
   const addComment = () => {
     if (!comment.trim()) return;
-    onUpdate({...task, comments:[...task.comments, {id:genId(), userId:currentUser.id, text:comment.trim(), createdAt:ts()}]});
+    onUpdate({...task, comments:[...(task.comments||[]), {id:genId(), userId:currentUser.id, text:comment.trim(), createdAt:ts()}]});
     setComment('');
   };
 
@@ -588,7 +535,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
             {['subtasks','comments','detail'].map(t=>(
               <button key={t} onClick={()=>setTab(t)} style={{background:'none',border:'none',cursor:'pointer',padding:'8px 14px',fontFamily:"'DM Sans',sans-serif",fontSize:13,fontWeight:tab===t?600:400,color:tab===t?txt:muted,borderBottom:tab===t?`2px solid ${txt}`:'2px solid transparent',letterSpacing:'.01em'}}>
                 {t==='subtasks'?`Subtasks${task.subtasks?.length>0?` ${task.subtasks.filter(s=>s.completed).length}/${task.subtasks.length}`:''}` 
-                 :t==='comments'?`Comments${task.comments.length>0?` (${task.comments.length})`:''}`
+                 :t==='comments'?`Comments${(task.comments||[]).length>0?` (${task.comments.length})`:''}`
                  :'Detail'}
               </button>
             ))}
@@ -650,7 +597,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
                 <label style={{fontSize:10,fontWeight:600,color:muted,display:'block',marginBottom:8,letterSpacing:'.08em',fontFamily:"'DM Sans',sans-serif"}}>REACTIONS</label>
                 <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                   {REACTIONS_LIST.map(em=>{
-                    const us=task.reactions[em]||[];
+                    const us=(task.reactions||{})[em]||[];
                     return <button key={em} onClick={()=>onReact(task.id,em)} style={{background:us.includes(currentUser.id)?(dark?'#2a2a2a':'#f0f0f0'):'transparent',border:`1px solid ${dark?'#2c2c2c':'#e8e8e8'}`,borderRadius:99,padding:'5px 12px',cursor:'pointer',fontSize:13,color:txt,display:'flex',gap:4,alignItems:'center'}}>{em}{us.length>0&&<span style={{fontSize:11,fontFamily:"'DM Sans',sans-serif"}}>{us.length}</span>}</button>;
                   })}
                 </div>
@@ -720,10 +667,10 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
           {/* Comments Tab */}
           {tab==='comments'&&(
             <div>
-              {task.comments.length===0&&(
+              {(task.comments||[]).length===0&&(
                 <p style={{color:muted,fontSize:13,fontFamily:"'DM Sans',sans-serif",padding:'8px 0'}}>No comments yet. Be the first!</p>
               )}
-              {task.comments.map(c=>{
+              {(task.comments||[]).map(c=>{
                 const u = getUserById(c.userId);
                 return (
                   <div key={c.id} style={{display:'flex',gap:10,marginBottom:14}}>
@@ -932,7 +879,7 @@ const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => 
 
   const handleCreate = () => {
     if (!name.trim()) return;
-    const memberIds=[currentUser.id];
+    const memberIds = [currentUser.id, ...selectedFriends];
     onCreate({id:genId(),name:name.trim(),category:cat,color,isPrivate:false,isGroup:selectedFriends.length>0,members:memberIds,memberIds,selectedFriends,createdBy:currentUser.id,createdAt:ts(),tasks:[]});
     onClose();
   };
@@ -992,7 +939,7 @@ const CreateListModal = ({dark, currentUser, onClose, onCreate, friends=[]}) => 
 };
 
 // ── AI Suggestions ────────────────────────────────────────────────────────────
-const AISuggestions = ({listName,dark,onAddTask,onClose}) => {
+const AISuggestions = ({listName, category, dark, onAddTask, onClose}) => {
   const [items,setItems]=useState([]);
   const [loading,setLoading]=useState(true);
   const [added,setAdded]=useState([]);
@@ -1000,23 +947,13 @@ const AISuggestions = ({listName,dark,onAddTask,onClose}) => {
   const bdr=dark?'#2c2c2c':'#ebebeb', muted=dark?'#555':'#bbb';
 
   useEffect(()=>{
-    (async()=>{
-      try {
-        const res=await fetch('https://api.anthropic.com/v1/messages',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            model:'claude-sonnet-4-20250514',max_tokens:300,
-            messages:[{role:'user',content:`Give exactly 6 short checklist items for a list called "${listName}". Return ONLY a valid JSON array of 6 strings. No markdown, no extra text.`}],
-          }),
-        });
-        const d=await res.json();
-        const raw=d.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
-        setItems(JSON.parse(raw));
-      } catch {
-        setItems(['Research options','Set a deadline','Create a budget','Assign responsibilities','Review progress','Finalize and submit']);
-      } finally{setLoading(false);}
-    })();
-  },[listName]);
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setItems(getSuggestionsForList(listName, category));
+      setLoading(false);
+    }, 350);
+    return () => clearTimeout(timer);
+  },[listName, category]);
 
   return (
     <div style={{background:dark?'#1e1e1e':'#fafafa',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:12,padding:'14px 16px',marginTop:8,animation:'fadeUp .18s ease-out'}}>
@@ -1155,7 +1092,7 @@ export default function App() {
   const firestoreLists = useLists(firebaseUser?.uid ?? null);
   const [lists, setLists] = useState([]);
   const [activity, setActivity] = useState([]);
-  const [selId,setSelId]=useState('list1');
+  const [selId,setSelId]=useState(null);
   const [dark,setDark]=useState(()=>{
     try { return localStorage.getItem('checkmate-dark')==='true'; } catch { return false; }
   });
@@ -1221,12 +1158,14 @@ export default function App() {
   useEffect(() => {
     const sorted = [...firestoreLists].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
     setLists(sorted);
+    setSelId(prev => {
+      if (prev && sorted.some(l => l.id === prev)) return prev;
+      return sorted[0]?.id ?? null;
+    });
   }, [firestoreLists]);
 
   useEffect(() => {
-    if (firestoreActivity.length > 0) {
-      setActivity(firestoreActivity);
-    }
+    setActivity(firestoreActivity);
   }, [firestoreActivity]);
 
   const updateList = useCallback((id, fn) => {
@@ -1246,6 +1185,29 @@ export default function App() {
       pushActivityToDB(firebaseUser.uid, { userId, action, target, listName });
     }
   }, [firebaseUser]);
+
+  const openTaskById = useCallback((taskId) => {
+    if (!taskId) return;
+    for (const list of lists) {
+      const task = list.tasks?.find(t => t.id === taskId);
+      if (task) {
+        setSelId(list.id);
+        setView('list');
+        setTaskDetail({ task, initialTab: 'detail' });
+        return;
+      }
+    }
+  }, [lists]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const taskId = params.get('task');
+    if (taskId) openTaskById(taskId);
+
+    const handler = (event) => openTaskById(event.detail?.taskId);
+    window.addEventListener('checkmate:open-task', handler);
+    return () => window.removeEventListener('checkmate:open-task', handler);
+  }, [openTaskById]);
 
   const sel=lists.find(l=>l.id===selId);
 
@@ -1277,7 +1239,7 @@ export default function App() {
     const task={id:genId(),text:newText.trim(),completed:false,completedBy:null,completedAt:null,
       assignee:newAssignees[0]||null,assignees:newAssignees,assigneeName:null,
       priority:newPrio,dueDate:newDue?(newAllDay||!newTime?newDue:`${newDue}T${newTime}`):null,
-      emoji:'📌',reactions:{},comments:[],
+      emoji:'📌', reactions:{}, comments:[], subtasks:[],
       createdBy:currentUser.id,createdAt:ts()};
     const list=lists.find(l=>l.id===selId);
     updateList(selId,l=>({...l,tasks:[...l.tasks,task]}));
@@ -1292,8 +1254,9 @@ export default function App() {
   const reactToTask=useCallback((taskId,emoji)=>{
     updateList(selId,l=>({...l,tasks:l.tasks.map(t=>{
       if(t.id!==taskId) return t;
-      const us=t.reactions[emoji]||[];
-      return{...t,reactions:{...t.reactions,[emoji]:us.includes(currentUser.id)?us.filter(u=>u!==currentUser.id):[...us,currentUser.id]}};
+      const reactions = t.reactions || {};
+      const us=reactions[emoji]||[];
+      return{...t,reactions:{...reactions,[emoji]:us.includes(currentUser.id)?us.filter(u=>u!==currentUser.id):[...us,currentUser.id]}};
     })}));
   },[selId,currentUser,updateList]);
 
@@ -1340,7 +1303,12 @@ export default function App() {
 
   // ── Route to mobile layout on small screens ──────────────────────────────
   if (isMobile()) {
-    return <MobileApp firebaseUser={firebaseUser} />;
+    return (
+      <MobileApp
+        firebaseUser={firebaseUser}
+        onProfileUpdate={() => setFirebaseUser(auth.currentUser)}
+      />
+    );
   }
 
   // Theme vars
@@ -1374,7 +1342,8 @@ export default function App() {
           currentUser={currentUser}
           dark={dark}
           onClose={() => setShowProfile(false)}
-          onUpdate={(updated) => {
+          onUpdate={() => {
+            setFirebaseUser(auth.currentUser);
             setShowProfile(false);
           }}
         />
@@ -1455,7 +1424,7 @@ export default function App() {
 
             <div style={{height:1,background:'rgba(255,255,255,.06)',margin:'clamp(8px,.8vw,12px) 4px'}}/>
             <div style={{fontSize:'clamp(8.5px,.65vw,11px)',fontWeight:700,color:'#2e2e2e',letterSpacing:'.12em',padding:'clamp(3px,.3vw,5px) clamp(9px,.85vw,13px) clamp(4px,.4vw,6px)',fontFamily:"'DM Sans',sans-serif"}}>PERSONAL</div>
-            <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
+            <DragDropContext onDragEnd={(result)=>{
               if(!result.destination) return;
               const items=[...personal];
               const [moved]=items.splice(result.source.index,1);
@@ -1488,7 +1457,7 @@ export default function App() {
               </DragDropContext>
 
               <div style={{fontSize:'clamp(8.5px,.65vw,11px)',fontWeight:700,color:'#2e2e2e',letterSpacing:'.12em',padding:'clamp(8px,.8vw,12px) clamp(9px,.85vw,13px) clamp(4px,.4vw,6px)',fontFamily:"'DM Sans',sans-serif"}}>GROUP</div>
-              <DragDropContext sensors={[useLongPressSensor]} onDragEnd={(result)=>{
+              <DragDropContext onDragEnd={(result)=>{
                 if(!result.destination) return;
                 const items=[...group];
                 const [moved]=items.splice(result.source.index,1);
@@ -1798,7 +1767,7 @@ export default function App() {
               <div style={{display:'flex',justifyContent:'flex-end',marginTop:9}}>
                 {!showAI&&<button onClick={()=>setShowAI(true)} style={{background:'none',border:`1px solid ${bdr}`,borderRadius:99,padding:'clamp(4px,.45vw,7px) clamp(12px,1.1vw,18px)',cursor:'pointer',color:muted,fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(11.5px,.82vw,13.5px)',display:'flex',alignItems:'center',gap:5}}>✨ Suggest for "{sel.name.length>18?sel.name.slice(0,18)+'…':sel.name}"</button>}
               </div>
-              {showAI&&<AISuggestions listName={sel.name} dark={dark} onClose={()=>setShowAI(false)} onAddTask={(text)=>{
+              {showAI&&<AISuggestions listName={sel.name} category={sel.category} dark={dark} onClose={()=>setShowAI(false)} onAddTask={(text)=>{
                 const task={id:genId(),text,completed:false,completedBy:null,completedAt:null,assignee:null,priority:'MED',dueDate:null,emoji:'📌',reactions:{},comments:[],createdBy:currentUser.id,createdAt:ts()};
                 updateList(selId,l=>({...l,tasks:[...l.tasks,task]}));
                 pushActivity(currentUser.id,'added',text,sel.name);

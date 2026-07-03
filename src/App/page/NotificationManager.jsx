@@ -18,11 +18,18 @@ export const InAppAlertBanner = ({ alerts, onDismiss, dark }) => {
   const bg     = dark ? '#1e1e1e' : '#fff';
   const txt    = dark ? '#efefef' : '#111';
   const border = dark ? '#2c2c2c' : '#e8e8e8';
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div style={{
-      position: 'fixed', top: 16, right: 16, zIndex: 9999,
-      display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 340,
+      position: 'fixed',
+      top: isMobile ? 'auto' : 16,
+      bottom: isMobile ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : 'auto',
+      right: isMobile ? 12 : 16,
+      left: isMobile ? 12 : 'auto',
+      zIndex: 9999,
+      display: 'flex', flexDirection: 'column', gap: 8,
+      maxWidth: isMobile ? 'none' : 340,
     }}>
       {alerts.map((alert) => (
         <div key={alert.id} style={{
