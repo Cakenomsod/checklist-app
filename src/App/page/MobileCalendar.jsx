@@ -17,11 +17,14 @@ export default function MobileCalendar({ lists, dark, currentUser, onToggleTask 
   const [month, setMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState(today.toISOString().split('T')[0]);
 
-  const txt    = dark ? '#efefef' : '#111';
-  const muted  = dark ? '#555'    : '#bbb';
-  const bdr    = dark ? '#2c2c2c' : '#ececec';
-  const surface = dark ? '#1c1c1c' : '#fff';
-  const bg     = dark ? '#141414' : '#f5f5f4';
+  const txt     = dark ? '#efefef' : '#111111';
+  const muted   = dark ? '#888888' : '#888888';
+  const mutedSoft = dark ? '#aaaaaa' : '#aaaaaa';
+  const bdr     = dark ? '#2c2c2c' : '#e8e8e8';
+  const surface = dark ? '#1e1e1e' : '#ffffff';
+  const surfaceMuted = dark ? '#252525' : '#f8f8f8';
+  const bg      = dark ? '#111111' : '#fafafa';
+  const ink     = '#111111';
 
   // ── tasksByDate ──────────────────────────────────────────────────────────────
   const tasksByDate = useMemo(() => {
@@ -44,7 +47,6 @@ export default function MobileCalendar({ lists, dark, currentUser, onToggleTask 
     const cells = [];
     for (let i = 0; i < first; i++) cells.push(null);
     for (let d = 1; d <= days; d++) cells.push(d);
-    // pad to full weeks
     while (cells.length % 7 !== 0) cells.push(null);
     return cells;
   }, [year, month]);
@@ -69,48 +71,58 @@ export default function MobileCalendar({ lists, dark, currentUser, onToggleTask 
 
   const todayStr = today.toISOString().split('T')[0];
 
+  const navBtn = {
+    background: surfaceMuted,
+    border: `1px solid ${bdr}`,
+    borderRadius: 10,
+    width: 44,
+    height: 44,
+    cursor: 'pointer',
+    fontSize: 20,
+    color: txt,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: "'DM Sans',sans-serif",
+    WebkitTapHighlightColor: 'transparent',
+    transition: 'background .12s ease-out, border-color .12s ease-out',
+  };
+
   return (
     <div style={{ padding: '0 0 120px', background: bg, minHeight: '100%' }}>
 
       {/* ── Month nav ── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '18px 18px 10px',
+        padding: '16px 16px 12px',
       }}>
-        <button onClick={prevMonth} style={{
-          background: dark ? '#1e1e1e' : '#f0f0f0', border: 'none', borderRadius: 9,
-          width: 36, height: 36, cursor: 'pointer', fontSize: 17, color: txt,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>‹</button>
+        <button type="button" aria-label="Previous month" onClick={prevMonth} style={navBtn}>‹</button>
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            fontFamily: "'Lora',serif", fontSize: 19, fontWeight: 600,
-            color: txt, fontStyle: 'italic',
+            fontFamily: "'Lora',serif", fontSize: 20, fontWeight: 600,
+            color: txt, fontStyle: 'italic', lineHeight: 1.2,
           }}>{MONTH_NAMES[month]}</div>
-          <div style={{ fontSize: 12, color: muted, fontFamily: "'DM Sans',sans-serif" }}>{year}</div>
+          <div style={{
+            fontSize: 12, color: muted, marginTop: 2,
+            fontFamily: "'DM Sans',sans-serif", letterSpacing: '.02em',
+          }}>{year}</div>
         </div>
-        <button onClick={nextMonth} style={{
-          background: dark ? '#1e1e1e' : '#f0f0f0', border: 'none', borderRadius: 9,
-          width: 36, height: 36, cursor: 'pointer', fontSize: 17, color: txt,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>›</button>
+        <button type="button" aria-label="Next month" onClick={nextMonth} style={navBtn}>›</button>
       </div>
 
       {/* ── Calendar grid ── */}
       <div style={{ padding: '0 12px' }}>
-        {/* Day labels */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', marginBottom: 4 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', marginBottom: 6 }}>
           {DAY_LABELS.map(d => (
             <div key={d} style={{
-              textAlign: 'center', fontSize: 10.5, fontWeight: 700,
-              color: muted, letterSpacing: '.05em', padding: '4px 0',
-              fontFamily: "'DM Sans',sans-serif",
+              textAlign: 'center', fontSize: 10, fontWeight: 600,
+              color: muted, letterSpacing: '.08em', padding: '6px 0',
+              fontFamily: "'DM Sans',sans-serif", textTransform: 'uppercase',
             }}>{d}</div>
           ))}
         </div>
 
-        {/* Day cells */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 3 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 4 }}>
           {monthGrid.map((day, i) => {
             if (!day) return <div key={`b-${i}`} />;
             const key = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -121,115 +133,164 @@ export default function MobileCalendar({ lists, dark, currentUser, onToggleTask 
             const hasTask = dayTasks.length > 0;
 
             return (
-              <div
+              <button
+                type="button"
                 key={key}
+                aria-label={`${MONTH_NAMES[month]} ${day}${isToday ? ', today' : ''}${hasTask ? `, ${dayTasks.length} tasks` : ''}`}
+                aria-pressed={isSelected}
                 onClick={() => setSelectedDate(key)}
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  padding: '6px 2px 8px', borderRadius: 10, cursor: 'pointer',
-                  background: isSelected
-                    ? '#111'
+                  justifyContent: 'center',
+                  minHeight: 44, padding: '8px 2px 10px', borderRadius: 10,
+                  cursor: 'pointer',
+                  border: isSelected
+                    ? `1.5px solid ${ink}`
                     : isToday
-                      ? (dark ? '#2a2a2a' : '#f0f0f0')
+                      ? `1.5px solid ${dark ? '#555555' : '#111111'}`
+                      : '1.5px solid transparent',
+                  background: isSelected
+                    ? ink
+                    : isToday
+                      ? surfaceMuted
                       : 'transparent',
-                  transition: 'background .12s',
+                  boxShadow: isSelected
+                    ? (dark ? '0 1px 0 rgba(255,255,255,.06)' : '0 1px 3px rgba(0,0,0,.08)')
+                    : 'none',
+                  transition: 'background .12s ease-out, border-color .12s ease-out, box-shadow .12s ease-out',
+                  WebkitTapHighlightColor: 'transparent',
+                  font: 'inherit',
                 }}
               >
                 <span style={{
                   fontFamily: "'DM Sans',sans-serif",
-                  fontSize: 14, fontWeight: isToday || isSelected ? 700 : 400,
-                  color: isSelected ? '#fff' : isToday ? txt : txt,
+                  fontSize: 14, fontWeight: isToday || isSelected ? 700 : 500,
+                  color: isSelected ? '#fafafa' : txt,
                   lineHeight: 1,
                 }}>{day}</span>
 
-                {/* Dot indicators */}
-                <div style={{ display: 'flex', gap: 2, marginTop: 4, height: 5 }}>
-                  {hasTask && !isSelected && (
+                <div style={{ display: 'flex', gap: 3, marginTop: 5, height: 5, alignItems: 'center' }}>
+                  {hasTask && (
                     <>
                       <div style={{
                         width: 5, height: 5, borderRadius: '50%',
-                        background: hasOverdue ? '#d44' : P_COLOR.MED,
+                        background: isSelected
+                          ? 'rgba(255,255,255,.65)'
+                          : hasOverdue ? '#e05555' : P_COLOR.MED,
                       }} />
                       {dayTasks.length > 1 && (
-                        <div style={{ width: 5, height: 5, borderRadius: '50%', background: muted }} />
+                        <div style={{
+                          width: 5, height: 5, borderRadius: '50%',
+                          background: isSelected ? 'rgba(255,255,255,.35)' : mutedSoft,
+                        }} />
                       )}
                     </>
                   )}
-                  {isSelected && hasTask && (
-                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,.6)' }} />
-                  )}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* ── Divider + task count strip ── */}
+      {/* ── Date strip ── */}
       <div style={{
-        margin: '14px 14px 0', padding: '10px 14px',
+        margin: '16px 14px 0', padding: '12px 14px',
         background: surface, borderRadius: 12,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        border: `1px solid ${bdr}`,
+        gap: 10, border: `1px solid ${bdr}`,
       }}>
-        <span style={{
-          fontFamily: "'Lora',serif", fontSize: 14, color: txt,
-          fontWeight: 600, fontStyle: 'italic',
-        }}>{selDateLabel}</span>
-        {selectedDate === todayStr && (
-          <span style={{
-            fontSize: 10, fontWeight: 700, letterSpacing: '.07em',
-            background: '#111', color: '#fff', borderRadius: 99, padding: '2px 8px',
-            fontFamily: "'DM Sans',sans-serif",
-          }}>TODAY</span>
-        )}
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{
+            fontFamily: "'Lora',serif", fontSize: 15, color: txt,
+            fontWeight: 600, fontStyle: 'italic', lineHeight: 1.25,
+          }}>{selDateLabel}</div>
+          {selectedDate === todayStr && (
+            <span style={{
+              display: 'inline-block', marginTop: 6,
+              fontSize: 10, fontWeight: 600, letterSpacing: '.08em',
+              background: ink, color: '#fafafa', borderRadius: 99, padding: '3px 8px',
+              fontFamily: "'DM Sans',sans-serif",
+            }}>TODAY</span>
+          )}
+        </div>
         {selectedTasks.length > 0 && (
           <span style={{
-            fontSize: 12, color: muted, fontFamily: "'DM Sans',sans-serif",
+            flexShrink: 0, fontSize: 12, color: muted,
+            fontFamily: "'DM Sans',sans-serif", fontWeight: 500,
           }}>{selectedTasks.length} task{selectedTasks.length !== 1 ? 's' : ''}</span>
         )}
       </div>
 
       {/* ── Task list for selected day ── */}
-      <div style={{ padding: '10px 14px' }}>
+      <div style={{ padding: '12px 14px' }}>
         {selectedTasks.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '28px 0', color: muted }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>🌿</div>
-            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13 }}>No tasks due this day</p>
+          <div style={{ textAlign: 'center', padding: '36px 12px', color: muted }}>
+            <div style={{ fontSize: 28, marginBottom: 10, lineHeight: 1 }} aria-hidden>🌿</div>
+            <p style={{
+              fontFamily: "'DM Sans',sans-serif", fontSize: 14, margin: 0,
+              color: muted, lineHeight: 1.4,
+            }}>No tasks due this day</p>
           </div>
         ) : (
           selectedTasks.map(({ task, listId, listName, listColor }) => {
             const overdue = new Date(task.dueDate) < today && !task.completed;
+            const prio = task.priority || 'MED';
+            const cardBg = task.completed
+              ? surface
+              : (dark ? surface : P_BG[prio]);
+
             return (
               <div key={task.id} style={{
-                background: surface,
+                background: cardBg,
                 border: `1px solid ${bdr}`,
-                borderLeft: `3px solid ${P_COLOR[task.priority]}`,
-                borderRadius: 12, padding: '12px 14px', marginBottom: 8,
+                borderTop: `2px solid ${P_COLOR[prio]}`,
+                borderRadius: 12,
+                padding: '14px',
+                marginBottom: 10,
               }}>
                 {/* List badge */}
                 <div style={{
-                  fontSize: 10.5, fontWeight: 700, letterSpacing: '.06em',
+                  fontSize: 10, fontWeight: 600, letterSpacing: '.08em',
                   color: muted, fontFamily: "'DM Sans',sans-serif",
-                  marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5,
+                  marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6,
+                  textTransform: 'uppercase',
                 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: listColor }} />
-                  {listName}
+                  <div style={{
+                    width: 7, height: 7, borderRadius: '50%',
+                    background: listColor || P_COLOR.MED, flexShrink: 0,
+                  }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {listName}
+                  </span>
                 </div>
 
                 {/* Task row */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <button
+                    type="button"
+                    aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
                     onClick={() => onToggleTask && onToggleTask(listId, task.id)}
                     style={{
-                      width: 22, height: 22, borderRadius: 6, flexShrink: 0,
-                      border: `2px solid ${task.completed ? (dark?'#ccc':'#333') : '#d0d0d0'}`,
-                      background: task.completed ? (dark?'#ccc':'#111') : 'transparent',
+                      width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                      border: `2px solid ${task.completed
+                        ? (dark ? '#efefef' : '#111111')
+                        : (dark ? '#555555' : '#aaaaaa')}`,
+                      background: task.completed
+                        ? (dark ? '#efefef' : '#111111')
+                        : 'transparent',
                       cursor: 'pointer', display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', padding: 0, marginTop: 1,
+                      justifyContent: 'center', padding: 0, marginTop: 0,
+                      WebkitTapHighlightColor: 'transparent',
+                      transition: 'background .12s ease-out, border-color .12s ease-out',
                     }}
                   >
-                    {task.completed && <span style={{ fontSize: 10, color: dark?'#111':'#fff', fontWeight: 800 }}>✓</span>}
+                    {task.completed && (
+                      <span style={{
+                        fontSize: 12, color: dark ? '#111111' : '#fafafa', fontWeight: 800,
+                        lineHeight: 1,
+                      }}>✓</span>
+                    )}
                   </button>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -237,25 +298,34 @@ export default function MobileCalendar({ lists, dark, currentUser, onToggleTask 
                       fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 500,
                       color: task.completed ? muted : txt,
                       textDecoration: task.completed ? 'line-through' : 'none',
+                      lineHeight: 1.35,
                     }}>
-                      {task.emoji && <span style={{ marginRight: 4 }}>{task.emoji}</span>}
+                      {task.emoji && <span style={{ marginRight: 5 }}>{task.emoji}</span>}
                       {task.text}
                     </div>
-                    <div style={{ display: 'flex', gap: 6, marginTop: 5, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                       <span style={{
-                        fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 99,
-                        color: P_COLOR[task.priority], background: P_BG[task.priority],
-                      }}>{task.priority}</span>
+                        fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 99,
+                        color: P_COLOR[prio],
+                        background: P_BG[prio],
+                        fontFamily: "'DM Sans',sans-serif",
+                      }}>{prio}</span>
                       {overdue && !task.completed && (
                         <span style={{
-                          fontSize: 11, padding: '2px 8px', borderRadius: 99,
-                          color: '#d44', background: '#fff0f0', fontWeight: 600,
+                          fontSize: 11, padding: '3px 9px', borderRadius: 99,
+                          color: '#c0392b',
+                          background: '#FFECEC',
+                          fontWeight: 600,
+                          fontFamily: "'DM Sans',sans-serif",
                         }}>Overdue</span>
                       )}
                       {task.completed && (
                         <span style={{
-                          fontSize: 11, padding: '2px 8px', borderRadius: 99,
-                          color: '#2f8a55', background: '#e4f7ec', fontWeight: 600,
+                          fontSize: 11, padding: '3px 9px', borderRadius: 99,
+                          color: '#2f8a55',
+                          background: '#E4F7EC',
+                          fontWeight: 600,
+                          fontFamily: "'DM Sans',sans-serif",
                         }}>Done ✓</span>
                       )}
                     </div>

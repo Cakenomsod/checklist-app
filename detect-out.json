@@ -1,0 +1,3842 @@
+﻿[
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 220,
+    "snippet": "Undocumented color rgba(0,0,0,.14) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.14)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-radius",
+    "name": "Radius outside DESIGN.md",
+    "description": "A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 220,
+    "snippet": "border-radius: 4px is outside the DESIGN.md rounded scale",
+    "ignoreValue": "4px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 279,
+    "snippet": "Undocumented color rgba(0,0,0,.07) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.07)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 286,
+    "snippet": "fontSize: clamp(9.5px,.7vw,11.5px) has fluid endpoint 11.5px off the DESIGN.md type ramp",
+    "ignoreValue": "11.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 298,
+    "snippet": "Undocumented color rgba(0,0,0,.1) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.1)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 301,
+    "snippet": "Undocumented color rgba(0,0,0,.35) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.35)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 301,
+    "snippet": "fontSize: clamp(10.5px,.75vw,13px) has fluid endpoint 13px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 343,
+    "snippet": "Undocumented color #3a3a3a is outside DESIGN.md colors",
+    "ignoreValue": "#3a3a3a",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 343,
+    "snippet": "Undocumented color #d0d0d0 is outside DESIGN.md colors",
+    "ignoreValue": "#d0d0d0",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 359,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 359,
+    "snippet": "Undocumented color #3a3a3a is outside DESIGN.md colors",
+    "ignoreValue": "#3a3a3a",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 359,
+    "snippet": "Undocumented color #d0d0d0 is outside DESIGN.md colors",
+    "ignoreValue": "#d0d0d0",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 363,
+    "snippet": "fontSize: clamp(8px,.6vw,10px) has fluid endpoint 8px off the DESIGN.md type ramp",
+    "ignoreValue": "8px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 368,
+    "snippet": "fontSize: clamp(12px,.9vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 369,
+    "snippet": "fontSize: clamp(13px,.95vw,16px) has fluid endpoints 13px and 16px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 371,
+    "snippet": "Undocumented color #3a1010 is outside DESIGN.md colors",
+    "ignoreValue": "#3a1010",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 371,
+    "snippet": "Undocumented color #ff8080 is outside DESIGN.md colors",
+    "ignoreValue": "#ff8080",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 371,
+    "snippet": "Undocumented color #d44 is outside DESIGN.md colors",
+    "ignoreValue": "#d44",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 371,
+    "snippet": "Undocumented color #666 is outside DESIGN.md colors",
+    "ignoreValue": "#666",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 371,
+    "snippet": "fontSize: clamp(9.5px,.7vw,11.5px) has fluid endpoint 11.5px off the DESIGN.md type ramp",
+    "ignoreValue": "11.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 381,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 382,
+    "snippet": "fontSize: clamp(9.5px,.68vw,11px) has fluid endpoint 11px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 386,
+    "snippet": "fontSize: clamp(9px,.65vw,11px) has fluid endpoints 9px and 11px off the DESIGN.md type ramp",
+    "ignoreValue": "9px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 391,
+    "snippet": "Undocumented color #c8eed3 is outside DESIGN.md colors",
+    "ignoreValue": "#c8eed3",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 391,
+    "snippet": "Undocumented color #5a9e6f is outside DESIGN.md colors",
+    "ignoreValue": "#5a9e6f",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 391,
+    "snippet": "fontSize: clamp(10px,.72vw,12px) has fluid endpoint 12px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 393,
+    "snippet": "fontSize: clamp(10.5px,.75vw,12.5px) has fluid endpoint 12.5px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 393,
+    "snippet": "fontSize: clamp(9.5px,.68vw,11.5px) has fluid endpoint 11.5px off the DESIGN.md type ramp",
+    "ignoreValue": "11.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 394,
+    "snippet": "fontSize: clamp(10px,.72vw,12px) has fluid endpoint 12px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 401,
+    "snippet": "fontSize: clamp(9px,.65vw,11px) has fluid endpoints 9px and 11px off the DESIGN.md type ramp",
+    "ignoreValue": "9px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 411,
+    "snippet": "fontSize: clamp(11px,.8vw,13px) has fluid endpoints 11px and 13px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 412,
+    "snippet": "fontSize: clamp(15px,1.2vw,19px) has fluid endpoints 15px and 19px off the DESIGN.md type ramp",
+    "ignoreValue": "15px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 414,
+    "snippet": "fontSize: clamp(11px,.8vw,14px) has fluid endpoints 11px and 14px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 423,
+    "snippet": "Undocumented color #252525 is outside DESIGN.md colors",
+    "ignoreValue": "#252525",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 424,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 424,
+    "snippet": "Undocumented color #3a3a3a is outside DESIGN.md colors",
+    "ignoreValue": "#3a3a3a",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 424,
+    "snippet": "Undocumented color #d0d0d0 is outside DESIGN.md colors",
+    "ignoreValue": "#d0d0d0",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 427,
+    "snippet": "fontSize: clamp(11.5px,.83vw,13px) has fluid endpoints 11.5px and 13px off the DESIGN.md type ramp",
+    "ignoreValue": "11.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 428,
+    "snippet": "Undocumented color #3a3a3a is outside DESIGN.md colors",
+    "ignoreValue": "#3a3a3a",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 428,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 516,
+    "snippet": "Undocumented color rgba(0,0,0,.45) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.45)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 528,
+    "snippet": "Undocumented color rgba(0,0,0,.14) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.14)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 529,
+    "snippet": "Undocumented color #252525 is outside DESIGN.md colors",
+    "ignoreValue": "#252525",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 532,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 576,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 576,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 582,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 585,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 640,
+    "snippet": "Undocumented color #162218 is outside DESIGN.md colors",
+    "ignoreValue": "#162218",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 640,
+    "snippet": "Undocumented color #eef8f1 is outside DESIGN.md colors",
+    "ignoreValue": "#eef8f1",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 643,
+    "snippet": "Undocumented color #c8eed3 is outside DESIGN.md colors",
+    "ignoreValue": "#c8eed3",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 645,
+    "snippet": "Undocumented color #3a8f56 is outside DESIGN.md colors",
+    "ignoreValue": "#3a8f56",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 661,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 661,
+    "snippet": "Undocumented color #3a3a3a is outside DESIGN.md colors",
+    "ignoreValue": "#3a3a3a",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 661,
+    "snippet": "Undocumented color #d0d0d0 is outside DESIGN.md colors",
+    "ignoreValue": "#d0d0d0",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 665,
+    "snippet": "Undocumented color #444 is outside DESIGN.md colors",
+    "ignoreValue": "#444",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 665,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 688,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 705,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 765,
+    "snippet": "Undocumented color rgba(0,0,0,.4) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.4)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 786,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 786,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 813,
+    "snippet": "Undocumented color #bbb is outside DESIGN.md colors",
+    "ignoreValue": "#bbb",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 834,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 838,
+    "snippet": "Undocumented color #3a8f56 is outside DESIGN.md colors",
+    "ignoreValue": "#3a8f56",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 855,
+    "snippet": "Undocumented color rgba(200,50,50,.25) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.25)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 900,
+    "snippet": "Undocumented color rgba(0,0,0,.4) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.4)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 911,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 911,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 925,
+    "snippet": "Undocumented color #bbb is outside DESIGN.md colors",
+    "ignoreValue": "#bbb",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 936,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 938,
+    "snippet": "Undocumented color #3a8f56 is outside DESIGN.md colors",
+    "ignoreValue": "#3a8f56",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 981,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1013,
+    "snippet": "fontSize: clamp(22px,2vw,34px) has fluid endpoints 22px and 34px off the DESIGN.md type ramp",
+    "ignoreValue": "22px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1014,
+    "snippet": "fontSize: clamp(12px,.85vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1022,
+    "snippet": "fontSize: clamp(18px,1.4vw,24px) has fluid endpoints 18px and 24px off the DESIGN.md type ramp",
+    "ignoreValue": "18px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1022,
+    "snippet": "fontSize: clamp(12px,.85vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1025,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1028,
+    "snippet": "fontSize: clamp(13.5px,.95vw,16px) has fluid endpoints 13.5px and 16px off the DESIGN.md type ramp",
+    "ignoreValue": "13.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1029,
+    "snippet": "fontSize: clamp(11px,.78vw,13px) has fluid endpoints 11px and 13px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1031,
+    "snippet": "fontSize: clamp(20px,1.6vw,28px) has fluid endpoints 20px and 28px off the DESIGN.md type ramp",
+    "ignoreValue": "20px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1037,
+    "snippet": "fontSize: clamp(13px,.9vw,15px) has fluid endpoints 13px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1059,
+    "snippet": "fontSize: clamp(22px,2vw,34px) has fluid endpoints 22px and 34px off the DESIGN.md type ramp",
+    "ignoreValue": "22px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1060,
+    "snippet": "fontSize: clamp(12px,.85vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1065,
+    "snippet": "fontSize: clamp(13px,.9vw,15px) has fluid endpoints 13px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1075,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1078,
+    "snippet": "fontSize: clamp(12.5px,.88vw,15px) has fluid endpoints 12.5px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1083,
+    "snippet": "fontSize: clamp(10.5px,.72vw,12.5px) has fluid endpoint 12.5px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1362,
+    "snippet": "Undocumented color rgba(0,0,0,.4) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.4)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1374,
+    "snippet": "Undocumented color rgba(0,0,0,.45) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.45)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1377,
+    "snippet": "Undocumented color rgba(200,50,50,.1) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.1)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1410,
+    "snippet": "fontSize: clamp(12px,.9vw,16px) has fluid endpoints 12px and 16px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1411,
+    "snippet": "fontSize: clamp(15px,1.1vw,19px) has fluid endpoints 15px and 19px off the DESIGN.md type ramp",
+    "ignoreValue": "15px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1423,
+    "snippet": "fontSize: clamp(12px,.88vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1424,
+    "snippet": "fontSize: clamp(9px,.65vw,11px) has fluid endpoints 9px and 11px off the DESIGN.md type ramp",
+    "ignoreValue": "9px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1431,
+    "snippet": "fontSize: clamp(12px,.88vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1432,
+    "snippet": "fontSize: clamp(11px,.82vw,14px) has fluid endpoints 11px and 14px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1437,
+    "snippet": "Undocumented color #555555 is outside DESIGN.md colors",
+    "ignoreValue": "#555555",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1437,
+    "snippet": "fontSize: clamp(8.5px,.65vw,11px) has fluid endpoints 8.5px and 11px off the DESIGN.md type ramp",
+    "ignoreValue": "8.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1454,
+    "snippet": "Undocumented color #363636 is outside DESIGN.md colors",
+    "ignoreValue": "#363636",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1455,
+    "snippet": "fontSize: clamp(12px,.88vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1458,
+    "snippet": "Undocumented color #555555 is outside DESIGN.md colors",
+    "ignoreValue": "#555555",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1470,
+    "snippet": "Undocumented color #555555 is outside DESIGN.md colors",
+    "ignoreValue": "#555555",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1470,
+    "snippet": "fontSize: clamp(8.5px,.65vw,11px) has fluid endpoints 8.5px and 11px off the DESIGN.md type ramp",
+    "ignoreValue": "8.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1487,
+    "snippet": "Undocumented color #363636 is outside DESIGN.md colors",
+    "ignoreValue": "#363636",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1488,
+    "snippet": "fontSize: clamp(12px,.88vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1496,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1516,
+    "snippet": "fontSize: clamp(12px,.88vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1518,
+    "snippet": "fontSize: clamp(11px,.82vw,14px) has fluid endpoints 11px and 14px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1525,
+    "snippet": "fontSize: clamp(12px,.88vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1527,
+    "snippet": "fontSize: clamp(11px,.82vw,14px) has fluid endpoints 11px and 14px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1530,
+    "snippet": "fontSize: clamp(12px,.88vw,15px) has fluid endpoints 12px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1531,
+    "snippet": "fontSize: clamp(13px,.95vw,17px) has fluid endpoints 13px and 17px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1538,
+    "snippet": "Undocumented color #383838 is outside DESIGN.md colors",
+    "ignoreValue": "#383838",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1538,
+    "snippet": "fontSize: clamp(8.5px,.65vw,10.5px) has fluid endpoint 8.5px off the DESIGN.md type ramp",
+    "ignoreValue": "8.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1542,
+    "snippet": "fontSize: clamp(9px,.65vw,11px) has fluid endpoints 9px and 11px off the DESIGN.md type ramp",
+    "ignoreValue": "9px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1543,
+    "snippet": "Undocumented color rgba(200,50,50,.18) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.18)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1543,
+    "snippet": "Undocumented color #f08080 is outside DESIGN.md colors",
+    "ignoreValue": "#f08080",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1543,
+    "snippet": "fontSize: clamp(10px,.72vw,12.5px) has fluid endpoint 12.5px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1547,
+    "snippet": "fontSize: clamp(10px,.72vw,12.5px) has fluid endpoint 12.5px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1549,
+    "snippet": "fontSize: clamp(11px,.8vw,14px) has fluid endpoints 11px and 14px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1621,
+    "snippet": "fontSize: clamp(40px,4vw,60px) has fluid endpoints 40px and 60px off the DESIGN.md type ramp",
+    "ignoreValue": "40px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1622,
+    "snippet": "fontSize: clamp(17px,1.4vw,24px) has fluid endpoints 17px and 24px off the DESIGN.md type ramp",
+    "ignoreValue": "17px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1623,
+    "snippet": "fontSize: clamp(13px,1vw,16px) has fluid endpoints 13px and 16px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1639,
+    "snippet": "fontSize: clamp(19px,1.6vw,26px) has fluid endpoints 19px and 26px off the DESIGN.md type ramp",
+    "ignoreValue": "19px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1640,
+    "snippet": "Undocumented color rgba(0,0,0,.09) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.09)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1640,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1640,
+    "snippet": "fontSize: clamp(9px,.65vw,11px) has fluid endpoints 9px and 11px off the DESIGN.md type ramp",
+    "ignoreValue": "9px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1644,
+    "snippet": "Undocumented color rgba(0,0,0,.38) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.38)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1644,
+    "snippet": "fontSize: clamp(11px,.8vw,13.5px) has fluid endpoints 11px and 13.5px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1645,
+    "snippet": "Undocumented color rgba(0,0,0,.18) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.18)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1656,
+    "snippet": "Undocumented color rgba(0,0,0,.12) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.12)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1656,
+    "snippet": "Undocumented color rgba(0,0,0,.07) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.07)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1656,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1656,
+    "snippet": "fontSize: clamp(10.5px,.72vw,13px) has fluid endpoint 13px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1663,
+    "snippet": "Undocumented color rgba(0,0,0,.07) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.07)",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1663,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1663,
+    "snippet": "fontSize: clamp(10.5px,.72vw,13px) has fluid endpoint 13px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1672,
+    "snippet": "fontSize: clamp(13px,1vw,15px) has fluid endpoints 13px and 15px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1720,
+    "snippet": "Undocumented color #d0d0d0 is outside DESIGN.md colors",
+    "ignoreValue": "#d0d0d0",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1721,
+    "snippet": "fontSize: clamp(13px,1vw,16px) has fluid endpoints 13px and 16px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1722,
+    "snippet": "fontSize: clamp(12px,.85vw,14px) has fluid endpoints 12px and 14px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1729,
+    "snippet": "Undocumented color #e0e0e0 is outside DESIGN.md colors",
+    "ignoreValue": "#e0e0e0",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1729,
+    "snippet": "fontSize: clamp(10px,.72vw,12px) has fluid endpoint 12px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1748,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1748,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1748,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1750,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1750,
+    "snippet": "Undocumented color #666 is outside DESIGN.md colors",
+    "ignoreValue": "#666",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1751,
+    "snippet": "fontSize: clamp(10.5px,.76vw,12.5px) has fluid endpoint 12.5px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1756,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1756,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1768,
+    "snippet": "fontSize: clamp(11px,.78vw,13px) has fluid endpoints 11px and 13px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1770,
+    "snippet": "fontSize: clamp(10.5px,.76vw,12.5px) has fluid endpoint 12.5px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1781,
+    "snippet": "fontSize: clamp(11.5px,.82vw,13.5px) has fluid endpoints 11.5px and 13.5px off the DESIGN.md type ramp",
+    "ignoreValue": "11.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1798,
+    "snippet": "Undocumented color #e0e0e0 is outside DESIGN.md colors",
+    "ignoreValue": "#e0e0e0",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1798,
+    "snippet": "fontSize: clamp(10px,.72vw,12px) has fluid endpoint 12px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1817,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1817,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1817,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1819,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1819,
+    "snippet": "Undocumented color #666 is outside DESIGN.md colors",
+    "ignoreValue": "#666",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1820,
+    "snippet": "fontSize: clamp(10.5px,.76vw,12.5px) has fluid endpoint 12.5px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1824,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1824,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1835,
+    "snippet": "fontSize: clamp(11px,.78vw,13px) has fluid endpoints 11px and 13px off the DESIGN.md type ramp",
+    "ignoreValue": "11px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1837,
+    "snippet": "fontSize: clamp(10.5px,.76vw,12.5px) has fluid endpoint 12.5px off the DESIGN.md type ramp",
+    "ignoreValue": "12.5px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1845,
+    "snippet": "Undocumented color #d0d0d0 is outside DESIGN.md colors",
+    "ignoreValue": "#d0d0d0",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1846,
+    "snippet": "fontSize: clamp(13px,1vw,16px) has fluid endpoints 13px and 16px off the DESIGN.md type ramp",
+    "ignoreValue": "13px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\App.jsx",
+    "line": 1847,
+    "snippet": "fontSize: clamp(12px,.85vw,14px) has fluid endpoints 12px and 14px off the DESIGN.md type ramp",
+    "ignoreValue": "12px",
+    "importedBy": [
+      "main.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 95,
+    "snippet": "Undocumented color rgba(0,0,0,.07) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.07)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 99,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 101,
+    "snippet": "Undocumented color rgba(0,0,0,.07) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.07)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 124,
+    "snippet": "Undocumented color rgba(0,0,0,.1) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.1)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 132,
+    "snippet": "Undocumented color rgba(0,0,0,.4) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.4)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 166,
+    "snippet": "Undocumented color rgba(0,0,0,.45) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.45)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 182,
+    "snippet": "Undocumented color #444 is outside DESIGN.md colors",
+    "ignoreValue": "#444",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 182,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 240,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 240,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 240,
+    "snippet": "Undocumented color #d0d0d0 is outside DESIGN.md colors",
+    "ignoreValue": "#d0d0d0",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 266,
+    "snippet": "Undocumented color #d44 is outside DESIGN.md colors",
+    "ignoreValue": "#d44",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 267,
+    "snippet": "Undocumented color #2a1a1a is outside DESIGN.md colors",
+    "ignoreValue": "#2a1a1a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 277,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 277,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 317,
+    "snippet": "Undocumented color #444 is outside DESIGN.md colors",
+    "ignoreValue": "#444",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 317,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 333,
+    "snippet": "Undocumented color rgba(200,50,50,.1) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.1)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 360,
+    "snippet": "Undocumented color rgba(0,0,0,.45) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.45)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 385,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 391,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 398,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 400,
+    "snippet": "Undocumented color #3a3a3a is outside DESIGN.md colors",
+    "ignoreValue": "#3a3a3a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 410,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 416,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 429,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 447,
+    "snippet": "Undocumented color #666 is outside DESIGN.md colors",
+    "ignoreValue": "#666",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 451,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 479,
+    "snippet": "Undocumented color #bbb is outside DESIGN.md colors",
+    "ignoreValue": "#bbb",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 491,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 493,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 501,
+    "snippet": "Undocumented color #bbb is outside DESIGN.md colors",
+    "ignoreValue": "#bbb",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 630,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 630,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 634,
+    "snippet": "Undocumented color #3a8f56 is outside DESIGN.md colors",
+    "ignoreValue": "#3a8f56",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 652,
+    "snippet": "Undocumented color rgba(200,50,50,.06) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.06)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 652,
+    "snippet": "Undocumented color rgba(200,50,50,.15) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.15)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 773,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 821,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 821,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 821,
+    "snippet": "Undocumented color #3a3a3a is outside DESIGN.md colors",
+    "ignoreValue": "#3a3a3a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 821,
+    "snippet": "Undocumented color #d0d0d0 is outside DESIGN.md colors",
+    "ignoreValue": "#d0d0d0",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 835,
+    "snippet": "Undocumented color #444 is outside DESIGN.md colors",
+    "ignoreValue": "#444",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 835,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 885,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 891,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 891,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 956,
+    "snippet": "Undocumented color #162218 is outside DESIGN.md colors",
+    "ignoreValue": "#162218",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 956,
+    "snippet": "Undocumented color #eef8f1 is outside DESIGN.md colors",
+    "ignoreValue": "#eef8f1",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 959,
+    "snippet": "Undocumented color #1e4d2a is outside DESIGN.md colors",
+    "ignoreValue": "#1e4d2a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 959,
+    "snippet": "Undocumented color #c8eed3 is outside DESIGN.md colors",
+    "ignoreValue": "#c8eed3",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 961,
+    "snippet": "Undocumented color #3a8f56 is outside DESIGN.md colors",
+    "ignoreValue": "#3a8f56",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 983,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 983,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-radius",
+    "name": "Radius outside DESIGN.md",
+    "description": "A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 989,
+    "snippet": "borderRadius: 3px is outside the DESIGN.md rounded scale",
+    "ignoreValue": "3px",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 999,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 999,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1046,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1046,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1090,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1090,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1341,
+    "snippet": "Undocumented color rgba(0,0,0,.45) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.45)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1346,
+    "snippet": "Undocumented color rgba(200,50,50,.1) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.1)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1405,
+    "snippet": "Undocumented color rgba(0,0,0,.07) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.07)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1417,
+    "snippet": "Undocumented color rgba(0,0,0,.4) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.4)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1433,
+    "snippet": "Undocumented color rgba(0,0,0,.07) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.07)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1443,
+    "snippet": "Undocumented color rgba(0,0,0,.07) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.07)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1495,
+    "snippet": "Undocumented color #e0e0e0 is outside DESIGN.md colors",
+    "ignoreValue": "#e0e0e0",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1556,
+    "snippet": "Undocumented color #3a3a3a is outside DESIGN.md colors",
+    "ignoreValue": "#3a3a3a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1556,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1599,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1601,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1601,
+    "snippet": "Undocumented color #bbb is outside DESIGN.md colors",
+    "ignoreValue": "#bbb",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1628,
+    "snippet": "Undocumented color #ccc is outside DESIGN.md colors",
+    "ignoreValue": "#ccc",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1628,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1630,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1630,
+    "snippet": "Undocumented color #666 is outside DESIGN.md colors",
+    "ignoreValue": "#666",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1635,
+    "snippet": "Undocumented color #2a3a4a is outside DESIGN.md colors",
+    "ignoreValue": "#2a3a4a",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1635,
+    "snippet": "Undocumented color #dde8f7 is outside DESIGN.md colors",
+    "ignoreValue": "#dde8f7",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1649,
+    "snippet": "Undocumented color #e0e0e0 is outside DESIGN.md colors",
+    "ignoreValue": "#e0e0e0",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1654,
+    "snippet": "Undocumented color #e0e0e0 is outside DESIGN.md colors",
+    "ignoreValue": "#e0e0e0",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1657,
+    "snippet": "Undocumented color #555 is outside DESIGN.md colors",
+    "ignoreValue": "#555",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1666,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1666,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1697,
+    "snippet": "Undocumented color #666 is outside DESIGN.md colors",
+    "ignoreValue": "#666",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1701,
+    "snippet": "Undocumented color #ddd is outside DESIGN.md colors",
+    "ignoreValue": "#ddd",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1703,
+    "snippet": "Undocumented color rgba(0,0,0,.2) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,.2)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1709,
+    "snippet": "Undocumented color #d44 is outside DESIGN.md colors",
+    "ignoreValue": "#d44",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1714,
+    "snippet": "Undocumented color #d44 is outside DESIGN.md colors",
+    "ignoreValue": "#d44",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1720,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1722,
+    "snippet": "Undocumented color rgba(200,50,50,.12) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.12)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1722,
+    "snippet": "Undocumented color rgba(200,50,50,.3) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.3)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1723,
+    "snippet": "Undocumented color #333 is outside DESIGN.md colors",
+    "ignoreValue": "#333",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1727,
+    "snippet": "Undocumented color rgba(200,50,50,.06) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.06)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1727,
+    "snippet": "Undocumented color rgba(200,50,50,.18) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(200,50,50,.18)",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1756,
+    "snippet": "Undocumented color #444 is outside DESIGN.md colors",
+    "ignoreValue": "#444",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1774,
+    "snippet": "Undocumented color #444 is outside DESIGN.md colors",
+    "ignoreValue": "#444",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\MobileApp.jsx",
+    "line": 1780,
+    "snippet": "Undocumented color #d44 is outside DESIGN.md colors",
+    "ignoreValue": "#d44",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\page\\CalendarView.jsx",
+    "line": 527,
+    "snippet": "fontSize: clamp(22px,1.8vw,28px) has fluid endpoints 22px and 28px off the DESIGN.md type ramp",
+    "ignoreValue": "22px",
+    "importedBy": [
+      "App.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\page\\FriendSystem.jsx",
+    "line": 233,
+    "snippet": "Undocumented color rgba(0,0,0,0.45) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,0.45)",
+    "importedBy": [
+      "App.jsx",
+      "MobileApp.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-color",
+    "name": "Color outside DESIGN.md",
+    "description": "A literal color is outside the DESIGN.md palette and sidecar tonal ramps. This may be legitimate, but it should be an intentional design-system addition rather than drift.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App\\page\\ProfileModal.jsx",
+    "line": 104,
+    "snippet": "Undocumented color rgba(0,0,0,0.45) is outside DESIGN.md colors",
+    "ignoreValue": "rgba(0,0,0,0.45)",
+    "importedBy": [
+      "App.jsx",
+      "MobileApp.jsx"
+    ]
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App.css",
+    "line": 2,
+    "snippet": "font-size: 16px is off the DESIGN.md type ramp",
+    "ignoreValue": "16px"
+  },
+  {
+    "antipattern": "design-system-radius",
+    "name": "Radius outside DESIGN.md",
+    "description": "A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App.css",
+    "line": 4,
+    "snippet": "border-radius: 5px is outside the DESIGN.md rounded scale",
+    "ignoreValue": "5px"
+  },
+  {
+    "antipattern": "design-system-font-size",
+    "name": "Font size outside DESIGN.md",
+    "description": "A literal font-size is off the type ramp documented in DESIGN.md typography. Use a documented size step or update the design system if the new step is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App.css",
+    "line": 120,
+    "snippet": "font-size: 16px is off the DESIGN.md type ramp",
+    "ignoreValue": "16px"
+  },
+  {
+    "antipattern": "design-system-radius",
+    "name": "Radius outside DESIGN.md",
+    "description": "A border-radius value is outside the DESIGN.md rounded scale. Use a documented radius token or update the design system if the new shape is intentional.",
+    "severity": "advisory",
+    "category": "quality",
+    "file": "D:\\Work\\Project\\Checklist-app\\src\\App.css",
+    "line": 121,
+    "snippet": "border-radius: 6px is outside the DESIGN.md rounded scale",
+    "ignoreValue": "6px"
+  }
+]

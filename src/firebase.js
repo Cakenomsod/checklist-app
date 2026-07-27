@@ -6,7 +6,6 @@ const firebaseConfig = {
   apiKey: "AIzaSyCSvM_A0DdJ8TRfwFWQys9eIkLoTGquO7w",
   authDomain: "todolistpkbell.firebaseapp.com",
   projectId: "todolistpkbell",
-  storageBucket: "todolistpkbell.firebasestorage.app",
   messagingSenderId: "958370549212",
   appId: "1:958370549212:web:fd3e6836084049b8d15319"
 };

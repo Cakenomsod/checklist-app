@@ -12,7 +12,7 @@ export async function saveUserProfile(user) {
     uid: user.uid,
     name: user.displayName,
     email: user.email,
-    avatar: user.photoURL || '',
+    avatar: user.photoURL || "",
     createdAt: serverTimestamp(),
   }, { merge: true });
 }

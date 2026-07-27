@@ -122,7 +122,12 @@ const ProgressBar = ({ tasks, dark = false }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
       <div style={{ flex: 1, height: 4, borderRadius: 99, background: dark ? '#2a2a2a' : 'rgba(0,0,0,.1)', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: dark ? 'rgba(255,255,255,.85)' : '#111', transition: 'width .4s ease' }} />
+        <div style={{
+          height: '100%', width: '100%', borderRadius: 99,
+          background: dark ? 'rgba(255,255,255,.85)' : '#111',
+          transform: `scaleX(${pct / 100})`, transformOrigin: 'left center',
+          transition: 'transform .4s cubic-bezier(0.25, 1, 0.5, 1)',
+        }} />
       </div>
       <span style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,.38)' : 'rgba(0,0,0,.4)', fontFamily: "'DM Sans',sans-serif", fontWeight: 500, flexShrink: 0 }}>
         {done}/{total}
@@ -168,7 +173,7 @@ const Drawer = ({ open, onClose, children, title, maxHeight = '85vh', dark = fal
           position: 'absolute', bottom: 0, left: 0, right: 0,
           background: drawerBg, borderRadius: '20px 20px 0 0',
           maxHeight, overflow: 'hidden', display: 'flex', flexDirection: 'column',
-          animation: 'slideUp .28s cubic-bezier(.34,1.2,.64,1)',
+          animation: 'slideUp .32s cubic-bezier(0.16, 1, 0.3, 1)',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
@@ -179,7 +184,7 @@ const Drawer = ({ open, onClose, children, title, maxHeight = '85vh', dark = fal
         {title && (
           <div style={{ padding: '4px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontFamily: "'Lora',serif", fontSize: 18, fontWeight: 600, color: drawerTxt, fontStyle: 'italic' }}>{title}</span>
-            <button onClick={onClose} style={{ background: dark ? '#2a2a2a' : '#f2f2f2', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontSize: 15, color: drawerMuted }}>✕</button>
+            <button onClick={onClose} style={{ background: dark ? '#2a2a2a' : '#f2f2f2', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', fontSize: 15, color: drawerMuted, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>✕</button>
           </div>
         )}
         <div style={{ overflow: 'auto', flex: 1 }}>
@@ -212,25 +217,32 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
     <div style={{
       background: bg, borderRadius: 14, marginBottom: 8,
       border: `1px solid ${bdr}`,
-      borderLeft: `3px solid ${P_COLOR[task.priority] || P_COLOR.MED}`,
+      boxShadow: `inset 0 2px 0 ${P_COLOR[task.priority] || P_COLOR.MED}`,
       overflow: 'hidden',
       opacity: task.completed ? 0.72 : 1,
       transition: 'opacity .2s',
     }}>
       {/* Main row */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px' }}>
-        {/* Checkbox */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 12px 12px 8px' }}>
+        {/* Checkbox — 44px hit target */}
         <button
           onClick={() => onToggle(task.id)}
+          aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
           style={{
+            width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+            border: 'none', background: 'transparent',
+            cursor: 'pointer', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', padding: 0, marginTop: -4,
+          }}
+        >
+          <span style={{
             width: 24, height: 24, borderRadius: 7, flexShrink: 0,
             border: `2px solid ${task.completed ? (dark ? '#ccc' : '#333') : '#d0d0d0'}`,
             background: task.completed ? (dark ? '#ccc' : '#111') : 'transparent',
-            cursor: 'pointer', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', padding: 0, marginTop: 1,
-          }}
-        >
-          {task.completed && <span style={{ fontSize: 12, color: dark ? '#111' : '#fff', fontWeight: 800 }}>&#10003;</span>}
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {task.completed && <span style={{ fontSize: 12, color: dark ? '#111' : '#fff', fontWeight: 800 }}>&#10003;</span>}
+          </span>
         </button>
 
         {/* Content */}
@@ -277,10 +289,12 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
           </div>
         </div>
 
-        {/* Expand toggle */}
-        <button onClick={() => setExpanded(v => !v)} style={{
+        {/* Expand toggle — 44px hit target */}
+        <button onClick={() => setExpanded(v => !v)} aria-label={expanded ? 'Collapse actions' : 'More actions'} style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          color: muted, fontSize: 18, lineHeight: 1, padding: '2px 4px', flexShrink: 0,
+          color: muted, fontSize: 18, lineHeight: 1,
+          width: 44, height: 44, flexShrink: 0, marginTop: -4,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>{expanded ? '▴' : '•••'}</button>
       </div>
 
@@ -290,7 +304,7 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
           padding: '8px 14px 12px',
           borderTop: `1px solid ${bdr}`,
           display: 'flex', gap: 7, flexWrap: 'wrap',
-          animation: 'fadeUp .15s ease-out',
+          animation: 'fadeUp .18s cubic-bezier(0.25, 1, 0.5, 1)',
         }}>
           {/* Reactions */}
           <div style={{ display: 'flex', gap: 5, flex: 1, flexWrap: 'wrap' }}>
@@ -301,7 +315,7 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
                 <button key={em} onClick={() => onReact(task.id, em)} style={{
                   background: active ? (dark ? '#2a2a2a' : '#f0f0f0') : 'transparent',
                   border: `1.5px solid ${active ? (dark ? '#444' : '#ddd') : bdr}`,
-                  borderRadius: 99, padding: '5px 10px',
+                  borderRadius: 99, padding: '8px 12px', minHeight: 40,
                   cursor: 'pointer', fontSize: 14,
                   display: 'flex', gap: 4, alignItems: 'center',
                 }}>{em}{us.length > 0 && <span style={{ fontSize: 11, color: muted }}>{us.length}</span>}</button>
@@ -312,12 +326,12 @@ const MobileTaskItem = ({ task, currentUser, dark = false, friends = [], onToggl
           <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
             <button onClick={() => onOpenDetail(task, 'detail')} style={{
               background: dark ? '#2a2a2a' : '#f5f5f5', border: 'none', borderRadius: 9,
-              padding: '7px 13px', cursor: 'pointer', fontSize: 13,
+              padding: '10px 14px', minHeight: 40, cursor: 'pointer', fontSize: 13,
               color: txt, fontFamily: "'DM Sans',sans-serif",
             }}>Edit</button>
             <button onClick={() => onDelete(task.id)} style={{
               background: 'rgba(200,50,50,.1)', color: '#c0392b', border: 'none',
-              borderRadius: 9, padding: '7px 13px', cursor: 'pointer', fontSize: 13,
+              borderRadius: 9, padding: '10px 14px', minHeight: 40, cursor: 'pointer', fontSize: 13,
               fontFamily: "'DM Sans',sans-serif",
             }}>Delete</button>
           </div>
@@ -354,7 +368,7 @@ const ListPanel = ({ open, onClose, lists, selId, onSelect, onNewList, dark, cur
         zIndex: 810,
         display: 'flex', flexDirection: 'column',
         transform: open ? 'translateX(0)' : 'translateX(-100%)',
-        transition: 'transform .3s cubic-bezier(.4,0,.2,1)',
+        transition: 'transform .3s cubic-bezier(0.16, 1, 0.3, 1)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}>
         {/* Logo */}
@@ -771,7 +785,7 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
           {['subtasks', 'comments', 'detail'].map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              padding: '10px 14px', fontFamily: "'DM Sans',sans-serif", fontSize: 13.5,
+              padding: '12px 14px', minHeight: 44, fontFamily: "'DM Sans',sans-serif", fontSize: 13.5,
               fontWeight: tab === t ? 600 : 400, color: tab === t ? dtxt : dmuted,
               borderBottom: tab === t ? `2px solid ${dtxt}` : '2px solid transparent',
             }}>
@@ -796,22 +810,31 @@ const TaskDetailDrawer = ({ task, open, onClose, currentUser, onUpdate, onSave, 
                   padding: '11px 14px', background: dark ? '#1e1e1e' : '#f8f8f8',
                   borderRadius: 11, border: `1px solid ${dbdr}`,
                 }}>
-                  <button onClick={() => toggleSubtask(st.id)} style={{
-                    width: 22, height: 22, borderRadius: 6, flexShrink: 0,
-                    border: `2px solid ${st.completed ? (dark ? '#ccc' : '#333') : (dark ? '#3a3a3a' : '#d0d0d0')}`,
-                    background: st.completed ? (dark ? '#ccc' : '#111') : 'transparent',
+                  <button onClick={() => toggleSubtask(st.id)} aria-label={st.completed ? 'Mark step incomplete' : 'Mark step complete'} style={{
+                    width: 44, height: 44, borderRadius: 8, flexShrink: 0,
+                    border: 'none', background: 'transparent',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0,
+                    margin: '-11px -8px -11px -10px',
                   }}>
-                    {st.completed && <span style={{ fontSize: 11, color: dark ? '#111' : '#fff', fontWeight: 800 }}>✓</span>}
+                    <span style={{
+                      width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                      border: `2px solid ${st.completed ? (dark ? '#ccc' : '#333') : (dark ? '#3a3a3a' : '#d0d0d0')}`,
+                      background: st.completed ? (dark ? '#ccc' : '#111') : 'transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {st.completed && <span style={{ fontSize: 11, color: dark ? '#111' : '#fff', fontWeight: 800 }}>✓</span>}
+                    </span>
                   </button>
                   <span style={{
                     flex: 1, fontSize: 15, color: st.completed ? dmuted : dtxt,
                     textDecoration: st.completed ? 'line-through' : 'none',
                     fontFamily: "'DM Sans',sans-serif",
                   }}>{st.text}</span>
-                  <button onClick={() => deleteSubtask(st.id)} style={{
+                  <button onClick={() => deleteSubtask(st.id)} aria-label="Delete step" style={{
                     background: 'none', border: 'none', cursor: 'pointer',
-                    color: dark ? '#444' : '#ccc', fontSize: 20, lineHeight: 1, padding: '0 3px',
+                    color: dark ? '#444' : '#ccc', fontSize: 20, lineHeight: 1,
+                    width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '-11px -10px -11px 0', flexShrink: 0,
                   }}>×</button>
                 </div>
               ))}
@@ -1376,8 +1399,9 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
           {/* Hamburger */}
           <button
             onClick={() => setShowPanel(v => !v)}
+            aria-label="Open lists"
             style={{
-              width: 42, height: 42, borderRadius: 11,
+              width: 44, height: 44, borderRadius: 11,
               background: 'rgba(0,0,0,.07)', border: 'none',
               cursor: 'pointer', fontSize: 18, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1404,8 +1428,8 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
           {/* Right actions */}
           <div style={{ display: 'flex', gap: 7, flexShrink: 0 }}>
             {tab === 'lists' && sel && (
-              <button onClick={() => setEditingList(sel)} style={{
-                width: 42, height: 42, borderRadius: 11,
+              <button onClick={() => setEditingList(sel)} aria-label="Edit list" style={{
+                width: 44, height: 44, borderRadius: 11,
                 background: 'rgba(0,0,0,.07)', border: 'none',
                 cursor: 'pointer', fontSize: 17,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1413,8 +1437,9 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
             )}
             <button
               onClick={() => setShowProfile(true)}
+              aria-label="Profile"
               style={{
-                width: 42, height: 42, borderRadius: '50%',
+                width: 44, height: 44, borderRadius: '50%',
                 background: 'rgba(0,0,0,.07)', border: 'none',
                 cursor: 'pointer', overflow: 'hidden', flexShrink: 0,
               }}
@@ -1468,7 +1493,7 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
                     <button onClick={() => setHideCompleted(v => !v)} style={{
                       background: hideCompleted ? (dark?'#2a2a2a':'#f0f0f0') : 'transparent',
                       border: `1px solid ${dark?'#2c2c2c':'#e0e0e0'}`, borderRadius: 99,
-                      padding: '4px 10px', cursor: 'pointer', fontSize: 11.5,
+                      padding: '8px 12px', minHeight: 36, cursor: 'pointer', fontSize: 12,
                       color: dark?'#aaa':'#888', fontFamily: "'DM Sans',sans-serif",
                       fontWeight: hideCompleted ? 600 : 400, flexShrink: 0,
                     }}>{hideCompleted ? '👁 All' : '✓ Hide done'}</button>
@@ -1558,19 +1583,19 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
         {/* ── ADD TASK BAR (fixed above bottom nav, only on lists tab) ── */}
         {tab === 'lists' && sel && (
           <div style={{
-            position: 'fixed', bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+            position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom, 0px))',
             left: 0, right: 0, zIndex: 500,
             background: dark ? 'rgba(20,20,20,.97)' : 'rgba(245,245,244,.97)',
             backdropFilter: 'blur(14px)',
             borderTop: `1px solid ${dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}`,
           }}>
             {expandAdd && (
-              <div style={{ padding: '10px 16px 0', animation: 'fadeUp .15s ease-out' }}>
+              <div style={{ padding: '10px 16px 0', animation: 'fadeUp .18s cubic-bezier(0.25, 1, 0.5, 1)' }}>
                 {/* Priority row */}
                 <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                   {PRIORITIES.map(p => (
                     <button key={p} onClick={() => setNewPrio(p)} style={{
-                      padding: '6px 13px', borderRadius: 99, fontSize: 12, cursor: 'pointer', fontWeight: 600,
+                      padding: '10px 14px', minHeight: 40, borderRadius: 99, fontSize: 12, cursor: 'pointer', fontWeight: 600,
                       border: `1.5px solid ${newPrio === p ? P_COLOR[p] : (dark?'#2c2c2c':'#ddd')}`,
                       background: newPrio === p ? P_BG[p] : 'transparent',
                       color: newPrio === p ? P_COLOR[p] : (dark?'#555':'#bbb'),
@@ -1599,7 +1624,7 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
                               prev.includes(u.id) ? prev.filter(id => id !== u.id) : [...prev, u.id]
                             )} style={{
                               display: 'flex', alignItems: 'center', gap: 6,
-                              padding: '6px 11px 6px 6px', borderRadius: 99, cursor: 'pointer',
+                              padding: '8px 12px 8px 8px', minHeight: 40, borderRadius: 99, cursor: 'pointer',
                               border: `1.5px solid ${selected ? (dark ? '#ccc' : '#111') : (dark ? '#2c2c2c' : '#ddd')}`,
                               background: selected ? (dark ? '#ccc' : '#111') : 'transparent',
                               color: selected ? (dark ? '#111' : '#fff') : (dark ? '#555' : '#666'),
@@ -1637,7 +1662,7 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
                 </div>
               </div>
             )}
-            <div style={{ display: 'flex', gap: 9, alignItems: 'center', padding: '10px 16px' }}>
+            <div style={{ display: 'flex', gap: 9, alignItems: 'center', padding: '10px 16px', minHeight: 52 }}>
               <div style={{ width: 22, height: 22, borderRadius: 6, border: `1.5px solid ${dark?'#333':'#ddd'}`, flexShrink: 0 }} />
               <input
                 value={newText}
@@ -1648,12 +1673,13 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
                 style={{
                   flex: 1, background: 'none', border: 'none', outline: 'none',
                   fontFamily: "'DM Sans',sans-serif", fontSize: 16, color: dark?'#efefef':'#111',
+                  minHeight: 44,
                 }}
               />
               {newText && (
                 <button onClick={addTask} style={{
                   background: '#111', color: '#fff', border: 'none', borderRadius: 9,
-                  padding: '8px 17px', cursor: 'pointer', fontSize: 14,
+                  padding: '10px 17px', minHeight: 44, cursor: 'pointer', fontSize: 14,
                   fontFamily: "'DM Sans',sans-serif", fontWeight: 600, flexShrink: 0,
                 }}>Add</button>
               )}
@@ -1670,11 +1696,11 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
                 <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, fontWeight: 500, color: dark ? '#efefef' : '#111' }}>{dark ? '🌙 Dark Mode' : '☀️ Light Mode'}</div>
                 <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: dark ? '#666' : '#aaa', marginTop: 2 }}>Switch app theme</div>
               </div>
-              <button onClick={() => setDark(v => !v)} style={{
-                width: 48, height: 28, borderRadius: 14, border: 'none', padding: 0,
+              <button onClick={() => setDark(v => !v)} aria-label="Toggle theme" style={{
+                width: 52, height: 32, borderRadius: 16, border: 'none', padding: 0,
                 background: dark ? '#fff' : '#ddd', position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0,
               }}>
-                <div style={{ position: 'absolute', top: 3, left: dark ? 23 : 3, width: 22, height: 22, borderRadius: '50%', background: dark ? '#111' : '#fff', transition: 'left .2s', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
+                <div style={{ position: 'absolute', top: 4, left: dark ? 24 : 4, width: 24, height: 24, borderRadius: '50%', background: dark ? '#111' : '#fff', transition: 'transform .2s cubic-bezier(0.25, 1, 0.5, 1), left .2s cubic-bezier(0.25, 1, 0.5, 1)', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
               </button>
             </div>
             {/* Friends */}
@@ -1725,8 +1751,8 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
               onClick={() => setTab(item.id)}
               style={{
                 flex: 1, background: 'none', border: 'none', cursor: 'pointer',
-                padding: '11px 0 13px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+                padding: '10px 0 12px', minHeight: 56,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3,
                 color: tab === item.id ? '#fff' : '#444',
                 transition: 'color .15s',
               }}
@@ -1740,10 +1766,11 @@ export default function MobileApp({ firebaseUser, onProfileUpdate }) {
           {/* Settings — has notification dot if pending invites/requests */}
           <button
             onClick={() => setShowSettings(true)}
+            aria-label="More settings"
             style={{
               flex: 1, background: 'none', border: 'none', cursor: 'pointer',
-              padding: '11px 0 13px',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+              padding: '10px 0 12px', minHeight: 56,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3,
               color: '#444', position: 'relative',
             }}
           >

@@ -222,6 +222,13 @@ const GCSS = `
   input,select,textarea{font-family:'DM Sans',sans-serif;}
   button{transition:opacity .12s,background .15s,border-color .15s,box-shadow .15s;}
   button:active{opacity:.8;}
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #888 !important;
+    outline-offset: 2px;
+  }
   input[type=date]::-webkit-calendar-picker-indicator,
   input[type=time]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer;}
 
@@ -289,7 +296,7 @@ const ProgressBar = ({tasks,dark}) => {
   return (
     <div style={{display:'flex',alignItems:'center',gap:10}}>
       <div style={{flex:1,maxWidth:'clamp(120px,10vw,180px)',height:'clamp(3px,.25vw,5px)',borderRadius:99,background:dark?'#2a2a2a':'rgba(0,0,0,.1)',overflow:'hidden'}}>
-        <div style={{height:'100%',width:`${pct}%`,borderRadius:99,background:dark?'rgba(255,255,255,.85)':'#111',transition:'width .4s ease'}}/>
+        <div style={{height:'100%',width:'100%',borderRadius:99,background:dark?'rgba(255,255,255,.85)':'#111',transform:`scaleX(${pct/100})`,transformOrigin:'left center',transition:'transform .4s ease',willChange:'transform'}}/>
       </div>
       <span style={{color:dark?'rgba(255,255,255,.38)':'rgba(0,0,0,.35)',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(10.5px,.75vw,13px)',fontWeight:500,flexShrink:0}}>{done}/{total}</span>
     </div>
@@ -301,8 +308,8 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
   const [hov,setHov]=useState(false);
   const [showRx,setShowRx]=useState(false);
   const [expanded,setExpanded]=useState(false);
-  const surface=dark?'#1e1e1e':'#fff', bdr=dark?'#2c2c2c':'#f0f0f0';
-  const txt=dark?'#efefef':'#111', muted=dark?'#555':'#bbb';
+  const surface=dark?'#1e1e1e':'#ffffff', bdr=dark?'#2c2c2c':'#e8e8e8';
+  const txt=dark?'#efefef':'#0a0a0a', muted=dark?'#aaaaaa':'#888888';
   const di=fmtDate(task.dueDate);
   const subtasks=task.subtasks||[];
 
@@ -333,13 +340,14 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
       onClick={()=>onOpenDetail(task,'subtasks')}
       style={{
         background:surface,
-        border:`1px solid ${hov?(dark?'#3a3a3a':'#e0e0e0'):bdr}`,
+        border:`1px solid ${hov?(dark?'#3a3a3a':'#d0d0d0'):bdr}`,
         borderRadius:10,
         padding:'clamp(9px,.85vw,13px) clamp(11px,1vw,16px)',
         marginBottom:'clamp(4px,.35vw,7px)',
-        boxShadow:hov?`0 1px 12px rgba(0,0,0,${dark?.18:.05})`:'0 1px 3px rgba(0,0,0,.03)',
+        boxShadow:hov?`0 2px 14px rgba(0,0,0,${dark?.16:.06})`:'0 1px 2px rgba(0,0,0,.03)',
         opacity:task.completed?.65:1,
-        transition:'border-color .12s,box-shadow .12s,opacity .2s',
+        transition:'border-color .15s ease,box-shadow .15s ease,opacity .2s ease,transform .12s ease',
+        transform:hov?'translateY(-1px)':'none',
         cursor:'pointer',
       }}>
       {/* Main row */}
@@ -347,10 +355,11 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
         {/* Checkbox */}
         <button onClick={e=>{e.stopPropagation();onToggle(task.id);}} style={{
           width:'clamp(16px,1.25vw,21px)',height:'clamp(16px,1.25vw,21px)',
-          borderRadius:5,flexShrink:0,marginTop:2,cursor:'pointer',
-          border:`1.5px solid ${task.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,
+          borderRadius:8,flexShrink:0,marginTop:2,cursor:'pointer',padding:0,
+          border:`1.5px solid ${task.completed?(dark?'#ccc':'#111'):(dark?'#3a3a3a':'#d0d0d0')}`,
           background:task.completed?(dark?'#ccc':'#111'):'transparent',
-          display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s',padding:0,
+          display:'flex',alignItems:'center',justifyContent:'center',
+          transition:'border-color .15s ease,background .15s ease,transform .12s ease',
         }}>{task.completed&&<span style={{fontSize:'clamp(8px,.6vw,10px)',color:dark?'#111':'#fff',fontWeight:800,lineHeight:1}}>✓</span>}</button>
 
         <div style={{flex:1,minWidth:0}}>
@@ -387,7 +396,7 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
             {totalSubs>0&&(
               <button onClick={e=>{e.stopPropagation();setExpanded(v=>!v);}} style={{display:'flex',alignItems:'center',gap:5,background:'none',border:'none',cursor:'pointer',padding:'1px 4px',marginLeft:'auto'}}>
                 <div style={{width:48,height:3,borderRadius:99,background:dark?'#2a2a2a':'#e8e8e8',overflow:'hidden'}}>
-                  <div style={{height:'100%',width:`${pct}%`,borderRadius:99,background:doneSubs===totalSubs?'#2f8a55':'#c47a0a',transition:'width .3s'}}/>
+                  <div style={{height:'100%',width:'100%',borderRadius:99,background:doneSubs===totalSubs?'#2f8a55':'#c47a0a',transform:`scaleX(${pct/100})`,transformOrigin:'left center',transition:'transform .3s ease'}}/>
                 </div>
                 <span style={{fontSize:'clamp(9px,.65vw,11px)',color:muted,fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap'}}>{doneSubs}/{totalSubs}</span>
                 <span style={{fontSize:10,color:muted,lineHeight:1}}>{expanded?'▲':'▼'}</span>
@@ -399,11 +408,11 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
         {/* Hover actions */}
         <div onClick={e=>e.stopPropagation()} style={{display:'flex',gap:3,opacity:hov?1:0,transition:'opacity .12s',flexShrink:0,alignItems:'center'}}>
           <div style={{position:'relative'}}>
-            <button onClick={e=>{e.stopPropagation();setShowRx(!showRx);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,13px)',color:muted,lineHeight:1}}>+😊</button>
-            {showRx&&(<div style={{position:'absolute',right:0,top:'calc(100% + 4px)',background:dark?'#1e1e1e':'#fff',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:10,padding:'6px 8px',display:'flex',gap:4,zIndex:200,boxShadow:`0 8px 24px rgba(0,0,0,${dark?.28:.1})`}}>{REACTIONS_LIST.map(em=>(<button key={em} onClick={e=>{e.stopPropagation();onReact(task.id,em);setShowRx(false);}} style={{background:'none',border:'none',cursor:'pointer',fontSize:'clamp(15px,1.2vw,19px)',borderRadius:6,padding:'2px 3px'}}>{em}</button>))}</div>)}
+            <button onClick={e=>{e.stopPropagation();setShowRx(!showRx);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#e8e8e8'}`,borderRadius:8,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,13px)',color:muted,lineHeight:1}}>+😊</button>
+            {showRx&&(<div style={{position:'absolute',right:0,top:'calc(100% + 4px)',background:dark?'#1e1e1e':'#fff',border:`1px solid ${dark?'#2c2c2c':'#e8e8e8'}`,borderRadius:10,padding:'6px 8px',display:'flex',gap:4,zIndex:200,boxShadow:`0 8px 24px rgba(0,0,0,${dark?.28:.1})`}}>{REACTIONS_LIST.map(em=>(<button key={em} onClick={e=>{e.stopPropagation();onReact(task.id,em);setShowRx(false);}} style={{background:'none',border:'none',cursor:'pointer',fontSize:'clamp(15px,1.2vw,19px)',borderRadius:6,padding:'2px 3px'}}>{em}</button>))}</div>)}
           </div>
-          <button onClick={e=>{e.stopPropagation();onOpenDetail(task,'detail');}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
-          <button onClick={e=>{e.stopPropagation();onDelete(task.id);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#ebebeb'}`,borderRadius:6,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:'#d44',lineHeight:1}}>×</button>
+          <button onClick={e=>{e.stopPropagation();onOpenDetail(task,'detail');}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#e8e8e8'}`,borderRadius:8,padding:'clamp(2px,.25vw,4px) clamp(7px,.7vw,11px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:muted,letterSpacing:2}}>···</button>
+          <button onClick={e=>{e.stopPropagation();onDelete(task.id);}} style={{background:'none',border:`1px solid ${dark?'#2c2c2c':'#e8e8e8'}`,borderRadius:8,padding:'clamp(2px,.25vw,4px) clamp(5px,.5vw,8px)',cursor:'pointer',fontSize:'clamp(11px,.8vw,14px)',color:'#c0392b',lineHeight:1}}>×</button>
         </div>
       </div>
 
@@ -411,8 +420,8 @@ const TaskItem = ({task,currentUser,dark,friends=[],onToggle,onDelete,onReact,on
       {expanded&&totalSubs>0&&(
         <div onClick={e=>e.stopPropagation()} style={{marginTop:8,marginLeft:'clamp(28px,2.2vw,38px)',display:'flex',flexDirection:'column',gap:3,animation:'fadeUp .12s ease-out'}}>
           {subtasks.map(st=>(
-            <div key={st.id} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 8px',background:dark?'#252525':'#f5f5f5',borderRadius:7,border:`1px solid ${bdr}`}}>
-              <button onClick={()=>toggleSubtask(st.id)} style={{width:14,height:14,borderRadius:3,flexShrink:0,border:`1.5px solid ${st.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,background:st.completed?(dark?'#ccc':'#111'):'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',padding:0}}>
+            <div key={st.id} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 8px',background:dark?'#252525':'#f8f8f8',borderRadius:8,border:`1px solid ${bdr}`}}>
+              <button onClick={()=>toggleSubtask(st.id)} style={{width:14,height:14,borderRadius:4,flexShrink:0,border:`1.5px solid ${st.completed?(dark?'#ccc':'#111'):(dark?'#3a3a3a':'#d0d0d0')}`,background:st.completed?(dark?'#ccc':'#111'):'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',padding:0}}>
                 {st.completed&&<span style={{fontSize:7,color:dark?'#111':'#fff',fontWeight:800}}>✓</span>}
               </button>
               <span style={{flex:1,fontSize:'clamp(11.5px,.83vw,13px)',color:st.completed?muted:txt,textDecoration:st.completed?'line-through':'none',fontFamily:"'DM Sans',sans-serif"}}>{st.text}</span>
@@ -443,8 +452,8 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
   const [tab, setTab] = useState(initialTab);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [newSubtask, setNewSubtask] = useState('');
-  const surface = dark?'#1c1c1c':'#fff', txt = dark?'#efefef':'#111';
-  const muted = dark?'#555':'#bbb', bdr = dark?'#2c2c2c':'#f0f0f0';
+  const surface = dark?'#1e1e1e':'#ffffff', txt = dark?'#efefef':'#0a0a0a';
+  const muted = dark?'#aaaaaa':'#888888', bdr = dark?'#2c2c2c':'#e8e8e8';
 
   // allUsers = currentUser + friends (with real avatars)
   const allUsers = [
@@ -505,7 +514,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,backdropFilter:'blur(6px)'}} onClick={onClose}>
-      <div style={{background:surface,borderRadius:16,width:480,maxWidth:'95vw',maxHeight:'85vh',overflow:'hidden',display:'flex',flexDirection:'column',animation:'fadeUp .18s ease-out',boxShadow:`0 24px 60px rgba(0,0,0,${dark?.5:.15})`}} onClick={e=>e.stopPropagation()}>
+      <div style={{background:surface,borderRadius:16,width:480,maxWidth:'95vw',maxHeight:'85vh',overflow:'hidden',display:'flex',flexDirection:'column',animation:'fadeUp .18s ease-out',boxShadow:`0 24px 60px rgba(0,0,0,${dark?.5:.15})`,border:`1px solid ${bdr}`}} onClick={e=>e.stopPropagation()}>
 
         {/* Header */}
         <div style={{padding:'18px 20px 0',borderBottom:`1px solid ${bdr}`}}>
@@ -649,7 +658,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
               <div style={{display:'flex',flexDirection:'column',gap:5,marginBottom:12}}>
                 {(task.subtasks||[]).map(st=>(
                   <div key={st.id} style={{display:'flex',alignItems:'center',gap:9,padding:'8px 12px',background:dark?'#1e1e1e':'#f8f8f8',borderRadius:9,border:`1px solid ${bdr}`}}>
-                    <button onClick={()=>toggleSubtask(st.id)} style={{width:18,height:18,borderRadius:5,flexShrink:0,border:`1.5px solid ${st.completed?(dark?'#ccc':'#333'):(dark?'#3a3a3a':'#d0d0d0')}`,background:st.completed?(dark?'#ccc':'#111'):'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',padding:0}}>
+                    <button onClick={()=>toggleSubtask(st.id)} style={{width:18,height:18,borderRadius:8,flexShrink:0,border:`1.5px solid ${st.completed?(dark?'#ccc':'#111'):(dark?'#3a3a3a':'#d0d0d0')}`,background:st.completed?(dark?'#ccc':'#111'):'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',padding:0}}>
                       {st.completed&&<span style={{fontSize:9,color:dark?'#111':'#fff',fontWeight:800}}>✓</span>}
                     </button>
                     <span style={{flex:1,fontSize:13.5,color:st.completed?muted:txt,textDecoration:st.completed?'line-through':'none',fontFamily:"'DM Sans',sans-serif"}}>{st.text}</span>
@@ -683,7 +692,7 @@ const TaskDetailModal = ({task, currentUser, dark, onClose, onUpdate, onSave, on
                         <span style={{fontSize:12.5,fontWeight:600,color:txt,fontFamily:"'DM Sans',sans-serif"}}>{u.name}</span>
                         <span style={{fontSize:10.5,color:muted}}>{timeAgo(c.createdAt)}</span>
                       </div>
-                      <div style={{background:dark?'#242424':'#f5f5f5',borderRadius:'3px 10px 10px 10px',padding:'8px 11px'}}>
+                      <div style={{background:dark?'#242424':'#f8f8f8',borderRadius:'8px 12px 12px 12px',padding:'8px 11px'}}>
                         <p style={{fontSize:13,color:txt,fontFamily:"'DM Sans',sans-serif",margin:0,lineHeight:1.5}}>{c.text}</p>
                       </div>
                     </div>
@@ -1312,10 +1321,10 @@ export default function App() {
   }
 
   // Theme vars
-  const bg=dark?'#141414':'#f5f5f4', txt=dark?'#efefef':'#111';
+  const bg=dark?'#111111':'#fafafa', txt=dark?'#efefef':'#0a0a0a';
   const effectiveSidebarWidth = sidebarCollapsed ? 0 : sidebarWidth;
-  const muted=dark?'#555':'#bbb', bdr=dark?'#2c2c2c':'#ececec';
-  const surface=dark?'#1c1c1c':'#fff';
+  const muted=dark?'#aaaaaa':'#888888', bdr=dark?'#2c2c2c':'#e8e8e8';
+  const surface=dark?'#1e1e1e':'#ffffff';
   const personal=lists.filter(l=>!l.isGroup), group=lists.filter(l=>l.isGroup);
 
   return (
@@ -1391,13 +1400,15 @@ export default function App() {
           flexShrink:0,
           overflow:'hidden',
           position:'relative',
-          transition: isResizing.current ? 'none' : 'width .2s ease',
-          borderRight:'1px solid rgba(255,255,255,.04)',
+          opacity: sidebarCollapsed ? 0 : 1,
+          transition: isResizing.current ? 'none' : 'opacity .18s ease',
+          borderRight:'1px solid rgba(255,255,255,.06)',
+          pointerEvents: sidebarCollapsed ? 'none' : 'auto',
         }}>
           {/* Logo */}
           <div style={{padding:'clamp(14px,1.3vw,22px) clamp(14px,1.2vw,20px)',borderBottom:'1px solid rgba(255,255,255,.06)',display:'flex',alignItems:'center',gap:9}}>
-            <div style={{width:'clamp(26px,2vw,34px)',height:'clamp(26px,2vw,34px)',background:'#fff',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'clamp(12px,.9vw,16px)',fontWeight:800,color:'#111',flexShrink:0}}>✓</div>
-            <span style={{fontFamily:"'Lora',serif",fontSize:'clamp(15px,1.1vw,19px)',color:'#e8e8e8',letterSpacing:'-.02em',fontStyle:'italic'}}>checkmate</span>
+            <div style={{width:'clamp(26px,2vw,34px)',height:'clamp(26px,2vw,34px)',background:'#fff',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'clamp(12px,.9vw,16px)',fontWeight:800,color:'#0a0a0a',flexShrink:0,letterSpacing:'-.02em'}}>✓</div>
+            <span style={{fontFamily:"'Lora',serif",fontSize:'clamp(15px,1.1vw,19px)',color:'#efefef',letterSpacing:'-.02em',fontStyle:'italic',fontWeight:600}}>checkmate</span>
           </div>
 
           {/* User */}
@@ -1409,21 +1420,21 @@ export default function App() {
           >
             <Avatar userId={currentUser.id} photoURL={currentUser.avatar} size={Math.round(window.innerWidth >= 1920 ? 34 : 30)}/>
             <div style={{minWidth:0}}>
-              <div style={{fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:'clamp(12px,.88vw,15px)',color:'#e8e8e8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{currentUser.name}</div>
-              <div style={{fontSize:'clamp(9px,.65vw,11px)',color:'#3a3a3a',marginTop:1}}>logged in</div>
+              <div style={{fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:'clamp(12px,.88vw,15px)',color:'#efefef',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{currentUser.name}</div>
+              <div style={{fontSize:'clamp(9px,.65vw,11px)',color:'#888888',marginTop:1}}>logged in</div>
             </div>
           </div>
 
           {/* Nav */}
           <div style={{padding:'clamp(6px,.6vw,10px) clamp(6px,.6vw,10px)',overflowY:'auto',overflowX:'hidden',flex:1}}>
             {[{id:'activity',label:'Activity',icon:'⚡'},{id:'leaderboard',label:'Leaderboard',icon:'🏆'},{id:'calendar',label:'Calendar',icon:'📅'}].map(v=>(
-              <button key={v.id} onClick={()=>setView(v.id)} style={{width:'100%',textAlign:'left',background:view===v.id?'rgba(255,255,255,.08)':'none',border:'none',borderRadius:7,padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',cursor:'pointer',color:view===v.id?'#f0f0f0':'#484848',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:8,marginBottom:1}}>
+              <button key={v.id} onClick={()=>setView(v.id)} style={{width:'100%',textAlign:'left',background:view===v.id?'rgba(255,255,255,.1)':'none',border:'none',borderRadius:8,padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',cursor:'pointer',color:view===v.id?'#efefef':'#888888',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:8,marginBottom:1,fontWeight:view===v.id?600:400}}>
                 <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>{v.icon}</span>{v.label}
               </button>
             ))}
 
             <div style={{height:1,background:'rgba(255,255,255,.06)',margin:'clamp(8px,.8vw,12px) 4px'}}/>
-            <div style={{fontSize:'clamp(8.5px,.65vw,11px)',fontWeight:700,color:'#2e2e2e',letterSpacing:'.12em',padding:'clamp(3px,.3vw,5px) clamp(9px,.85vw,13px) clamp(4px,.4vw,6px)',fontFamily:"'DM Sans',sans-serif"}}>PERSONAL</div>
+            <div style={{fontSize:'clamp(8.5px,.65vw,11px)',fontWeight:700,color:'#555555',letterSpacing:'.1em',padding:'clamp(3px,.3vw,5px) clamp(9px,.85vw,13px) clamp(4px,.4vw,6px)',fontFamily:"'DM Sans',sans-serif"}}>PERSONAL</div>
             <DragDropContext onDragEnd={(result)=>{
               if(!result.destination) return;
               const items=[...personal];
@@ -1441,10 +1452,10 @@ export default function App() {
                           {(provided, snapshot)=>(
                             <DraggableItem provided={provided} snapshot={snapshot}>
                               <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#363636',fontSize:11,padding:'0 3px',flexShrink:0}}>⠿</div>
-                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'rgba(255,255,255,.08)':'none',border:'none',borderRadius:7,padding:'clamp(5px,.55vw,8px) clamp(8px,.8vw,12px)',cursor:'pointer',color:selId===l.id&&view==='list'?'#f0f0f0':'#4a4a4a',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginBottom:1}}>
-                                <div style={{width:7,height:7,borderRadius:'50%',background:l.color,flexShrink:0}}/>
+                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'rgba(255,255,255,.1)':'none',border:'none',borderRadius:8,padding:'clamp(5px,.55vw,8px) clamp(8px,.8vw,12px)',cursor:'pointer',color:selId===l.id&&view==='list'?'#efefef':'#888888',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginBottom:1,fontWeight:selId===l.id&&view==='list'?600:400}}>
+                                <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0,boxShadow:selId===l.id&&view==='list'?`0 0 0 2px rgba(255,255,255,.2)`:'none'}}/>
                                 <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
-                                {l.isPrivate&&<span style={{fontSize:9,color:'#2e2e2e'}}>🔒</span>}
+                                {l.isPrivate&&<span style={{fontSize:9,color:'#555555'}}>🔒</span>}
                               </button>
                             </DraggableItem>
                           )}
@@ -1456,7 +1467,7 @@ export default function App() {
                 </Droppable>
               </DragDropContext>
 
-              <div style={{fontSize:'clamp(8.5px,.65vw,11px)',fontWeight:700,color:'#2e2e2e',letterSpacing:'.12em',padding:'clamp(8px,.8vw,12px) clamp(9px,.85vw,13px) clamp(4px,.4vw,6px)',fontFamily:"'DM Sans',sans-serif"}}>GROUP</div>
+              <div style={{fontSize:'clamp(8.5px,.65vw,11px)',fontWeight:700,color:'#555555',letterSpacing:'.1em',padding:'clamp(8px,.8vw,12px) clamp(9px,.85vw,13px) clamp(4px,.4vw,6px)',fontFamily:"'DM Sans',sans-serif"}}>GROUP</div>
               <DragDropContext onDragEnd={(result)=>{
                 if(!result.destination) return;
                 const items=[...group];
@@ -1474,8 +1485,8 @@ export default function App() {
                           {(provided, snapshot)=>(
                             <DraggableItem provided={provided} snapshot={snapshot}>
                               <div {...provided.dragHandleProps} style={{cursor:'grab',color:'#363636',fontSize:11,padding:'0 3px',flexShrink:0}}>⠿</div>
-                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'rgba(255,255,255,.08)':'none',border:'none',borderRadius:7,padding:'clamp(5px,.55vw,8px) clamp(8px,.8vw,12px)',cursor:'pointer',color:selId===l.id&&view==='list'?'#f0f0f0':'#4a4a4a',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginBottom:1}}>
-                                <div style={{width:7,height:7,borderRadius:'50%',background:l.color,flexShrink:0}}/>
+                              <button onClick={()=>{setSelId(l.id);setView('list');setShowAI(false);}} style={{flex:1,textAlign:'left',background:selId===l.id&&view==='list'?'rgba(255,255,255,.1)':'none',border:'none',borderRadius:8,padding:'clamp(5px,.55vw,8px) clamp(8px,.8vw,12px)',cursor:'pointer',color:selId===l.id&&view==='list'?'#efefef':'#888888',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginBottom:1,fontWeight:selId===l.id&&view==='list'?600:400}}>
+                                <div style={{width:8,height:8,borderRadius:'50%',background:l.color,flexShrink:0,boxShadow:selId===l.id&&view==='list'?`0 0 0 2px rgba(255,255,255,.2)`:'none'}}/>
                                 <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
                                 <div style={{display:'flex'}}>
                                   {(l.memberIds||l.members||[]).slice(0,3).map((uid,i)=>{
@@ -1500,24 +1511,24 @@ export default function App() {
 
             <button onClick={() => setShowFriends(true)} style={{
               width:'100%', textAlign:'left', background:'none',
-              border:'none', borderRadius:7, padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',
-              cursor:'pointer', color:'#4a4a4a', fontFamily:"'DM Sans',sans-serif",
+              border:'none', borderRadius:8, padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',
+              cursor:'pointer', color:'#888888', fontFamily:"'DM Sans',sans-serif",
               fontSize:'clamp(12px,.88vw,15px)', display:'flex', alignItems:'center', gap:7, marginBottom:1
             }}>
-              <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>👥</span> Friends {friendRequests.length > 0 && <span style={{background:'#d44',color:'#fff',borderRadius:'50%',width:15,height:15,fontSize:9.5,display:'flex',alignItems:'center',justifyContent:'center',marginLeft:'auto'}}>{friendRequests.length}</span>}
+              <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>👥</span> Friends {friendRequests.length > 0 && <span style={{background:'#c0392b',color:'#fff',borderRadius:'50%',width:15,height:15,fontSize:9.5,display:'flex',alignItems:'center',justifyContent:'center',marginLeft:'auto'}}>{friendRequests.length}</span>}
             </button>
 
             <button onClick={() => setShowInvites(true)} style={{
               width:'100%', textAlign:'left', background:'none',
-              border:'none', borderRadius:7, padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',
-              cursor:'pointer', color:'#4a4a4a', fontFamily:"'DM Sans',sans-serif",
+              border:'none', borderRadius:8, padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',
+              cursor:'pointer', color:'#888888', fontFamily:"'DM Sans',sans-serif",
               fontSize:'clamp(12px,.88vw,15px)', display:'flex', alignItems:'center', gap:7, marginBottom:1
             }}>
-              <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>📬</span> Invites {listInvites.length > 0 && <span style={{background:'#d44',color:'#fff',borderRadius:'50%',width:15,height:15,fontSize:9.5,display:'flex',alignItems:'center',justifyContent:'center',marginLeft:'auto'}}>{listInvites.length}</span>}
+              <span style={{fontSize:'clamp(11px,.82vw,14px)'}}>📬</span> Invites {listInvites.length > 0 && <span style={{background:'#c0392b',color:'#fff',borderRadius:'50%',width:15,height:15,fontSize:9.5,display:'flex',alignItems:'center',justifyContent:'center',marginLeft:'auto'}}>{listInvites.length}</span>}
             </button>
 
-            <button onClick={()=>setShowCreate(true)} style={{width:'100%',textAlign:'left',background:'rgba(255,255,255,.04)',border:'1px dashed rgba(255,255,255,.1)',borderRadius:7,padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',cursor:'pointer',color:'#4a4a4a',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginTop:6}}>
-              <span style={{color:'#888',fontSize:'clamp(13px,.95vw,17px)'}}>＋</span> New List
+            <button onClick={()=>setShowCreate(true)} style={{width:'100%',textAlign:'left',background:'rgba(255,255,255,.04)',border:'1px dashed rgba(255,255,255,.14)',borderRadius:8,padding:'clamp(6px,.6vw,9px) clamp(9px,.85vw,13px)',cursor:'pointer',color:'#aaaaaa',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(12px,.88vw,15px)',display:'flex',alignItems:'center',gap:7,marginTop:6}}>
+              <span style={{color:'#888888',fontSize:'clamp(13px,.95vw,17px)'}}>＋</span> New List
             </button>
 
           </div>
@@ -1566,11 +1577,12 @@ export default function App() {
               }}
               style={{
                 position:'absolute', right:0, top:0, bottom:0,
-                width:4, cursor:'col-resize',
+                width:5, cursor:'col-resize',
                 background:'transparent',
                 zIndex:10,
+                transition:'background .15s ease',
               }}
-              onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,.1)'}
+              onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,.14)'}
               onMouseLeave={e => e.currentTarget.style.background='transparent'}
             />
 
@@ -1581,10 +1593,11 @@ export default function App() {
                 onClick={() => setSidebarCollapsed(false)}
                 style={{
                   position:'absolute', left:0, top:'50%', transform:'translateY(-50%)',
-                  background:'#111', color:'#888', border:'none',
-                  borderRadius:'0 7px 7px 0', padding:'12px 5px',
+                  background:'#111111', color:'#aaaaaa', border:'1px solid rgba(255,255,255,.08)',
+                  borderRadius:'0 8px 8px 0', padding:'14px 6px',
                   cursor:'pointer', fontSize:12, zIndex:20,
-                  writingMode:'vertical-rl'
+                  writingMode:'vertical-rl',
+                  boxShadow:'2px 0 12px rgba(0,0,0,.12)',
                 }}
               >
                 ☰
@@ -1702,11 +1715,11 @@ export default function App() {
               </DragDropContext>
 
               {/* Add Task */}
-              <div style={{background:surface,border:`1px solid ${bdr}`,borderRadius:10,padding:'clamp(9px,1vw,13px) clamp(12px,1.2vw,17px)',marginTop:4}}>
+              <div style={{background:surface,border:`1px solid ${bdr}`,borderRadius:10,padding:'clamp(9px,1vw,13px) clamp(12px,1.2vw,17px)',marginTop:4,boxShadow:'0 1px 2px rgba(0,0,0,.03)'}}>
                 <div style={{display:'flex',gap:9,alignItems:'center'}}>
-                  <div style={{width:'clamp(16px,1.2vw,20px)',height:'clamp(16px,1.2vw,20px)',borderRadius:5,border:`1.5px solid ${dark?'#2c2c2c':'#d5d5d5'}`,flexShrink:0}}/>
+                  <div style={{width:'clamp(16px,1.2vw,20px)',height:'clamp(16px,1.2vw,20px)',borderRadius:8,border:`1.5px solid ${dark?'#2c2c2c':'#d0d0d0'}`,flexShrink:0}}/>
                   <input value={newText} onChange={e=>setNewText(e.target.value)} onFocus={()=>setExpandAdd(true)} onKeyDown={e=>{if(e.key==='Enter')addTask();if(e.key==='Escape'){setExpandAdd(false);setNewText('');}}} placeholder="Add a task…" style={{flex:1,background:'none',border:'none',outline:'none',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,1vw,16px)',color:txt}}/>
-                  {newText&&<button onClick={addTask} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(11px,1vw,16px)',cursor:'pointer',fontSize:'clamp(12px,.85vw,14px)',fontFamily:"'DM Sans',sans-serif",fontWeight:600,flexShrink:0}}>Add</button>}
+                  {newText&&<button onClick={addTask} style={{background:'#111111',color:'#fafafa',border:'none',borderRadius:8,padding:'clamp(4px,.45vw,7px) clamp(11px,1vw,16px)',cursor:'pointer',fontSize:'clamp(12px,.85vw,14px)',fontFamily:"'DM Sans',sans-serif",fontWeight:600,flexShrink:0}}>Add</button>}
                 </div>
                 {expandAdd&&(
                   <div style={{paddingLeft:'clamp(24px,1.8vw,30px)',marginTop:9,animation:'fadeUp .12s ease-out'}}>
@@ -1829,9 +1842,9 @@ export default function App() {
                   </div>
                 )}
                 <div style={{display:'flex',gap:9,alignItems:'center'}}>
-                  <div style={{width:'clamp(16px,1.2vw,20px)',height:'clamp(16px,1.2vw,20px)',borderRadius:5,border:`1.5px solid ${dark?'#2c2c2c':'#d5d5d5'}`,flexShrink:0}}/>
+                  <div style={{width:'clamp(16px,1.2vw,20px)',height:'clamp(16px,1.2vw,20px)',borderRadius:8,border:`1.5px solid ${dark?'#2c2c2c':'#d0d0d0'}`,flexShrink:0}}/>
                   <input value={newText} onChange={e=>setNewText(e.target.value)} onFocus={()=>setExpandAdd(true)} onKeyDown={e=>{if(e.key==='Enter')addTask();if(e.key==='Escape'){setExpandAdd(false);setNewText('');}}} placeholder="Add a task…" style={{flex:1,background:'none',border:'none',outline:'none',fontFamily:"'DM Sans',sans-serif",fontSize:'clamp(13px,1vw,16px)',color:txt}}/>
-                  {newText&&<button onClick={addTask} style={{background:'#111',color:'#fafafa',border:'none',borderRadius:7,padding:'clamp(4px,.45vw,7px) clamp(11px,1vw,16px)',cursor:'pointer',fontSize:'clamp(12px,.85vw,14px)',fontFamily:"'DM Sans',sans-serif",fontWeight:600,flexShrink:0}}>Add</button>}
+                  {newText&&<button onClick={addTask} style={{background:'#111111',color:'#fafafa',border:'none',borderRadius:8,padding:'clamp(4px,.45vw,7px) clamp(11px,1vw,16px)',cursor:'pointer',fontSize:'clamp(12px,.85vw,14px)',fontFamily:"'DM Sans',sans-serif",fontWeight:600,flexShrink:0}}>Add</button>}
                 </div>
               </div>
             </div>
